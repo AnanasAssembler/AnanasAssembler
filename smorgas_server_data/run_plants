@@ -1,0 +1,2 @@
+../SmorgasCommLayer -f refseq/refseq_plants.faa -server localhost > scl.out &
+../TangerineServer -t taxonomy.txt -col plant_colors.txt > ts.out &

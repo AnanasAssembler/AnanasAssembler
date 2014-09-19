@@ -1,0 +1,2 @@
+../SmorgasCommLayer -f TE/transposon_db.pep_noStop -server localhost > scl.out &
+../TangerineServer -t taxonomy.txt -col plant_colors.txt > ts.out &

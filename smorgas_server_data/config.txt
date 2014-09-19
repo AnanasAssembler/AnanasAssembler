@@ -1,0 +1,6 @@
+plants		refseq/refseq_plants.faa
+mammals		refseq/refseq_vertebrate_mammalian.faa
+vertebrates	refseq/refseq_vertebrate_other.faa
+invertebrates 	refseq/invertebrate.proteins.faa
+protozoa 	refseq/protozoa.protein.faa
+fungi 		refseq/fungi.proteins.fa

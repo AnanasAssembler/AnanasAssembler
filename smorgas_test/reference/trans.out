@@ -1,0 +1,27 @@
+Counting k-mers...
+Contigs: 0done, re-sizing arrays...
+done, assigning k-mers...
+Contigs: 0Query:    172 FPGPGATGGDKPEEENRPPTQTPTDSQIAQGS-TTRGGRGG-AHGRSQSMAVGRGG--AAGRGGSMHFSTEST-GGQGGD 246
+              FPGPGA+    P EE +P T T TD+ IAQGS  TRGGRGG  HGRSQSMAVGRGG    G  GSM F+T +       +
+Sbjct:      1 FPGPGASEAS-PAEEAKPAT-TATDTPIAQGSS-TRGGRGGG-HGRSQSMAVGRGGHGR-G-AGSMSFNTNNNT-NNNNN 73
+
+
+
+Query:    247 FPRRGSG------------HARTSSRNFEGNWRNQAQ 271
+                    G            HART SRNFEGNWRNQAQ
+Sbjct:     74 NEGGQQGTDFNRRGNGTTGHARTGSRNFEGNWRNQAQ 110
+
+
+
+Summary Sample09_Contig_000_0454208_000 frame:1- vs. gi|631241534|ref|XP_007915689.1|_putative_cell_wall_biogenesis_protein_phosphatase_protein_[Togninia_minima_UCRPA7] score: 2.13144e-271 q-coords: 172 271 t-coords: 1 110 0.587156 0.999543
+
+
+Query:    214 RRLAPKGTPEDLRKAMEKLKNEIQPPVGGGALGEILGVSAETLVDGKRLGIDHVRFAILKAAG 276
+              R L PKG+  DLR  M ++K EIQP  GG ALGE+L  S+E LVDG+ LGID +RFA+L+AAG
+Sbjct:      1 RPLDPKGSLADLRVRMNEIKLEIQPQTGGSALGELLACSSEALVDGRLLGIDSIRFAMLQAAG 63
+
+
+
+Summary Sample09_Contig_000_0454040_000 frame:2- vs. gi|628058643|ref|XP_007695643.1|_hypothetical_protein_COCSADRAFT_60165,_partial_[Bipolaris_sorokiniana_ND90Pr] score: 2.12319e-80 q-coords: 214 276 t-coords: 1 63 0.645161 0.937538
+
+

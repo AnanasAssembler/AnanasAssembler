@@ -1,0 +1,2 @@
+plants		refseq/refseq_plants.faa
+fungi 		refseq/fungi.proteins.fa
