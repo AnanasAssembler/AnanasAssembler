@@ -176,6 +176,8 @@ void RawReads::write(const string& rawReadsFile) const {
 void RawReads::read(const string& rawReadsFile) {
   m_reads.Read(rawReadsFile);
   // Set pair info
+  // given a read name ie.  read/1, look up the mate read/2 and set m_pairInfo[i] = mate index.
+
   m_pairInfo.resize(m_reads.isize());
   int cc = 0;
   for (int i=0; i<m_reads.isize(); i++) {
