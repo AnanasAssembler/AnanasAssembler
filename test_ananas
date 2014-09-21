@@ -1,0 +1,13 @@
+rm -r  ananas_test/test_rep
+rm -r  ananas_test/test_splic
+
+./Ananas -i ananas_test/reads_rep.fasta -dir fr -o ananas_test/test_rep
+
+./Ananas -i ananas_test/reads_splic.fasta -dir fr -o ananas_test/test_splic
+
+echo
+echo
+echo Comparing against baseline. If you see nothing, then everything is fine.
+echo
+diff ananas_test/test_rep/contigs_altsplic.layout ananas_test/baseline_reads_rep/contigs_altsplic.layout
+diff ananas_test/test_splic/contigs_altsplic.layout ananas_test/baseline_reads_splic/contigs_altsplic.layout
