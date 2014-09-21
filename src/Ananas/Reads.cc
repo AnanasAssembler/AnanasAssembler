@@ -174,6 +174,7 @@ void RawReads::write(const string& rawReadsFile) const {
 }
 
 void RawReads::read(const string& rawReadsFile) {
+<<<<<<< HEAD
     m_reads.Read(rawReadsFile);
     // Set pair info
     m_pairInfo.resize(m_reads.isize());
@@ -199,6 +200,28 @@ void RawReads::read(const string& rawReadsFile) {
         if (index < 0) continue;
         m_pairInfo[i] = index;
         cc++;
+=======
+  m_reads.Read(rawReadsFile);
+  // Set pair info
+  // given a read name ie.  read/1, look up the mate read/2 and set m_pairInfo[i] = mate index.
+
+  m_pairInfo.resize(m_reads.isize());
+  int cc = 0;
+  for (int i=0; i<m_reads.isize(); i++) {
+    char name[1024];
+    strcpy(name, m_reads.Name(i).c_str());
+    int n = strlen(name);
+    bool b = false;
+    if (name[n-2] != '/') continue;
+    if (name[n-1] == '1') {
+      name[n-1] = '2';
+      b = true;
+    } else {
+      if (name[n-1] == '2') {
+	name[n-1] = '1';
+	b = true;
+      }
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     }
 }
 

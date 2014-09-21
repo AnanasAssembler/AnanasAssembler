@@ -1173,16 +1173,19 @@ void vecDNAVector::ReadQ(const string & fileName) // Reads a fastq file
 // Half-way efficient implementation...?
 void vecDNAVector::Read(const string & fileName, bool bProteins, bool shortName, bool allUpper, bool bAppend)
 {
-  StringParser p;
-  p.SetLine(fileName, ",");
-  // p.ParseLine();
-  bool bLocalAppend = bAppend; 
-  for (int i=0; i<p.GetItemCount(); i++) {
-    if (bLocalAppend)
-      cout << "Appending " << p.AsString(i) << endl;
-    ReadOne(p.AsString(i), bProteins, shortName, allUpper, bLocalAppend);
-    bLocalAppend = true;
-  }
+
+    // allow for parsing multiple files, comma-delimited
+
+    StringParser p;
+    p.SetLine(fileName, ",");
+    // p.ParseLine();
+    bool bLocalAppend = bAppend; 
+    for (int i=0; i<p.GetItemCount(); i++) {
+        if (bLocalAppend)
+            cout << "Appending " << p.AsString(i) << endl;
+        ReadOne(p.AsString(i), bProteins, shortName, allUpper, bLocalAppend);
+        bLocalAppend = true;
+    }
 }
 
 void vecDNAVector::ReadOne(const string & fileName, bool bProteins, bool shortName, bool allUpper, bool bAppend)
@@ -1228,7 +1231,7 @@ void vecDNAVector::ReadOne(const string & fileName, bool bProteins, bool shortNa
 		  counter++;
 		  localcounter++;
 			if (pVec != NULL) {
-				pVec->SetToSubOf(tmpVec, 0, j);
+				pVec->SetToSubOf(tmpVec, 0, j); // set DNAvector sequence of previous entry to tmpVec
 				if (allUpper)
 					pVec->ToUpper();
 				j = 0;
@@ -1249,14 +1252,16 @@ void vecDNAVector::ReadOne(const string & fileName, bool bProteins, bool shortNa
 			if (k >= m_data.isize())
 				m_data.resize(k + chunk);
 
+            // set pVec to the current entry 
 			pVec = &(*this)[k];
-			pVec->setName(tmpName);
+			pVec->setName(tmpName); // set the accession.  Read gets set when next seq record is encountered above.
 			k++;
 			continue;
 		}
 		int n = strlen(p);
 
 		//cout << "Parsing: " << p << endl;
+        // extend the current sequence in tmpvec based on current seq line.
 		for (i=0; i<n; i++) {
 			if (j >= tmpVec.isize())
 				tmpVec.resize(j + bigChunk);
@@ -1265,7 +1270,8 @@ void vecDNAVector::ReadOne(const string & fileName, bool bProteins, bool shortNa
 		}
 
 	}
-
+    
+    // set the sequence for the last record parsed.
 	if (pVec != NULL) {
 		pVec->SetToSubOf(tmpVec, 0, j);
 		if (allUpper)

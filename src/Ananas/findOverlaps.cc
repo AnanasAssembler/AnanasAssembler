@@ -17,17 +17,28 @@ int main(int argc,char** argv)
     commandArg<int>    dCmmd("-b","Subread block step", 10);
     commandArg<int>    eCmmd("-S","Seed size for choosing candidates", 15);
     commandArg<double> fCmmd("-I","Minimum acceptable identity for overlapping sequences", 0.99);
+<<<<<<< HEAD
     commandArg<double> gCmmd("-c","Minimum Coverage of the read ends for an acceptable extensiont", 0.98);
+=======
+    commandArg<double> gCmmd("-c","Minimum Coverage of the read ends for an acceptable extension", 0.98);
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     commandArg<int>    hCmmd("-O","Minimum overlap of an acceptable extension", 40);
     commandArg<int>    iCmmd("-B","Bandwidth for local alignments", 3);
     commandArg<int>    jCmmd("-l","Minimum length of assembled scaffold", 400);
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
+<<<<<<< HEAD
 
     commandLineParser P(argc,argv);
     P.SetDescription("Overlap finder for assembly");
 
+=======
+    
+    commandLineParser P(argc,argv);
+    P.SetDescription("Overlap finder for assembly");
+    
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     P.registerArg(aCmmd);
     P.registerArg(a1Cmmd);
     P.registerArg(bCmmd);
@@ -44,9 +55,15 @@ int main(int argc,char** argv)
     P.registerArg(kCmmd);
     P.registerArg(lCmmd);
     P.registerArg(threadCmmd);
+<<<<<<< HEAD
 
     P.parse();
 
+=======
+    
+    P.parse();
+    
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     string inputFile       = P.GetStringValueFor(aCmmd);
     string pairFile        = P.GetStringValueFor(a1Cmmd);
     string overlapFile     = P.GetStringValueFor(bCmmd);
@@ -64,6 +81,7 @@ int main(int argc,char** argv)
     string applicationFile = P.GetStringValueFor(lCmmd);
     int    numOfCores      = P.GetIntValueFor(threadCmmd);
     int    numOfThreads    = P.GetIntValueFor(threadCmmd);
+<<<<<<< HEAD
 
     FILE* pFile = fopen(applicationFile.c_str(), "w");
     Output2FILE::Stream()     = pFile;
@@ -73,19 +91,38 @@ int main(int argc,char** argv)
     omp_set_num_threads(numOfThreads); //The sort functions still use MPI
 #endif
 
+=======
+    
+    FILE* pFile = fopen(applicationFile.c_str(), "w");
+    Output2FILE::Stream()     = pFile;
+    FILELog::ReportingLevel() = logINFO; 
+    
+#if defined(OPEN_MP)
+    omp_set_num_threads(numOfThreads); //The sort functions still use OMP
+#endif
+    
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     AssemblyParams params(singleStrand, readBlockSize, seedSize,
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
     COUnit.findOverlaps(numOfThreads);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 1);
     COUnit.writeConsensInfo(consensFile, 1);
     //COUnit.writeConsensReads("temp_consensRead.fa");
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
     return 0;
 }
-  
+
 
 
