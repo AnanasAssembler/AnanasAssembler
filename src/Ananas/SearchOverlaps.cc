@@ -32,6 +32,30 @@ bool Hypothesis::ContainsSubset(const Hypothesis & h)
     return false;
 }
 
+bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
+{
+  int i, j;
+  svec<int> query;
+
+  test.GetNodes(query, COUnit);
+  int n = query.isize();
+  for (i=m_results.isize()-1; i>=0; i--) { 
+    svec<int> ref;
+    m_results[i].GetNodes(ref, COUnit);
+    int m = ref.isize();
+    for (j=0; j<query.isize(); j++)
+      ref.push_back(query[j]);
+
+    UniqueSort(ref);
+    double ratio = (double)ref.isize()/(double)m;
+    //cout << "m=" << m << " merge=" << ref.isize() << " q=" << n << endl;
+    if (ratio < 1.02) {
+      //cout << "Toasted!" << endl;
+      return false;
+    }
+  }
+  return true;
+}
 
 int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
 {
@@ -69,6 +93,24 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
     minimal.SetPairs(pairs);
   
     if (m_exhaust) {    
+      if (m_results.isize() == 0) {
+	m_results.push_back(minimal);
+      } else {
+	if (!IsNew(minimal, COUnit)) { // Not different enough??
+	  return to;
+	}
+	if (m_results.isize() < m_maxResults) {
+	  m_results.push_back(minimal);  
+	} else {
+	  m_results.Sort();      
+	  if (m_results[0] < minimal) {     
+	    m_results[0] = minimal;
+	  }
+	}
+      }
+
+
+      /*
         //cout << "Num hyps: " << m_results.isize()  << endl;
         if (m_override || m_results.isize() > m_maxResults) {
             if (!m_override)
@@ -89,7 +131,8 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
                     m_results[m_lastNoPairs] = minimal;
                 }
             }
-        }
+	    }*/
+
     } else {
         // Keep only one top-N (for memory)
         if (m_results.isize() == 0) {
