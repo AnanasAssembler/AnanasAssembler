@@ -87,8 +87,8 @@ public:
   // Ctor 2:
   /* mode:0 fasta input  mode:1 pair/size input */
   RawReads(const string& fileName, int mode): m_reads(), m_pairInfo(), m_sizeInfo() { 
-    if(mode==0) { read(fileName);           }
-    else        { readPairSzInfo(fileName); }
+    if(mode==0) { load(fileName);           }
+    else        { loadPairSzInfo(fileName); }
   }
 
   const DNAVector& operator[](int i) const              { return m_reads[i];            }
@@ -104,9 +104,9 @@ public:
   void write(ostream& sout) const;
   void writeBin(const string& outFile) const; 
   void writePairSzInfo(const string& pairInfoFile) const; 
-  void read(const string& inFile); 
-  void readBin(const string& inFile); 
-  void readPairSzInfo(const string& pairInfoFile); 
+  void load(const string& inFile); 
+  void loadBin(const string& inFile); 
+  void loadPairSzInfo(const string& pairInfoFile); 
 
   void clearRead(int id) { m_reads[id].clear(); }   //TODO comment (function created for adapting to Overlaps class pruning
 
@@ -145,9 +145,9 @@ public:
   void write(const string& outFile) const; 
   void write(ostream& sout) const;
   void writeBin(const string& outFile) const; 
-  void read(const string& inFile) const; 
-  void read(istream& sIn) const; 
-  void readBin(const string& inFile) const; 
+  void load(const string& inFile) const; 
+  void load(istream& sIn) const; 
+  void loadBin(const string& inFile) const; 
 
 
 private:
@@ -194,9 +194,9 @@ public:
   void writeAsc(const string& consReadFile) const;   // Ascii
   void writeBin(const string& consReadFile) const; 
   /** mode: 0 for binary and 1 for ascii */
-  void read(const string& consReadFile, int mode); 
-  void readAsc(const string& consReadFile); 
-  void readBin(const string& consReadFile); 
+  void load(const string& consReadFile, int mode); 
+  void loadAsc(const string& consReadFile); 
+  void loadBin(const string& consReadFile); 
 
   void clearRead(int id) { m_consReads[id].clear(); }   //TODO comment (function created for adapting to Overlaps class pruning
 

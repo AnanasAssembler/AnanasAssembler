@@ -24,6 +24,7 @@ int main(int argc,char** argv)
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
+    commandArg<string> readGroupFileCmmd("-g","read groupin information file if available","");
 
     commandLineParser P(argc,argv);
     P.SetDescription("Overlap finder for assembly");
@@ -44,6 +45,7 @@ int main(int argc,char** argv)
     P.registerArg(kCmmd);
     P.registerArg(lCmmd);
     P.registerArg(threadCmmd);
+    P.registerArg(readGroupFileCmmd);
     P.parse();
 
     string inputFile       = P.GetStringValueFor(aCmmd);
@@ -63,6 +65,7 @@ int main(int argc,char** argv)
     string applicationFile = P.GetStringValueFor(lCmmd);
     int    numOfCores      = P.GetIntValueFor(threadCmmd);
     int    numOfThreads    = P.GetIntValueFor(threadCmmd);
+    string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     
     FILE* pFile = fopen(applicationFile.c_str(), "w");
     Output2FILE::Stream()     = pFile;
@@ -76,7 +79,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.findOverlaps(numOfThreads);
+    COUnit.findOverlaps(numOfThreads, readGroupFile);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 1);
     COUnit.writeConsensInfo(consensFile, 1);

@@ -9,8 +9,12 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads) {
-    createConsensReads(0.99);  //TODO parmet
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, string groupedReadInfo) {
+    if(groupedReadInfo=="") {
+        createConsensReads(0.99);  //TODO parmet
+    } else {
+        m_consReads.load(groupedReadInfo, 1); //TODO allow for binary file
+    }
 
     SubReads<ConsensReads>  subreads(m_consReads, m_params, false); // Object handling the subreads 
     int totSize   = m_consReads.getNumOfReads();

@@ -128,12 +128,12 @@ void ConsensReads::writeBin(const string& consReadFile) const {
     fs.Close();
 }
 
-void ConsensReads::read(const string& consReadFile, int mode) {
-    if(mode==0) { readBin(consReadFile); } 
-    else        { readAsc(consReadFile); }
+void ConsensReads::load(const string& consReadFile, int mode) {
+    if(mode==0) { loadBin(consReadFile); } 
+    else        { loadAsc(consReadFile); }
 }
 
-void ConsensReads::readAsc(const string& consReadFile) {
+void ConsensReads::loadAsc(const string& consReadFile) {
     ifstream sin;
     sin.open(consReadFile.c_str());
     string line;
@@ -143,7 +143,7 @@ void ConsensReads::readAsc(const string& consReadFile) {
     sin.close();
 }
  
-void ConsensReads::readBin(const string& consReadFile) {
+void ConsensReads::loadBin(const string& consReadFile) {
     CMReadFileStream fs;
     fs.Open(consReadFile.c_str());
     CMString line;
@@ -173,7 +173,7 @@ void RawReads::write(const string& rawReadsFile) const {
     m_reads.Write(rawReadsFile);
 }
 
-void RawReads::read(const string& rawReadsFile) {
+void RawReads::load(const string& rawReadsFile) {
     m_reads.Read(rawReadsFile);
     // Set pair info
     m_pairInfo.resize(m_reads.isize());
@@ -212,7 +212,7 @@ void RawReads::writePairSzInfo(const string& pairSzInfoFile) const {
     sout.close();
 }
 
-void RawReads::readPairSzInfo(const string& pairSzInfoFile) {
+void RawReads::loadPairSzInfo(const string& pairSzInfoFile) {
     ifstream sin;
     sin.open(pairSzInfoFile.c_str());
     string line;

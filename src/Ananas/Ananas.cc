@@ -117,6 +117,7 @@ int main( int argc, char** argv )
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
     commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
+    commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
@@ -131,6 +132,7 @@ int main( int argc, char** argv )
     P.registerArg(cpuCmmd2);
     P.registerArg(cpuLapCmmd);
     P.registerArg(filtCmmd);
+    P.registerArg(readGroupFileCmmd);
   
     P.parse();
   
@@ -146,6 +148,7 @@ int main( int argc, char** argv )
     int bandwidth = P.GetIntValueFor(bandCmmd);
     int minoverlap = P.GetIntValueFor(mlCmmd);
     bool bGroup = P.GetBoolValueFor(filtCmmd);
+    string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
 
     PrintLogo();
     cout << "Welcome to package " << ananas_software << " " << ananas_version << endl;
@@ -201,13 +204,12 @@ int main( int argc, char** argv )
     if (bUnpaired)
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-      cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
+      cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step);
     else
-      cmmd = "findOverlaps -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
+      cmmd = "findOverlaps -I 0.98 -b " + Number(step);
 
-    cmmd += " -C " + groupFile + " -o " + lapFile;
+    cmmd += " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
+             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " + readGroupFile + " -C " + groupFile + " -o " + lapFile;
 
   if   (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;

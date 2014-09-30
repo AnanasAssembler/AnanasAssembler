@@ -62,14 +62,14 @@ string AllReadOverlaps::getOverlapString(int index, int dir) const {
     return ss.str();
 }
 
-void AllReadOverlaps::read(const string& readOverlapFile, int mode) {
-    if(mode==0) { readBin(readOverlapFile); } 
-    else        { readAsc(readOverlapFile); }
+void AllReadOverlaps::load(const string& readOverlapFile, int mode) {
+    if(mode==0) { loadBin(readOverlapFile); } 
+    else        { loadAsc(readOverlapFile); }
 }
 
 
 //TODO this is temporary - remove
-void AllReadOverlaps::readAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
+void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
     ifstream sIn;
     sIn.open(readOverlapFile.c_str());
     string line;
@@ -99,7 +99,7 @@ void AllReadOverlaps::readAsc(const string& readOverlapFile, const svec<int> & g
     postReadActions(consReads); 
 }
 
-void AllReadOverlaps::readAsc(const string& readOverlapFile) {
+void AllReadOverlaps::loadAsc(const string& readOverlapFile) {
     ifstream sIn;
     sIn.open(readOverlapFile.c_str());
     string line;
@@ -113,7 +113,7 @@ void AllReadOverlaps::readAsc(const string& readOverlapFile) {
     //  postReadActions();  TODO
 }
 
-void AllReadOverlaps::readBin(const string& readOverlapFile) {
+void AllReadOverlaps::loadBin(const string& readOverlapFile) {
     CMReadFileStream fs;
     fs.Open(readOverlapFile.c_str());
     int totNumOfReads;

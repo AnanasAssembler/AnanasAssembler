@@ -21,7 +21,7 @@ public:
   ConsensOverlapUnit(const string& pairSzInfoFile, const string& consensFile,
                      const string overlapFile): m_params(), m_rawReads(pairSzInfoFile, 1), m_consReads(m_rawReads),
                                                 m_overlaps(0), m_partners() {
-    m_consReads.readAsc(consensFile); 
+    m_consReads.loadAsc(consensFile); 
     findPartners(); //Set the partners for the consensus reads
     ReadOverlaps(overlapFile);
   }
@@ -30,7 +30,7 @@ public:
   ConsensOverlapUnit(const string& rawReadFile, const string& consensFile)
                      : m_params(), m_rawReads(rawReadFile, 0), m_consReads(m_rawReads),
                        m_overlaps(0), m_partners() {
-    m_consReads.readAsc(consensFile); 
+    m_consReads.loadAsc(consensFile); 
     findPartners(); //Set the partners for the consensus reads
   }
 
@@ -48,10 +48,10 @@ public:
   //TODO - temporary -remove
   void ReadOverlaps(const string& readOverlapFile) {
     svec<int>  good;
-    m_overlaps.readAsc(readOverlapFile, good, m_consReads);  
+    m_overlaps.loadAsc(readOverlapFile, good, m_consReads);  
   }
   void ReadOverlaps(const string& readOverlapFile, const svec<int> & good) {
-    m_overlaps.readAsc(readOverlapFile, good, m_consReads);  
+    m_overlaps.loadAsc(readOverlapFile, good, m_consReads);  
   }
 
   // Specific Read functions TODO - review
@@ -66,7 +66,7 @@ public:
   int getNumOfPartners(int readIdx) const                            { return m_partners.getNumOfPartners(readIdx);    }
   int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
 
-  void findOverlaps(int numOfThreads);  
+  void findOverlaps(int numOfThreads, string groupedReadInfo="");  
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 
   void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);          } 
   void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 

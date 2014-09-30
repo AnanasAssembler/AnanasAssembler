@@ -115,10 +115,10 @@ public:
   void write(const string& overlapFile, int mode) const; 
   void writeAsc(const string& readOverlapFile) const; 
   void writeBin(const string& readOverlapFile) const; 
-  void read(const string& readOverlapFile, int mode); 
-  void readAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads); 
-  void readAsc(const string& readOverlapFile); 
-  void readBin(const string& readOverlapFile); 
+  void load(const string& readOverlapFile, int mode); 
+  void loadAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads); 
+  void loadAsc(const string& readOverlapFile); 
+  void loadBin(const string& readOverlapFile); 
 
   bool isChimeric(int i) const { return m_chimera[i]; }
 
