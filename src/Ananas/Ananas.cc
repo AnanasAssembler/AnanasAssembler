@@ -181,8 +181,7 @@ int main( int argc, char** argv )
     Run("mkdir ", outName);
     outName += "/";
     string cmmd;
- 
-<<<<<<< HEAD
+
     /*if (bGroup) {
       cmmd = "SimplicityFilter "
       Run(exec_dir, cmmd);
@@ -190,76 +189,42 @@ int main( int argc, char** argv )
       Run(exec_dir, cmmd);
       }*/
 
+    ////////////////////////////////////////////////////////////////////
+    ///// findOverlaps ////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+
+
     string pairSzFile = outName + "/pairSz.tmp";
     string lapFile    = outName + "/allOverlaps.out";
     string groupFile  = outName + "/consensusReads.out";
 
     if (bUnpaired)
-        //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
-        //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-        cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-            + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
+      //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
+      //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
+      cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
+             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
     else
-        cmmd = "findOverlaps -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-            + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
+      cmmd = "findOverlaps -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
+             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
 
     cmmd += " -C " + groupFile + " -o " + lapFile;
 
-    if (Exists(lapFile)) {
-        cout << "Overlaps exist, skipping." << endl;
-        cout << "Remove " << lapFile << " to re-compute read overlaps." << endl;
+  if   (Exists(lapFile)) {
+      cout << "Overlaps exist, skipping." << endl;
+      cout << "Remove " << lapFile << " to re-compute read overlaps." << endl;
     } else {
-        Run(exec_dir, cmmd);
+      Run(exec_dir, cmmd);
     }
 
+
+
+    ////////////////////////////////////////////////////////////////////
+    ////  Layout //////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+
+
+
     string layoutFile = outName + "contigs.fasta.all_done";
-=======
-  /*if (bGroup) {
-    cmmd = "SimplicityFilter "
-    Run(exec_dir, cmmd);
-    cmmd = "BuildReadGroups -i "
-    Run(exec_dir, cmmd);
-    }*/
-
-
-  ////////////////////////////////////////////////////////////////////
-  ///// findOverlaps ////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////
-  
-
-
-  string pairSzFile = outName + "/pairSz.tmp";
-  string lapFile    = outName + "/allOverlaps.out";
-  string groupFile  = outName + "/consensusReads.out";
-
-  if (bUnpaired)
-    //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
-    //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-    cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-           + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
-  else
-    cmmd = "findOverlaps -I 0.98 -b " + Number(step) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-           + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu);
-
-  cmmd += " -C " + groupFile + " -o " + lapFile;
-
-  if (Exists(lapFile)) {
-    cout << "Overlaps exist, skipping." << endl;
-    cout << "Remove " << lapFile << " to re-compute read overlaps." << endl;
-  } else {
-    Run(exec_dir, cmmd);
-  }
-
-
-
-  ////////////////////////////////////////////////////////////////////
-  ////  Layout //////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////
-
-
-
-  string layoutFile = outName + "contigs.fasta.all_done";
->>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
   
     if (Exists(layoutFile)) {
         cout << "Layout files exis, skipping." << endl;
@@ -294,7 +259,9 @@ int main( int argc, char** argv )
         }
     }
 
-<<<<<<< HEAD
+    ///////////////////////////////////////////////////////////
+    ///// Scaffolder /////////////////////////////////////////
+    //////////////////////////////////////////////////////////
 
     cmmd = "Scaffolder -f " + pairSzFile;
     cmmd += " -l " + outName + "/allOverlaps.out";
@@ -302,39 +269,13 @@ int main( int argc, char** argv )
     cmmd += " -i " + outName + "/contigs.layout";
     cmmd += " -g " + groupFile;
     cmmd += " -dir " + dir;
-=======
-
-  ///////////////////////////////////////////////////////////
-  ///// Scaffolder /////////////////////////////////////////
-  //////////////////////////////////////////////////////////
-
-
-  cmmd = "Scaffolder -f " + pairSzFile;
-  cmmd += " -l " + outName + "/allOverlaps.out";
-  cmmd += " -o " + outName + "/scaffolds.layout";
-  cmmd += " -i " + outName + "/contigs.layout";
-  cmmd += " -g " + groupFile;
-  cmmd += " -dir " + dir;
-
-  Run(exec_dir, cmmd);
-
-
-
-  ///////////////////////////////////////////////////////////
-  //// LayoutGuided ////////////////////////////////////////
-  /////////////////////////////////////////////////////////
-
-
-  cmmd = "LayoutGuided -i " + pairSzFile;
-  cmmd += " -l " + outName + "/allOverlaps.out";
-  cmmd += " -o " + outName + "/contigs_altsplic.layout";
-//  cmmd += " -f " + outName + "/contigs_altsplic.fasta";
-  cmmd += " -s " + outName + "/scaffolds.layout";
-  cmmd += " -g " + groupFile;
-  cmmd += " -dir " + dir;
->>>>>>> 818bb900c489ac05f4ef4e09b9e84e0e37f4280a
 
     Run(exec_dir, cmmd);
+
+
+    ///////////////////////////////////////////////////////////
+    //// LayoutGuided ////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     cmmd = "LayoutGuided -i " + pairSzFile;
     cmmd += " -l " + outName + "/allOverlaps.out";
@@ -367,9 +308,9 @@ int main( int argc, char** argv )
         ret = system(cmmd.c_str());    
     }
 
-  //////////////////////////////////////////////////////////
-  // GenAssemblyFasta /////////////////////////////////////
-  ////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // GenAssemblyFasta /////////////////////////////////////
+    ////////////////////////////////////////////////////////
 
   
     cmmd = "GenAssemblyFasta " ;
