@@ -226,11 +226,11 @@ int main( int argc, char** argv )
 
 
 
-    string layoutFile = outName + "contigs.fasta.all_done";
+    string layoutFile = outName + "contigs.layout.all_done";
   
     if (Exists(layoutFile)) {
         cout << "Layout files exis, skipping." << endl;
-        cout << "Remove " << layoutFile << " to re-compute read overlaps." << endl;
+        cout << "Remove " << layoutFile << " to re-compute initial stage layout of contigs" << endl;
 
     } else {
         char cpuNum[256];

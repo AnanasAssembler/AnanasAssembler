@@ -149,7 +149,13 @@ int main( int argc, char** argv )
         }
     }
 
-    cout << "All done!! Exiting normal." << endl;
+    cout << "Layout is done!! Exiting normal." << endl;
+
+    string alldone = layoutName + ".all_done";
+    cout << "Signing off: " << alldone << endl;
+    FILE * pFinal = fopen(alldone.c_str(), "w");
+    fprintf(pFinal, "Layout is done. Exited normally.\n");
+    fclose(pFinal);
 
     return 0;
 }
