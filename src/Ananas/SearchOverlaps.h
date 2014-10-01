@@ -530,7 +530,7 @@ public:
     m_lastNoPairs = -1;
     m_pairDir = -1;
     m_override = false;
-    m_maxResults = 3000;
+    m_maxResults = 50;
     m_minAltKeep = 200;
   }
 
@@ -626,7 +626,7 @@ protected:
   int SelectLeftest(const ConsensOverlapUnit & COUnit,  bool rc);
   int Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit);
   
-  
+  bool IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit);
   
 private:
   //void WeedOut();
