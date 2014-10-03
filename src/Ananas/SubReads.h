@@ -102,11 +102,11 @@ private:
   struct CmpSubReadCO { //SubRead comparison struct for consensus finding
     CmpSubReadCO(const SubReads& s) : m_subreads(s) {}
     bool operator() (const SubRead& s1, const SubRead& s2) const { 
-      if(m_subreads.getSeq(s1) != m_subreads.getSeq(s2)) {
-        return m_subreads.getSeq(s1) < m_subreads.getSeq(s2); 
+      if(s1.getOffset()!=s2.getOffset()) {
+        return (s1.getOffset()<s2.getOffset()); 
       } else {
-       return (s1.getOffset()<s2.getOffset()); 
-      }
+        return m_subreads.getSeq(s1) < m_subreads.getSeq(s2); 
+      } 
     }
     const SubReads& m_subreads;
   };

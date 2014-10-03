@@ -11,7 +11,7 @@
 
 void ConsensOverlapUnit::findOverlaps(int numOfThreads, string groupedReadInfo) {
     if(groupedReadInfo=="") {
-        createConsensReads(0.99);  //TODO parmet
+        createConsensReads(0.99);  //TODO parmeterize
     } else {
         m_consReads.load(groupedReadInfo, 1); //TODO allow for binary file
     }
@@ -67,7 +67,7 @@ void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
             aD.SetFromBases(subreads.getSeq(a, 0, m_rawReads.getSize(a.getIndex())-1));
             bD.SetFromBases(subreads.getSeq(b, 0, m_rawReads.getSize(b.getIndex())-1));
             float matchScore = aD.FindIdent(bD);  // Direct match identity without alignment 
-            if (matchScore>minMatchScore_p) { 
+            if (matchScore>=minMatchScore_p) { 
                 nIdentGroupInfo.group(a.getIndex(), b.getIndex()); 
             }
         } 
