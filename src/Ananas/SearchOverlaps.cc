@@ -102,7 +102,8 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
 	if (m_results.isize() < m_maxResults) {
 	  m_results.push_back(minimal);  
 	} else {
-	  m_results.Sort();      
+	  m_results.Sort();
+	  m_override = true;
 	  if (m_results[0] < minimal) {     
 	    m_results[0] = minimal;
 	  }
@@ -652,6 +653,10 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
 
     //******************** Inefficient!!!! *********************  
     m_localUsed.clear();
+
+    // HARD CODED!!!!!
+    //if (ss.Size() > 300)
+    //bAddIn = false;
   
     // WARNING: Dynamic allocation (get rid of it!!!)
     //svec<int> ids;
@@ -735,6 +740,7 @@ void Search::Commit(const Hypothesis & hyp)
 
 bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int startWithRead)
 {
+    m_override = false;
     //cout << "Enter main loop." << endl;
     m_usage.Resize(COUnit.GetNumReads());
 
@@ -775,7 +781,6 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
 int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
 {
     //cout << "Start searching read " << index << endl;
-    m_override = false;
 
     m_lastNoPairs = -1;
     m_usage.Clear();
@@ -805,7 +810,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     }
     stack.Push(init);
     SetUsed(init);
-    if (m_exhaust && ! m_override)
+    if (m_exhaust)
         m_usage.SetUsed(init.Read(), init.Pos());
 
     int i;
@@ -851,7 +856,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
       
                 // IMPORTANT NOTE: Revisit this condition!!!!
                 // The current implementation is slightly too greedy
-                if (m_exhaust && !m_override) {
+                if (m_exhaust) {
                     if (backoff > 0 && !(pop.Pos() <= backoff)) {
                         // cout << "Don't re-use
                     } else {
