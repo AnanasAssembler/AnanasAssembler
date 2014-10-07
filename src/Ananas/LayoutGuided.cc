@@ -9,6 +9,96 @@
 #include "src/Ananas/ConsensOverlapUnit.h"
 
 
+class ToDo
+{
+public:
+  ToDo() {
+    m_reads = 0.;
+  }
+
+  void Add(int scaff, int reads) {
+    m_data.push_back(scaff);
+    double r = (double)reads;
+    m_reads += r*r;
+  }
+  double Score() const {return m_reads;}
+
+  int isize() const {return m_data.isize();}
+  int operator[] (int i) const {return m_data[i];}
+
+private:
+  double m_reads;
+  svec<int> m_data;
+};
+
+
+class Scaff
+{
+public:
+  Scaff() {
+    m_s = -1;
+    m_r = 0;
+  }
+  Scaff(int s, int r) {
+    m_s = s;
+    m_r = r;
+  }
+  int ID() const {return m_s;}
+  int Reads() const {return m_r;}
+
+
+  bool operator < (const Scaff &s) const {
+    if (m_r == s.m_r)
+      return (m_s < s.m_s);
+    return (m_r < s.m_r);      
+  }
+
+private:
+  int m_r;
+  int m_s;
+  
+};
+
+class ScaffoldDispenser
+{
+public:
+  ScaffoldDispenser(int n) {
+    m_todo.resize(n);
+  }
+
+  const ToDo & Get(int i) const {return m_todo[i];}
+  void Add(int scaff, int reads) {
+      //cout << "Adding scaffold " << scaff << endl;
+      m_tmp.push_back(Scaff(scaff, reads));
+  }
+
+  void Compute() {
+      Sort(m_tmp);
+      int i, j;
+      //cout << "Size: " << m_tmp.isize() << endl;
+      for (i=m_tmp.isize()-1; i>=0; i--) {
+          int s = m_tmp[i].ID();
+          int r = m_tmp[i].Reads();
+          int index = 0;
+	  double min = m_todo[index].Score();
+	  //cout << "Min=" << min << endl;
+	  for (j=0; j<m_todo.isize(); j++) {
+	      //cout << "  -> curr " << j << " -> " << m_todo[j].Score() << endl;
+	      if (m_todo[j].Score() < min) {
+		min = m_todo[j].Score();
+		index = j;
+	      }
+	  }
+	  //cout << "Assigning scaffold " << s << " to index " << index << " reads: " << r << endl; 
+	  m_todo[index].Add(s, r);
+      }
+  }
+
+private:
+  svec<ToDo> m_todo;
+  svec<Scaff> m_tmp;
+};
+
 
 int main( int argc, char** argv )
 {
@@ -56,6 +146,7 @@ int main( int argc, char** argv )
     if (bEx2)
         bEx = false;
 
+
     ConsensOverlapUnit COUnit(pairSzFileName, consName, "");
 
     int i, j, k, l;
@@ -67,15 +158,37 @@ int main( int argc, char** argv )
   
     svec<int> ids;
     ids.resize(COUnit.GetNumReads(), 0);
-    //=========================================================
-    // Collect all COUnit (WARNING: Duplicated code!!)
-    for (l=num; l<assembly.isize(); l += of) {
+
+
+    ScaffoldDispenser disp(of);
+
+    // Count reads for the dispenser.
+    for (l=0; l<assembly.isize(); l++) {
+     
         const Scaffold & s = assembly[l];
         if (s.isize() == 1) {
             if (s[0].Highest() < minSize) {
+	        //cout << "Skipping scaffold " << l << endl;
                 continue;
             }
         }
+	int reads = 0;
+        for (i=0; i<s.isize(); i++) {
+            const Contig & c = s[i];
+            reads += c.isize();
+	}
+	//cout << "Scaffold " << l << " reads: " << reads << " contigs: " << s.isize() << endl;
+	disp.Add(l, reads);
+    }
+    disp.Compute();
+    const ToDo & t = disp.Get(num);
+
+    cout << "Process # " << num << " will process " << t.isize() << " scaffolds w/ " << t.Score() << " reads^2." << endl;
+    cout << "Loading and pruning overlaps." << endl;
+    //=========================================================
+    // Collect all COUnit (WARNING: Duplicated code!!)
+    for (l=0; l<t.isize(); l++) {
+        const Scaffold & s = assembly[t[l]];
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];
             for (j=0; j<c.isize(); j++) {
@@ -105,16 +218,20 @@ int main( int argc, char** argv )
     search.SetIndex(num);
     search.SetMinAltKeep(minSize);
 
-    for (l=num; l<assembly.isize(); l += of) {
-        const Scaffold & s = assembly[l];
-        if (s.isize() == 1) {
+
+    // Main loop over scaffolds
+    for (l=0; l<t.isize(); l++) {
+        const Scaffold & s = assembly[t[l]];
+
+	// Not needed any more, see above
+        /*if (s.isize() == 1) {
             if (s[0].Highest() < minSize) {
-                cout << "Skipping scaffold " << l << endl;
+                cout << "Skipping scaffold " << t[l] << endl;
                 continue;
             }
-        }
+	    }*/
 
-        cout << "Processing scaffold " << l << endl;
+        cout << "Processing scaffold " << t[l] << endl;
         search.SetUsedAll(COUnit);
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];
@@ -124,7 +241,7 @@ int main( int argc, char** argv )
                 search.SetUsed(id, false);
             }
         }
-        cout << "Searching... " << l << endl;
+        cout << "Searching... " << t[l] << endl;
         search.SetExhaustive(true);
         if (s.isize() == 1)
             search.SetExhaustive(false);
