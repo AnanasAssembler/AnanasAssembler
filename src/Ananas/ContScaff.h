@@ -53,6 +53,8 @@ class Contig
  public:
   Contig() {
     m_ori = 1;
+    m_numOfReads = 0;
+    m_numOfPaired = 0;
   }
   ~Contig() {}
  
@@ -63,6 +65,12 @@ class Contig
 
   const string & Name() const {return m_name;}
   void SetName(const string & n) {m_name = n;}
+
+  int NumReads() const { return m_numOfReads; }
+  void SetNumReads(int readCnt) { m_numOfReads = readCnt; }
+
+  int NumPairs() const { return m_numOfPaired/2; }
+  void SetNumPairs(int pairCnt) { m_numOfPaired = pairCnt*2; }
 
   void clear() {
     m_placements.clear();
@@ -106,6 +114,8 @@ class Contig
   svec<ReadPlacement> m_placements;
   string m_name;
   int m_ori;
+  int m_numOfReads;
+  int m_numOfPaired;
 };
 
 class Scaffold
@@ -158,7 +168,15 @@ class Scaffold
   int NumReads() const {
     int n = 0;
     for (int i=0; i<m_contigs.isize(); i++) {
-      n += m_contigs[i].isize();
+      n += m_contigs[i].NumReads();
+    }
+    return n;
+  }
+
+  int NumPairs() const {
+    int n = 0;
+    for (int i=0; i<m_contigs.isize(); i++) {
+      n += m_contigs[i].NumPairs();
     }
     return n;
   }

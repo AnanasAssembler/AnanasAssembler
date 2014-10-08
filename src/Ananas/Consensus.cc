@@ -43,6 +43,8 @@ LayoutSink::LayoutSink()
 {
   m_counter = -1;
   m_minor = 0;
+  m_numOfReads = 0;
+  m_numOfPaired = 0;
   m_pLayout = NULL;
   m_minIdent = 0.99;
   m_prefix = 0;
@@ -51,6 +53,8 @@ LayoutSink::LayoutSink()
 LayoutSink::~LayoutSink()
 {
   if (m_pLayout != NULL) {
+    fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %d </SCAFFOLD_READCOUNT>\n", m_numOfReads);
+    fprintf(m_pLayout, "<SCAFFOLD_PAIRCOUNT> %d </SCAFFOLD_PAIRCOUNT>\n", m_numOfPaired/2);
     fprintf(m_pLayout, "</SCAFFOLD> %s\n\n", m_lastScaffName.c_str());
     fclose(m_pLayout);
   }
@@ -101,6 +105,8 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   if (bPrev)
     m_minor++;
 
+  int currNumOfReads=0, currNumOfPaired=0;
+
   int i;
   char name[512];
   sprintf(name, ">Contig_%3d_%7d_%3d", m_prefix, m_counter, m_minor);
@@ -114,6 +120,10 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   char scaffName[1024];
   if(!bPrev) {
     if(m_counter>0) { 
+      fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %d </SCAFFOLD_READCOUNT>\n", m_numOfReads);
+      fprintf(m_pLayout, "<SCAFFOLD_PAIRCOUNT> %d </SCAFFOLD_PAIRCOUNT>\n", m_numOfPaired/2);
+      m_numOfPaired = 0;
+      m_numOfReads = 0;
       fprintf(m_pLayout, "</SCAFFOLD> %s\n\n", m_lastScaffName.c_str());
     }
     char tmp[1024];
@@ -128,12 +138,12 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   fprintf(m_pLayout, "<CONTIG> %s\n", name);
   for (i=0; i<hyp.isize(); i++) {
     int r = hyp[i].Read();
-    
     int numPartner = COUnit.getNumOfPartners(r);
     fprintf(m_pLayout, "%d\t%d\t%d - %d\t", r, hyp[i].Ori(), hyp[i].Start(), hyp[i].Stop());
-
+    currNumOfReads++;
     if (hyp[i].Pair() >= 0) {
       fprintf(m_pLayout, "\tpaired\t%d\t%d", hyp[hyp[i].Pair()].Read(),  hyp[hyp[i].Pair()].Ori());
+      currNumOfPaired++;
     } else {
       if (hyp[i].Pair() == -1) {
 	fprintf(m_pLayout, "\tsingle\tn/a");
@@ -143,6 +153,10 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
     }
     fprintf(m_pLayout, "\n");
   }
+  m_numOfReads  += currNumOfReads;
+  m_numOfPaired += currNumOfPaired;
+  fprintf(m_pLayout, "<CONTIG_READCOUNT> %d </CONTIG_READCOUNT>\n", currNumOfReads);
+  fprintf(m_pLayout, "<CONTIG_PAIRCOUNT> %d </CONTIG_PAIRCOUNT>\n", currNumOfPaired/2);
   fprintf(m_pLayout, "</CONTIG> %s\n", name);
   fflush(m_pLayout);
 }

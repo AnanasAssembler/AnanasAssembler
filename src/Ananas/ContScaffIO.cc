@@ -56,6 +56,16 @@ void ContigScaffoldIO::Read(Assembled & assembled, const string &file)
             continue;
         }
 
+        if (parser.AsString(0) == "<CONTIG_READCOUNT>") {
+            contig.SetNumReads(parser.AsInt(1));
+            continue;
+        }
+
+        if (parser.AsString(0) == "<CONTIG_PAIRCOUNT>") {
+            contig.SetNumPairs(parser.AsInt(1));
+            continue;
+        }
+
         int read = parser.AsInt(0);
         int ori = parser.AsInt(1);
         int start = parser.AsInt(2);
@@ -105,8 +115,12 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
                 fprintf(pOut, "%d\t%d\t%d - %d\t%s\n", r.Read(), r.Ori(), r.Start(), r.Stop(), r.Name().c_str());
 	
             }
+            fprintf(pOut, "<CONTIG_READCOUNT> %d </CONTIG_READCOUNT>\n", c.NumReads());
+            fprintf(pOut, "<CONTIG_PAIRCOUNT> %d </CONTIG_PAIRCOUNT>\n", c.NumPairs());
             fprintf(pOut, "</CONTIG>\t%s\n", nameC.c_str());
         }
+        fprintf(pOut, "<SCAFFOLD_READCOUNT> %d </SCAFFOLD_READCOUNT>\n", s.NumReads());
+        fprintf(pOut, "<SCAFFOLD_PAIRCOUNT> %d </SCAFFOLD_PAIRCOUNT>\n", s.NumPairs());
         fprintf(pOut, "</SCAFFOLD>\t%s\n", name.c_str());
     }
 
