@@ -41,6 +41,10 @@ void ConsensReads::setConsensus(ConsensRead& cRead) {
     bool setConsFlag = false;
     svec<int> readIdxs = cRead.getReads();
     int totLen = m_rawReads.getSize(readIdxs[0]);
+    for(int i=1; i<readIdxs.isize(); i++) {  // Start from next index (1) as 0 has alread been looked at
+      int tempSz = m_rawReads.getSize(readIdxs[i]);
+      if(tempSz>totLen) { totLen = tempSz; }
+    }
     if(cRead.isSingle()) { 
         cRead.setSize(totLen);
     } else {

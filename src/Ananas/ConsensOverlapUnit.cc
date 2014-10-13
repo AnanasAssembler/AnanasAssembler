@@ -9,9 +9,9 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads, string groupedReadInfo) {
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, string groupedReadInfo, double identThresh) {
     if(groupedReadInfo=="") {
-        createConsensReads(0.99);  //TODO parmeterize
+        createConsensReads(identThresh); 
     } else {
         m_consReads.load(groupedReadInfo, 1); //TODO allow for binary file
     }

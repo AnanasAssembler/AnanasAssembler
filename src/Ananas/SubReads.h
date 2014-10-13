@@ -211,9 +211,9 @@ void SubReads<ReadType>::sortSubs(bool consensMode) {
 
 template<class ReadType>
 void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps) const { 
-  map<unsigned long, bool> readsUsed_curr;        //Flagset for reads that have been searched for a given extension
-  readsUsed_curr[readIndex] = true;     //Add the read index to the used list so that overlaps with itself won't be computed
-  DNAVector extSeq, origSeq1, origSeq2; //extension and read sequence (1 for checkInit step and 2 for the alignment)
+  map<unsigned long, bool> readsUsed_curr;    //Flagset for reads that have been searched for a given extension
+  readsUsed_curr[readIndex] = true;           //Add the read index to the used list so that overlaps with itself won't be computed
+  DNAVector extSeq, origSeq1, origSeq2;       //extension and read sequence (1 for checkInit step and 2 for the alignment)
   int readSize = m_reads[readIndex].isize();
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
@@ -221,7 +221,7 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
     if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { return; } //Rough way of disregarding nonesense characters (TODO look into)
     svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeq1, CmpSubReadOL(*this));
     for (;fIt!=m_subReads.end(); fIt++) {
-      if(min((*fIt).getOffset(), i) > 2*getSubreadStep()) { continue; }    //These should have been found already
+      if(min((*fIt).getOffset(), i) > 2*getSubreadStep()) { continue; }               //These should have been found already
       map<unsigned long, bool>::iterator it = readsUsed_curr.find((*fIt).getIndex()); //Check if read has already been used
       if(it==readsUsed_curr.end()) {
         FILE_LOG(logDEBUG4)  << "Investigating subread: "<< (*fIt).getIndex() 

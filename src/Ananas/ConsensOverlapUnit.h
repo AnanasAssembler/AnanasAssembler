@@ -66,7 +66,7 @@ public:
   int getNumOfPartners(int readIdx) const                            { return m_partners.getNumOfPartners(readIdx);    }
   int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
 
-  void findOverlaps(int numOfThreads, string groupedReadInfo="");  
+  void findOverlaps(int numOfThreads, string groupedReadInfo="", double identThresh=0.99);  
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 
   void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);          } 
   void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 
