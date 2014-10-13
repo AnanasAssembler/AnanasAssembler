@@ -12,20 +12,27 @@ class ReadPlacement
     m_stop = -1;
     m_ori = 0;
     m_read = -1;
+    m_paired = -1;
+    m_pairOrient = 0;
   }
-  ReadPlacement(int read, int ori, int start, int stop, const string & name) {
+ 
+  ReadPlacement(int read, int ori, int start, int stop, int paired, int pairOrient, const string & name) {
     m_start = start;
     m_stop = stop;
     m_ori = ori;
     m_read = read;
+    m_paired = paired;
+    m_pairOrient = pairOrient;
     m_name = name;
   }
 
   
-  int Start() const {return m_start;}
-  int Stop()  const {return m_stop;}
-  int Ori()   const {return m_ori;}
-  int Read()  const {return m_read;}
+  int Start() const  {return m_start;}
+  int Stop()  const  {return m_stop;}
+  int Ori()   const  {return m_ori;}
+  int Read()  const  {return m_read;}
+  int Pair() const { return m_paired;} 
+  int PairOrient() const { return m_pairOrient;} 
   const string & Name()  const {return m_name;}
 
   bool operator < (const ReadPlacement & r) const {
@@ -44,6 +51,8 @@ class ReadPlacement
   int m_stop;
   int m_ori;
   int m_read;
+  int m_paired;
+  int m_pairOrient;
   string m_name;
 };
 
@@ -165,18 +174,32 @@ class Scaffold
     return n;
   }
 
+  int NumUniqReads() const {
+    map<int, bool> reads;
+    for (int i=0; i<m_contigs.isize(); i++) {
+      for(int j=0; j<m_contigs[i].isize(); j++) {
+        reads[m_contigs[i][j].Read()] = true;  
+      }
+    }
+    return reads.size();
+  }
+
+  int NumUniqPairs() const {
+    map<int, bool> pairedReads;
+    for (int i=0; i<m_contigs.isize(); i++) {
+      for(int j=0; j<m_contigs[i].isize(); j++) {
+        if(m_contigs[i][j].Pair()>=0) {
+          pairedReads[m_contigs[i][j].Read()] = true;  
+        }
+      }
+    }
+    return pairedReads.size();
+  }
+
   int NumReads() const {
     int n = 0;
     for (int i=0; i<m_contigs.isize(); i++) {
       n += m_contigs[i].NumReads();
-    }
-    return n;
-  }
-
-  int NumPairs() const {
-    int n = 0;
-    for (int i=0; i<m_contigs.isize(); i++) {
-      n += m_contigs[i].NumPairs();
     }
     return n;
   }

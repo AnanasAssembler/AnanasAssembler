@@ -43,8 +43,6 @@ LayoutSink::LayoutSink()
 {
   m_counter = -1;
   m_minor = 0;
-  m_numOfReads = 0;
-  m_numOfPaired = 0;
   m_pLayout = NULL;
   m_minIdent = 0.99;
   m_prefix = 0;
@@ -53,8 +51,8 @@ LayoutSink::LayoutSink()
 LayoutSink::~LayoutSink()
 {
   if (m_pLayout != NULL) {
-    fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %d </SCAFFOLD_READCOUNT>\n", m_numOfReads);
-    fprintf(m_pLayout, "<SCAFFOLD_PAIRCOUNT> %d </SCAFFOLD_PAIRCOUNT>\n", m_numOfPaired/2);
+    fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %s %d </SCAFFOLD_READCOUNT>\n", m_lastScaffName.c_str(), (int)m_currReads.size());
+    fprintf(m_pLayout, "<SCAFFOLD_PAIRCOUNT> %s %d </SCAFFOLD_PAIRCOUNT>\n", m_lastScaffName.c_str(), (int)m_currPairedReads.size()/2);
     fprintf(m_pLayout, "</SCAFFOLD> %s\n\n", m_lastScaffName.c_str());
     fclose(m_pLayout);
   }
@@ -105,7 +103,7 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   if (bPrev)
     m_minor++;
 
-  int currNumOfReads=0, currNumOfPaired=0;
+  int currNumReads = 0, currNumPairedReads = 0;
 
   int i;
   char name[512];
@@ -120,10 +118,10 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   char scaffName[1024];
   if(!bPrev) {
     if(m_counter>0) { 
-      fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %d </SCAFFOLD_READCOUNT>\n", m_numOfReads);
-      fprintf(m_pLayout, "<SCAFFOLD_PAIRCOUNT> %d </SCAFFOLD_PAIRCOUNT>\n", m_numOfPaired/2);
-      m_numOfPaired = 0;
-      m_numOfReads = 0;
+      fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %s %d </SCAFFOLD_READCOUNT>\n", m_lastScaffName.c_str(), (int)m_currReads.size());
+      fprintf(m_pLayout, "<SCAFFOLD_PAIRCOUNT> %s %d </SCAFFOLD_PAIRCOUNT>\n", m_lastScaffName.c_str(), (int)m_currPairedReads.size()/2);
+      m_currPairedReads.clear();
+      m_currReads.clear();
       fprintf(m_pLayout, "</SCAFFOLD> %s\n\n", m_lastScaffName.c_str());
     }
     char tmp[1024];
@@ -139,24 +137,18 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   for (i=0; i<hyp.isize(); i++) {
     int r = hyp[i].Read();
     int numPartner = COUnit.getNumOfPartners(r);
-    fprintf(m_pLayout, "%d\t%d\t%d - %d\t", r, hyp[i].Ori(), hyp[i].Start(), hyp[i].Stop());
-    currNumOfReads++;
+    fprintf(m_pLayout, "%d\t%d\t%d - %d\t%d\t%d\n", r, hyp[i].Ori(), hyp[i].Start(), hyp[i].Stop(), 
+            hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Read():hyp[i].Pair(),  
+            hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Ori():hyp[i].Pair());
+    m_currReads[r] = true;
+    currNumReads++;
     if (hyp[i].Pair() >= 0) {
-      fprintf(m_pLayout, "\tpaired\t%d\t%d", hyp[hyp[i].Pair()].Read(),  hyp[hyp[i].Pair()].Ori());
-      currNumOfPaired++;
-    } else {
-      if (hyp[i].Pair() == -1) {
-	fprintf(m_pLayout, "\tsingle\tn/a");
-      } else {
-	fprintf(m_pLayout, "\tfragment\tn/a");
-      }
+      m_currPairedReads[r] = true;
+      currNumPairedReads++;
     }
-    fprintf(m_pLayout, "\n");
   }
-  m_numOfReads  += currNumOfReads;
-  m_numOfPaired += currNumOfPaired;
-  fprintf(m_pLayout, "<CONTIG_READCOUNT> %d </CONTIG_READCOUNT>\n", currNumOfReads);
-  fprintf(m_pLayout, "<CONTIG_PAIRCOUNT> %d </CONTIG_PAIRCOUNT>\n", currNumOfPaired/2);
+  fprintf(m_pLayout, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", name, currNumReads);
+  fprintf(m_pLayout, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", name, currNumPairedReads/2);
   fprintf(m_pLayout, "</CONTIG> %s\n", name);
   fflush(m_pLayout);
 }

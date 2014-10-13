@@ -57,12 +57,12 @@ void ContigScaffoldIO::Read(Assembled & assembled, const string &file)
         }
 
         if (parser.AsString(0) == "<CONTIG_READCOUNT>") {
-            contig.SetNumReads(parser.AsInt(1));
+            contig.SetNumReads(parser.AsInt(2));
             continue;
         }
 
         if (parser.AsString(0) == "<CONTIG_PAIRCOUNT>") {
-            contig.SetNumPairs(parser.AsInt(1));
+            contig.SetNumPairs(parser.AsInt(2));
             continue;
         }
 
@@ -70,8 +70,9 @@ void ContigScaffoldIO::Read(Assembled & assembled, const string &file)
         int ori = parser.AsInt(1);
         int start = parser.AsInt(2);
         int stop = parser.AsInt(4);
-        const string & name = parser.AsString(5);
-        contig.push_back(ReadPlacement(read , ori, start, stop, name));
+        int pair = parser.AsInt(5);
+        int pairOrient = parser.AsInt(6);
+        contig.push_back(ReadPlacement(read , ori, start, stop, pair, pairOrient, ""));
     }  
 }
 
@@ -112,15 +113,15 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
       
             for (j=0; j<c.isize(); j++) {
                 const ReadPlacement & r = c[j];	
-                fprintf(pOut, "%d\t%d\t%d - %d\t%s\n", r.Read(), r.Ori(), r.Start(), r.Stop(), r.Name().c_str());
+                fprintf(pOut, "%d\t%d\t%d - %d\t%d\t%d\n", r.Read(), r.Ori(), r.Start(), r.Stop(), r.Pair(), r.PairOrient());
 	
             }
-            fprintf(pOut, "<CONTIG_READCOUNT> %d </CONTIG_READCOUNT>\n", c.NumReads());
-            fprintf(pOut, "<CONTIG_PAIRCOUNT> %d </CONTIG_PAIRCOUNT>\n", c.NumPairs());
+            fprintf(pOut, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", nameC.c_str(), c.NumReads());
+            fprintf(pOut, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", nameC.c_str(), c.NumPairs());
             fprintf(pOut, "</CONTIG>\t%s\n", nameC.c_str());
         }
-        fprintf(pOut, "<SCAFFOLD_READCOUNT> %d </SCAFFOLD_READCOUNT>\n", s.NumReads());
-        fprintf(pOut, "<SCAFFOLD_PAIRCOUNT> %d </SCAFFOLD_PAIRCOUNT>\n", s.NumPairs());
+        fprintf(pOut, "<SCAFFOLD_READCOUNT> %s %d </SCAFFOLD_READCOUNT>\n", name.c_str(), s.NumUniqReads());
+        fprintf(pOut, "<SCAFFOLD_PAIRCOUNT> %s %d </SCAFFOLD_PAIRCOUNT>\n", name.c_str(), s.NumUniqPairs());
         fprintf(pOut, "</SCAFFOLD>\t%s\n", name.c_str());
     }
 

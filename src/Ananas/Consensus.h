@@ -86,8 +86,8 @@ class LayoutSink
   FILE * m_pLayout;
   int m_counter;
   int m_minor;
-  int m_numOfReads;
-  int m_numOfPaired;
+  map<int, bool> m_currReads;
+  map<int, bool> m_currPairedReads;
   string m_lastContigName;
   string m_lastScaffName;
   DNAVector m_lastCons;
