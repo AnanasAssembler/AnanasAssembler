@@ -26,13 +26,14 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
     m_overlaps.resize(totSize); // Make sure enough memory is declared 
 
     ThreadHandler th;
+    if(numOfThreads>totSize) { numOfThreads = totSize; }
     for (int i=0; i<numOfThreads; i++) {
         char tmp[256];
         sprintf(tmp, "%d", i);
         string init = "init_";
         init += tmp;
-        int from = i*(totSize/numOfThreads);
-        int to   = (i+1)*(totSize/numOfThreads);
+        int from = i*totSize/numOfThreads;
+        int to   = (i+1)*totSize/numOfThreads;
         th.AddThread(new FindOverlapsThread(subreads, m_overlaps, mode, from, to, i));    
         th.Feed(i, init);
     }

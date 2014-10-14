@@ -66,13 +66,15 @@ void ContigScaffoldIO::Read(Assembled & assembled, const string &file)
             continue;
         }
 
-        int read = parser.AsInt(0);
-        int ori = parser.AsInt(1);
-        int start = parser.AsInt(2);
-        int stop = parser.AsInt(4);
-        int pair = parser.AsInt(5);
-        int pairOrient = parser.AsInt(6);
-        contig.push_back(ReadPlacement(read , ori, start, stop, pair, pairOrient, ""));
+        if(parser.GetItemCount()>6) {
+            int read = parser.AsInt(0);
+            int ori = parser.AsInt(1);
+            int start = parser.AsInt(2);
+            int stop = parser.AsInt(4);
+            int pair = parser.AsInt(5);
+            int pairOrient = parser.AsInt(6);
+            contig.push_back(ReadPlacement(read , ori, start, stop, pair, pairOrient, ""));
+        }
     }  
 }
 
