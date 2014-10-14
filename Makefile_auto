@@ -20,6 +20,7 @@ src/Alignment.o: $(SRC)/base/ErrorHandling.h $(SRC)/base/SVector.h $(SRC)/src/Al
 src/AlignmentBlock.o: $(SRC)/base/ErrorHandling.h $(SRC)/base/FileParser.h $(SRC)/base/SVector.h $(SRC)/src/AlignmentBlock.cc $(SRC)/src/AlignmentBlock.h $(SRC)/util/mutil.h 
 src/Ananas/Ananas.o: $(SRC)/base/CommandLineParser.h $(SRC)/base/ErrorHandling.h $(SRC)/base/FileParser.h $(SRC)/base/SVector.h $(SRC)/base/StringUtil.h $(SRC)/base/ThreadHandler.h $(SRC)/extern/logger/log.h $(SRC)/src/Ananas/Ananas.cc $(SRC)/src/Ananas/Version.h $(SRC)/util/SysTime.h $(SRC)/util/mutil.h 
 src/Ananas/BuildReadGroups.o: $(SRC)/base/CommandLineParser.h $(SRC)/base/ErrorHandling.h $(SRC)/base/FileParser.h $(SRC)/base/SVector.h $(SRC)/base/StringUtil.h $(SRC)/extern/logger/log.h $(SRC)/src/Ananas/BuildReadGroups.cc $(SRC)/src/DNAVector.h $(SRC)/util/mutil.h 
+src/Ananas/ClusterContigs.o: $(SRC)/base/CommandLineParser.h $(SRC)/base/ErrorHandling.h $(SRC)/base/FileParser.h $(SRC)/base/SVector.h $(SRC)/base/StringUtil.h $(SRC)/base/ThreadHandler.h $(SRC)/extern/logger/log.h $(SRC)/src/Alignment.h $(SRC)/src/Ananas/AssemblyParams.h $(SRC)/src/Ananas/ClusterContigs.cc $(SRC)/src/Ananas/ConsensOverlapUnit.h $(SRC)/src/Ananas/ReadOverlap.h $(SRC)/src/Ananas/Reads.h $(SRC)/src/Ananas/SubReads.h $(SRC)/src/Cola/AlignerParams.h $(SRC)/src/Cola/AlignmentCola.h $(SRC)/src/Cola/Cola.h $(SRC)/src/Cola/EditGraph.h $(SRC)/src/DNAVector.h $(SRC)/util/mutil.h 
 src/Ananas/ConsensOverlapUnit.o: $(SRC)/base/ErrorHandling.h $(SRC)/base/FileParser.h $(SRC)/base/RandomStuff.h $(SRC)/base/SVector.h $(SRC)/base/StringUtil.h $(SRC)/base/ThreadHandler.h $(SRC)/extern/logger/log.h $(SRC)/src/Alignment.h $(SRC)/src/Ananas/AssemblyParams.h $(SRC)/src/Ananas/ConsensOverlapUnit.cc $(SRC)/src/Ananas/ConsensOverlapUnit.h $(SRC)/src/Ananas/ReadOverlap.h $(SRC)/src/Ananas/Reads.h $(SRC)/src/Ananas/SubReads.h $(SRC)/src/Cola/AlignerParams.h $(SRC)/src/Cola/AlignmentCola.h $(SRC)/src/Cola/Cola.h $(SRC)/src/Cola/EditGraph.h $(SRC)/src/DNAVector.h $(SRC)/util/mutil.h 
 src/Ananas/Consensus.o: $(SRC)/base/ErrorHandling.h $(SRC)/base/FileParser.h $(SRC)/base/SVector.h $(SRC)/base/ThreadHandler.h $(SRC)/extern/logger/log.h $(SRC)/src/Alignment.h $(SRC)/src/Ananas/AssemblyParams.h $(SRC)/src/Ananas/CachedVec.h $(SRC)/src/Ananas/ConsensOverlapUnit.h $(SRC)/src/Ananas/Consensus.cc $(SRC)/src/Ananas/Consensus.h $(SRC)/src/Ananas/ContScaff.h $(SRC)/src/Ananas/ReadOverlap.h $(SRC)/src/Ananas/Reads.h $(SRC)/src/Ananas/SearchOverlaps.h $(SRC)/src/Ananas/SubReads.h $(SRC)/src/Cola/AlignerParams.h $(SRC)/src/Cola/AlignmentCola.h $(SRC)/src/Cola/Cola.h $(SRC)/src/Cola/EditGraph.h $(SRC)/src/DNAVector.h $(SRC)/util/mutil.h 
 src/Ananas/ContScaff.o: $(SRC)/base/ErrorHandling.h $(SRC)/base/SVector.h $(SRC)/src/Ananas/ContScaff.cc $(SRC)/src/Ananas/ContScaff.h $(SRC)/src/DNAVector.h 
@@ -81,6 +82,13 @@ BuildReadGroups:  base/ErrorHandling.o base/FileParser.o base/StringUtil.o src/A
 	$(BIN)/checkLock $(BIN)/$@
 	$(CPLUSPLUS) $(LINK_OPTIONS) -o $(BIN)/$@  $(OBJ)/src/Ananas/BuildReadGroups.o -L. $(LINK_LIBS) -l_BuildReadGroups_temp
 	/bin/rm lib_BuildReadGroups_temp.a
+ClusterContigs:  checkLock
+ClusterContigs:  base/ErrorHandling.o base/FileParser.o base/StringUtil.o base/ThreadHandler.o src/Alignment.o src/AlignmentBlock.o src/Ananas/ClusterContigs.o src/Ananas/ConsensOverlapUnit.o src/Ananas/Consensus.o src/Ananas/ContScaff.o src/Ananas/GlobUsage.o src/Ananas/ReadOverlap.o src/Ananas/Reads.o src/Ananas/SearchOverlaps.o src/Cola/AlignmentCola.o src/Cola/Cola.o src/Cola/EditGraph.o src/Cola/NSGAaligner.o src/Cola/NSaligner.o src/Cola/SWGAaligner.o src/Coordinate.o src/DNAVector.o util/mutil.o
+	/bin/rm -f lib_ClusterContigs_temp.a
+	ar -qc lib_ClusterContigs_temp.a $(OBJ)/base/ErrorHandling.o $(OBJ)/base/FileParser.o $(OBJ)/base/StringUtil.o $(OBJ)/base/ThreadHandler.o $(OBJ)/src/Alignment.o $(OBJ)/src/AlignmentBlock.o $(OBJ)/src/Ananas/ClusterContigs.o $(OBJ)/src/Ananas/ConsensOverlapUnit.o $(OBJ)/src/Ananas/Consensus.o $(OBJ)/src/Ananas/ContScaff.o $(OBJ)/src/Ananas/GlobUsage.o $(OBJ)/src/Ananas/ReadOverlap.o $(OBJ)/src/Ananas/Reads.o $(OBJ)/src/Ananas/SearchOverlaps.o $(OBJ)/src/Cola/AlignmentCola.o $(OBJ)/src/Cola/Cola.o $(OBJ)/src/Cola/EditGraph.o $(OBJ)/src/Cola/NSGAaligner.o $(OBJ)/src/Cola/NSaligner.o $(OBJ)/src/Cola/SWGAaligner.o $(OBJ)/src/Coordinate.o $(OBJ)/src/DNAVector.o $(OBJ)/util/mutil.o
+	$(BIN)/checkLock $(BIN)/$@
+	$(CPLUSPLUS) $(LINK_OPTIONS) -o $(BIN)/$@  $(OBJ)/src/Ananas/ClusterContigs.o -L. $(LINK_LIBS) -l_ClusterContigs_temp
+	/bin/rm lib_ClusterContigs_temp.a
 EnumerateSeqs:  checkLock
 EnumerateSeqs:  aligns/KmerAlignCore.o aligns/KmerDynProg.o base/ErrorHandling.o base/FileParser.o base/StringUtil.o src/AlignmentBlock.o src/Ananas/ContScaff.o src/Ananas/ContScaffIO.o src/Ananas/EnumerateSeqs.o src/Ananas/SequenceGraph.o src/Coordinate.o src/DNAVector.o util/mutil.o
 	/bin/rm -f lib_EnumerateSeqs_temp.a
@@ -250,6 +258,7 @@ OBJECTS = \
   src/AlignmentBlock.o\
   src/Ananas/Ananas.o\
   src/Ananas/BuildReadGroups.o\
+  src/Ananas/ClusterContigs.o\
   src/Ananas/ConsensOverlapUnit.o\
   src/Ananas/Consensus.o\
   src/Ananas/ContScaff.o\
@@ -303,6 +312,7 @@ nolink: $(OBJECTS)
 EXECUTABLES = \
   Ananas\
   BuildReadGroups\
+  ClusterContigs\
   EnumerateSeqs\
   FilterBlat\
   FindAlternativeSplicing\
@@ -340,6 +350,7 @@ src: \
 src.Ananas: \
   Ananas\
   BuildReadGroups\
+  ClusterContigs\
   EnumerateSeqs\
   FindAlternativeSplicing\
   GenAssemblyFasta\

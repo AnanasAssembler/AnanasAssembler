@@ -95,8 +95,9 @@ void sortSubs(bool consensMode);
   string getSeq(unsigned long index) const;  //Get Subread sequence chars via the index in subreads
  
   /** Return a vector of SubRead entry indexes for a given 
-     read of those Subreads that share a significant subsequence */
-  void findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps) const;  
+     read of those Subreads that share a significant subsequence 
+     mode 0: only overlaps that extend the read, mode 1: all overlaps*/
+  void findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
 
 private:
   struct CmpSubReadCO { //SubRead comparison struct for consensus finding
@@ -210,7 +211,7 @@ void SubReads<ReadType>::sortSubs(bool consensMode) {
 }
 
 template<class ReadType>
-void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps) const { 
+void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const { 
   map<unsigned long, bool> readsUsed_curr;    //Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;           //Add the read index to the used list so that overlaps with itself won't be computed
   DNAVector extSeq, origSeq1, origSeq2;       //extension and read sequence (1 for checkInit step and 2 for the alignment)
@@ -239,13 +240,11 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
           int contactPos;
           if(overlapDir==1) { 
             contactPos = i - (*fIt).getOffset(); 
-          } else {
+          } else if(overlapDir==-1){
             contactPos = (readSize-i) - (m_reads[(*fIt).getIndex()].size()-(*fIt).getOffset()); 
-          }
-          if(contactPos<0) { 
-            FILE_LOG(logDEBUG3)  << "Overlap not found (containment) ";
-            //continue;
-          }
+          } else if(overlapDir==0 && mode==1){ // overlapDir=0 doesnt extend overlap to any side
+            contactPos = i - (*fIt).getOffset(); 
+          } else { return; } 
           allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, matchScore, overlapDir, (*fIt).getStrand());
           FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
                                << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
@@ -290,13 +289,13 @@ float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector
   if(matchScore>=getMinIdentity()) {
     if(extSeq.size()>=origSeq.size()  && origSeqAlignedBases >=getMinEndCover()*origSeq.size()) {
       matchDirection = 1; //Right side overlap
-      return matchScore;
     } else if(extSeqAlignedBases >=getMinEndCover()*extSeq.size()) {
       matchDirection = -1; //Left-side overlap
-      return matchScore;
     } else {
-      FILE_LOG(logDEBUG2) << "Overlap doesn't extend to eithr side";
+      matchDirection = 0; //No-extension overlap
+      FILE_LOG(logDEBUG3) << "Overlap doesn't extend to eithr side";
     }
+    return matchScore;
   } else { 
     FILE_LOG(logDEBUG2) << "Significant overlap through alignment was not found.";
   }

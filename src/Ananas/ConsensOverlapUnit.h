@@ -66,7 +66,7 @@ public:
   int getNumOfPartners(int readIdx) const                            { return m_partners.getNumOfPartners(readIdx);    }
   int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
 
-  void findOverlaps(int numOfThreads, string groupedReadInfo="", double identThresh=0.99);  
+  void findOverlaps(int numOfThreads, int mode, string groupedReadInfo="", double identThresh=0.99);  
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 
   void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);          } 
   void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 
@@ -90,9 +90,9 @@ class FindOverlapsThread : public IOneThread
 {
 public:
   FindOverlapsThread(const SubReads<ConsensReads>& sr,
-                     AllReadOverlaps& ol, 
+                     AllReadOverlaps& ol, int mode,
                      int from, int to,
-                     int tn): m_subreads(sr), m_overlaps(ol),
+                     int tn): m_subreads(sr), m_overlaps(ol), m_mode(mode),
                               m_fromIdx(from), m_toIdx(to), m_threadIdx(tn) {}
 
 protected:
@@ -102,7 +102,8 @@ protected:
 
 private:
   const SubReads<ConsensReads>&  m_subreads;  /// Subreads to find overlaps
-  AllReadOverlaps& m_overlaps;                 /// All overlaps among consensus reads
+  AllReadOverlaps& m_overlaps;                /// All overlaps among consensus reads
+  int m_mode;                                 /// Specify if none-extending overlaps should also be returned (1 and if not 0) 
   int m_fromIdx;
   int m_toIdx;
   int m_threadIdx;

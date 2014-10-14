@@ -51,8 +51,8 @@ public:
   }
 
   void addOverlap(const ReadOverlap & oL) {
-    if(oL.getDirection()==1) { m_rightOverlaps.push_back(oL); }
-    else                     { m_leftOverlaps.push_back(oL);  }
+    if(oL.getDirection()==-1) { m_leftOverlaps.push_back(oL);   }
+    else                      { m_rightOverlaps.push_back(oL);  }
     m_overlapIds.push_back(oL.getOverlapIndex());
   }
     

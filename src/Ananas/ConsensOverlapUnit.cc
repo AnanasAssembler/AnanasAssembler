@@ -9,7 +9,7 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads, string groupedReadInfo, double identThresh) {
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string groupedReadInfo, double identThresh) {
     if(groupedReadInfo=="") {
         createConsensReads(identThresh); 
     } else {
@@ -33,7 +33,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, string groupedReadInfo, 
         init += tmp;
         int from = i*(totSize/numOfThreads);
         int to   = (i+1)*(totSize/numOfThreads);
-        th.AddThread(new FindOverlapsThread(subreads, m_overlaps,from, to, i));    
+        th.AddThread(new FindOverlapsThread(subreads, m_overlaps, mode, from, to, i));    
         th.Feed(i, init);
     }
 
@@ -118,7 +118,7 @@ bool FindOverlapsThread::OnDo(const string & msg) {
         inc = 1;
 
     for(int i=m_fromIdx; i<m_toIdx; i++) { 
-        m_subreads.findOverlaps(i, m_overlaps); 
+        m_subreads.findOverlaps(i, m_overlaps, m_mode); 
         progCount++;
         if (progCount % inc == 0) 
             cout << "\r===================== " << 100.0*progCount/totSize 
