@@ -133,6 +133,28 @@ void ConsensOverlapUnit::findPartners() {
         }
     }
 }
+
+void ConsensOverlapUnit::writeContigClusters(const string& clusterFile) const {
+    ofstream sout;
+    sout.open(clusterFile.c_str());
+    int totNumOfReads = m_overlaps.getSize();
+    sout << totNumOfReads << endl;
+    for(int index=0; index<totNumOfReads; index++) {
+        for(int dir=-1; dir<2; dir+=2) {
+           const svec<ReadOverlap>& overlaps  = m_overlaps.getReadOverlaps(index, dir);
+           stringstream ss;
+            for(int j=0; j<overlaps.isize(); j++) {
+               ss << m_rawReads[index].Name()  << "\t" << m_rawReads[overlaps[j].getOverlapIndex()].Name() << "\t" 
+                  << overlaps[j].getContactPos() << "\t" << overlaps[j].getScore() << "\t" << "\t" << (dir==1?">":"<") << "\t"
+                  << (overlaps[j].getOrient()==1?"+":"-") << endl;
+            } 
+            sout << ss.str();
+        }
+    }
+    sout.close();
+}
+
+
 //======================================================
 
 

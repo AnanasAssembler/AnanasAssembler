@@ -68,18 +68,22 @@ public:
   int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
 
   void findOverlaps(int numOfThreads, int mode, string groupedReadInfo="", double identThresh=0.99);  
-  void clusterContigs(int numOfThreads);
+  void clusterContigs(int numOfThreads);//TODO move into its own class
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 
   void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);          } 
   void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 
   void writeOverlaps(const string& overlapFile, int mode) const      { m_overlaps.write(overlapFile, mode);            } 
+
+  //TODO move into its own class
+  void writeContigClusters(const string& clusterFile) const;
 
 private:
   /** Group Near Identical reads and obtain consensus sequences */
   void createConsensReads(float minMatchScore_p);  
   void findPartners();
 
-  const ReadInfo & getOverlap(int i) const {return m_overlaps[i];}
+  const ReadInfo& getOverlap(int i) const         { return m_overlaps[i]; }
+  const AllReadOverlaps& getOverlaps(int i) const { return m_overlaps;    }
 
   AssemblyParams         m_params;          /// Object containing the various parameters required for assembly
   RawReads               m_rawReads;        /// A list of reads from which subreads where constructed
@@ -150,9 +154,16 @@ bool FindOverlapsThread<SuffixType>::OnDo(const string & msg) {
 //======================================================
 template <class SuffixType>
 bool FindOverlapsSingleThread<SuffixType>::OnDo(const string & msg) {
+   int totSize = this->m_threadQueue.getSize();
+   int inc     = totSize/100;
+   if (inc < 1)
+     inc = 1;
    int currIdx = this->m_threadQueue.getNext();
    while(currIdx>=0) {
      this->m_subreads.findOverlaps(currIdx, this->m_overlaps, this->m_mode); 
+     if (currIdx  % inc == 0) 
+            cout << "\r===================== " << 100.0*currIdx/totSize 
+                 << "%  " << flush; 
      currIdx = this->m_threadQueue.getNext();
    }
    return true;

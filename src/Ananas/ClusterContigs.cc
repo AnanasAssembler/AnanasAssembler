@@ -77,10 +77,7 @@ int main(int argc,char** argv)
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
     COUnit.clusterContigs(numOfThreads);
-    COUnit.writePairSzInfo(pairSzFile);
-    COUnit.writeOverlaps(overlapFile, 1);
-    COUnit.writeConsensInfo(consensFile, 1);
-    //COUnit.writeConsensReads("temp_consensRead.fa");
+    COUnit.writeContigClusters(overlapFile);
     return 0;
 }
 

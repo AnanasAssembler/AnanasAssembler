@@ -10,9 +10,8 @@ public:
     ThreadQueueVec(): m_mutex(), m_totalInstances(0), m_currIndex(0) {}
     ThreadQueueVec(int totSize): m_mutex(), m_totalInstances(totSize), m_currIndex(0) {}
 
-    void setSize(int n) {
-        m_totalInstances = n;
-    }
+    void setSize(int n) { m_totalInstances = n;    }
+    int  getSize()      { return m_totalInstances; }
      
     int getNext() {
         int retVal = -1;

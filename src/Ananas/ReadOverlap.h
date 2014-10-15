@@ -108,9 +108,8 @@ public:
     m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, score, direction, orient);
   }
 
-  void resize(int sz) { 
-    m_overlaps.resize(sz);
-  }
+  void resize(int sz)  { m_overlaps.resize(sz);     }
+  int  getSize() const { return m_overlaps.isize(); }
 
   void write(const string& overlapFile, int mode) const; 
   void writeAsc(const string& readOverlapFile) const; 
@@ -122,11 +121,11 @@ public:
 
   bool isChimeric(int i) const { return m_chimera[i]; }
 
-private:
   const svec<ReadOverlap>& getReadOverlaps(int readIndex, int isRight) const { 
     return m_overlaps[readIndex].getOverlaps(isRight);
   }
 
+private:
   void postReadActions(const ConsensReads& consReads); 
 
   /** Internal helper class for writing/serialization */
