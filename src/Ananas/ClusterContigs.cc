@@ -76,7 +76,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.findOverlaps(numOfThreads, 1, readGroupFile, 0.95);
+    COUnit.clusterContigs(numOfThreads);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 1);
     COUnit.writeConsensInfo(consensFile, 1);

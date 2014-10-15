@@ -21,7 +21,6 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
 
     FILE_LOG(logDEBUG1) << "Finding Overlaps";
     cout << "Finding All Overlaps..." << endl;
-    int progCount = 0;
 
     m_overlaps.resize(totSize); // Make sure enough memory is declared 
 
@@ -34,7 +33,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
         init += tmp;
         int from = i*totSize/numOfThreads;
         int to   = (i+1)*totSize/numOfThreads;
-        th.AddThread(new FindOverlapsThread(subreads, m_overlaps, mode, from, to, i));    
+        th.AddThread(new FindOverlapsThread< SubReads<ConsensReads> >(subreads, m_overlaps, mode, from, to, i));    
         th.Feed(i, init);
     }
 
@@ -90,6 +89,32 @@ void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
     findPartners(); //Set the partners for the consensus reads
 } 
 
+void ConsensOverlapUnit::clusterContigs(int numOfThreads) {
+    SubReads<RawReads>  subreads(m_rawReads, m_params, false); // Object handling the subreads 
+    int totSize   = m_rawReads.getNumOfReads();
+
+    cout << "Clustering Contigs..." << endl;
+
+    m_overlaps.resize(totSize); // Make sure enough memory is declared 
+
+    ThreadQueueVec threadQueue(totSize);
+    ThreadHandler th;
+    if(numOfThreads>totSize) { numOfThreads = totSize; }
+    for (int i=0; i<numOfThreads; i++) {
+        char tmp[256];
+        sprintf(tmp, "%d", i);
+        string init = "init_";
+        init += tmp;
+        th.AddThread(new FindOverlapsSingleThread< SubReads<RawReads> >(threadQueue, subreads, m_overlaps, 1, i));    
+        th.Feed(i, init);
+    }
+
+    while (!th.AllDone()) {
+        usleep(10000);
+    }
+    cout << "\r===================== " << "100.0% " << flush; 
+    cout << "Completed finding Overlaps." << endl;
+}
 //TODO determine what should be done
 void ConsensOverlapUnit::Prune(const svec<int> & good) {
     for (int i=0; i<good.isize(); i++) {
@@ -110,23 +135,4 @@ void ConsensOverlapUnit::findPartners() {
 }
 //======================================================
 
-//======================================================
-bool FindOverlapsThread::OnDo(const string & msg) {
-    int progCount = 0;
-    int totSize   = (m_toIdx - m_fromIdx);
-    int inc       = totSize/100;
-    if (inc < 1)
-        inc = 1;
 
-    for(int i=m_fromIdx; i<m_toIdx; i++) { 
-        m_subreads.findOverlaps(i, m_overlaps, m_mode); 
-        progCount++;
-        if (progCount % inc == 0) 
-            cout << "\r===================== " << 100.0*progCount/totSize 
-                 << "%  " << flush; 
-    }
-    return true;
-}
-
-
-//======================================================
