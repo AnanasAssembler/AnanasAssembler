@@ -309,11 +309,15 @@ void ReadGroups::write(const string& readGroupFile) const {
 
 void ReadGroups::write(ostream& sout) const {
     for(int i=0; i<m_groups.isize(); i++) {
-        sout << i;
         for(int j=0; j<m_groups[i].isize(); j++) {
-            sout << "\t" << m_groups[i][j]; 
+            int idx = m_groups[i][j];
+            if(m_tags.isize()>idx) { 
+                sout << m_tags[j] << "\t";
+            } else {
+                sout << m_groups[i][j] << "\t" ; 
+            }
         }
-        sout << endl; 
+        if(m_groups[i].isize()>0) { sout << endl; }
     }
 }
 //======================================================

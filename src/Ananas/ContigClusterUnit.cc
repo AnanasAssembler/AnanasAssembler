@@ -34,6 +34,21 @@ void ContigClusterUnit::clusterContigs(int numOfThreads) {
     }
     cout << "\r===================== " << "100.0% " << flush; 
     cout << "Completed finding Overlaps." << endl;
+
+    ReadGroups nIdentGroupInfo(m_rawReads.getNumOfReads());   // Make sure enough memory is declared 
+    for(int i=0; i<totSize; i++) {
+      for(int dir=-1; dir<2; dir+=2) {
+        const svec<ReadOverlap>& currOverlaps  = overlaps.getReadOverlaps(i, dir);
+        for(int j=0; j<currOverlaps.isize(); j++) {
+          if(!nIdentGroupInfo.isGrouped(i, currOverlaps[j].getOverlapIndex())) { 
+            nIdentGroupInfo.group(i, currOverlaps[j].getOverlapIndex()); 
+          }
+        }
+      }
+    }         
+    nIdentGroupInfo.assignSingleGroups();
+    nIdentGroupInfo.setTags<RawReads>(m_rawReads);
+    nIdentGroupInfo.write("temp1.tmp");
     writeContigClusters("temp.tmp", overlaps);
 }
 
@@ -48,6 +63,7 @@ void ContigClusterUnit::writeContigClusters(const string& clusterFile, const All
            stringstream ss;
             for(int j=0; j<currOverlaps.isize(); j++) {
                ss << m_rawReads[index].Name()  << "\t" << m_rawReads[currOverlaps[j].getOverlapIndex()].Name() << "\t" 
+                  << m_rawReads[index].size()  << "\t" << m_rawReads[currOverlaps[j].getOverlapIndex()].size() << "\t"
                   << currOverlaps[j].getContactPos() << "\t" << currOverlaps[j].getScore() << "\t" << "\t" << (dir==1?">":"<") << "\t"
                   << (currOverlaps[j].getOrient()==1?"+":"-") << endl;
             } 

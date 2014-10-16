@@ -126,7 +126,9 @@ class ReadGroups
 //This class is to be used together with ConsensusReads as it is not generic at all
 public:
   /** Can only be constructed with size as parameter so that user is aware that size should be set */
-  ReadGroups(int size):m_groups(), m_groupInfo()     { resize(size);                }
+  ReadGroups(int size):m_groups(), m_groupInfo(), m_tags() { 
+    resize(size); 
+  }
 
   void resize(int sz)                              { m_groupInfo.resize(sz, -1);  }
   const svec<int>& getGroup(int i) const           { return m_groups[i];          }
@@ -141,6 +143,14 @@ public:
 
   void group(int rIdx1, int rIdx2); 
   void assignSingleGroups(); 
+
+  template<class ReadsType>
+  void setTags(const ReadsType& reads) {
+    m_tags.resize(reads.getNumOfReads());
+    for(int i=0; i<reads.getNumOfReads(); i++) {
+      m_tags[i] = reads[i].Name();
+    }
+  }
 
   void write(const string& outFile) const; 
   void write(ostream& sout) const;
@@ -157,6 +167,7 @@ private:
 
   svec< svec<int> > m_groups;     /// Holds for every group, a list of read indexes 
   svec<int>         m_groupInfo;  /// Holds for every read the group index
+  svec<string>      m_tags;       /// A tag that can optionally be assigned to each read, used for writing out results
 };
 //======================================================
 
