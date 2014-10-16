@@ -6,7 +6,7 @@
 #include "src/Ananas/AssemblyParams.h"
 #include "src/Ananas/Reads.h"
 #include "src/Ananas/ReadOverlap.h"
-#include "src/Ananas/ThreadQueueVec.h"
+#include "src/Ananas/Threads.h"
 
 
 //======================================================
@@ -68,14 +68,10 @@ public:
   int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
 
   void findOverlaps(int numOfThreads, int mode, string groupedReadInfo="", double identThresh=0.99);  
-  void clusterContigs(int numOfThreads);//TODO move into its own class
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 
   void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);          } 
   void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 
   void writeOverlaps(const string& overlapFile, int mode) const      { m_overlaps.write(overlapFile, mode);            } 
-
-  //TODO move into its own class
-  void writeContigClusters(const string& clusterFile) const;
 
 private:
   /** Group Near Identical reads and obtain consensus sequences */
@@ -92,85 +88,7 @@ private:
   ReadPartners           m_partners;        /// Containing partners for every consensus read, computed from the raw read pairing info
 };
 
-template <class SuffixType>
-class FindOverlapsThread : public IOneThread
-{
-public:
-  FindOverlapsThread(const SuffixType& sr,
-                           AllReadOverlaps& ol, int mode,
-                           int from, int to, int tn): m_subreads(sr), m_overlaps(ol), m_mode(mode),
-                                                      m_fromIdx(from), m_toIdx(to), m_threadIdx(tn) {}
-
-protected:
-  virtual bool OnDie() { return true; }
-  virtual bool OnDo(const string & msg); 
-  virtual bool OnInitialize(const string & msg) {    return true; }
-
-  const SuffixType&  m_subreads;              /// Subreads to find overlaps
-  AllReadOverlaps& m_overlaps;                /// All overlaps among consensus reads
-  int m_mode;                                 /// Specify if none-extending overlaps should also be returned (1 and if not 0) 
-  int m_fromIdx;
-  int m_toIdx;
-  int m_threadIdx;
-};
-
-template <class SuffixType>
-class FindOverlapsSingleThread : public FindOverlapsThread<SuffixType>
-{
-public:
-  FindOverlapsSingleThread(ThreadQueueVec& tQueue, const SuffixType& sr,
-                     AllReadOverlaps& ol, int mode,
-                     int tn): FindOverlapsThread<SuffixType>(sr, ol, mode,
-                                                 0, 0, tn), m_threadQueue(tQueue) {}
-protected:
-  virtual bool OnDo(const string & msg); 
-
-private:
-  ThreadQueueVec& m_threadQueue;              /// Queue for picking up jobs from the queue
-};
-
 //======================================================
-template <class SuffixType>
-bool FindOverlapsThread<SuffixType>::OnDo(const string & msg) {
-    int progCount = 0;
-    int totSize   = (m_toIdx - m_fromIdx);
-    int inc       = totSize/100;
-    if (inc < 1)
-        inc = 1;
-
-    for(int i=m_fromIdx; i<m_toIdx; i++) { 
-        m_subreads.findOverlaps(i, m_overlaps, m_mode); 
-        progCount++;
-        if (progCount % inc == 0) 
-            cout << "\r===================== " << 100.0*progCount/totSize 
-                 << "%  " << flush; 
-    }
-    return true;
-}
-
-
-//======================================================
-
-//======================================================
-template <class SuffixType>
-bool FindOverlapsSingleThread<SuffixType>::OnDo(const string & msg) {
-   int totSize = this->m_threadQueue.getSize();
-   int inc     = totSize/100;
-   if (inc < 1)
-     inc = 1;
-   int currIdx = this->m_threadQueue.getNext();
-   while(currIdx>=0) {
-     this->m_subreads.findOverlaps(currIdx, this->m_overlaps, this->m_mode); 
-     if (currIdx  % inc == 0) 
-            cout << "\r===================== " << 100.0*currIdx/totSize 
-                 << "%  " << flush; 
-     currIdx = this->m_threadQueue.getNext();
-   }
-   return true;
-}
-
-//======================================================
-
 
 
 

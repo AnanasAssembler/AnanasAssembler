@@ -89,32 +89,6 @@ void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
     findPartners(); //Set the partners for the consensus reads
 } 
 
-void ConsensOverlapUnit::clusterContigs(int numOfThreads) {
-    SubReads<RawReads>  subreads(m_rawReads, m_params, false); // Object handling the subreads 
-    int totSize   = m_rawReads.getNumOfReads();
-
-    cout << "Clustering Contigs..." << endl;
-
-    m_overlaps.resize(totSize); // Make sure enough memory is declared 
-
-    ThreadQueueVec threadQueue(totSize);
-    ThreadHandler th;
-    if(numOfThreads>totSize) { numOfThreads = totSize; }
-    for (int i=0; i<numOfThreads; i++) {
-        char tmp[256];
-        sprintf(tmp, "%d", i);
-        string init = "init_";
-        init += tmp;
-        th.AddThread(new FindOverlapsSingleThread< SubReads<RawReads> >(threadQueue, subreads, m_overlaps, 1, i));    
-        th.Feed(i, init);
-    }
-
-    while (!th.AllDone()) {
-        usleep(10000);
-    }
-    cout << "\r===================== " << "100.0% " << flush; 
-    cout << "Completed finding Overlaps." << endl;
-}
 //TODO determine what should be done
 void ConsensOverlapUnit::Prune(const svec<int> & good) {
     for (int i=0; i<good.isize(); i++) {
@@ -132,26 +106,6 @@ void ConsensOverlapUnit::findPartners() {
             if(consIdx!=-1) { m_partners.addPartner(i, consIdx); }
         }
     }
-}
-
-void ConsensOverlapUnit::writeContigClusters(const string& clusterFile) const {
-    ofstream sout;
-    sout.open(clusterFile.c_str());
-    int totNumOfReads = m_overlaps.getSize();
-    sout << totNumOfReads << endl;
-    for(int index=0; index<totNumOfReads; index++) {
-        for(int dir=-1; dir<2; dir+=2) {
-           const svec<ReadOverlap>& overlaps  = m_overlaps.getReadOverlaps(index, dir);
-           stringstream ss;
-            for(int j=0; j<overlaps.isize(); j++) {
-               ss << m_rawReads[index].Name()  << "\t" << m_rawReads[overlaps[j].getOverlapIndex()].Name() << "\t" 
-                  << overlaps[j].getContactPos() << "\t" << overlaps[j].getScore() << "\t" << "\t" << (dir==1?">":"<") << "\t"
-                  << (overlaps[j].getOrient()==1?"+":"-") << endl;
-            } 
-            sout << ss.str();
-        }
-    }
-    sout.close();
 }
 
 

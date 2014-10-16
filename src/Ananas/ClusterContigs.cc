@@ -2,7 +2,7 @@
 #include <omp.h>
 #include "base/CommandLineParser.h"
 #include "extern/logger/log.h"
-#include "src/Ananas/ConsensOverlapUnit.h"
+#include "src/Ananas/ContigClusterUnit.h"
 
 
 int main(int argc,char** argv)
@@ -75,9 +75,9 @@ int main(int argc,char** argv)
     AssemblyParams params(singleStrand, readBlockSize, seedSize,
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
-    ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.clusterContigs(numOfThreads);
-    COUnit.writeContigClusters(overlapFile);
+    ContigClusterUnit CLUnit(params, inputFile);
+    CLUnit.clusterContigs(numOfThreads);
+    //CLUnit.writeContigClusters(overlapFile);
     return 0;
 }
 
