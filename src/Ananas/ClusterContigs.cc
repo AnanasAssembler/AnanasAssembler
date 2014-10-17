@@ -17,7 +17,7 @@ int main(int argc,char** argv)
     commandArg<int>    eCmmd("-S","Seed size for choosing candidates", 30);
     commandArg<double> fCmmd("-I","Minimum acceptable identity for overlapping sequences", 0.95);
     commandArg<double> gCmmd("-c","Minimum Coverage of the read ends for an acceptable extension", 0.96);
-    commandArg<int>    hCmmd("-O","Minimum overlap of an acceptable extension", 500);
+    commandArg<int>    hCmmd("-O","Minimum overlap of an acceptable extension", 200);
     commandArg<int>    iCmmd("-B","Bandwidth for local alignments", 4);
     commandArg<int>    jCmmd("-l","Minimum length of assembled scaffold", 400);
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
