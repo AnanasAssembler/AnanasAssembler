@@ -312,7 +312,7 @@ void ReadGroups::write(ostream& sout) const {
         for(int j=0; j<m_groups[i].isize(); j++) {
             int idx = m_groups[i][j];
             if(m_tags.isize()>idx) { 
-                sout << m_tags[j] << "\t";
+                sout << m_tags[idx] << "\t";
             } else {
                 sout << m_groups[i][j] << "\t" ; 
             }
