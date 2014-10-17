@@ -9,7 +9,7 @@ int main(int argc,char** argv)
 {
 
     commandArg<string> aCmmd("-i","FASTA file containing input reads");
-    commandArg<string> bCmmd("-o","File to Output overlaps", "contigOverlaps.out");
+    commandArg<string> bCmmd("-o","File to Output overlaps", "contigClusters.out");
     commandArg<string> b0Cmmd("-t","Temporary file for pair/size info to be used by layout search", "pairSz.tmp");
     commandArg<string> b1Cmmd("-C","File to Output consensus reads", "contigConsesReads.out");
     commandArg<bool>   cCmmd("-s","Single-strand data", true);
@@ -77,7 +77,8 @@ int main(int argc,char** argv)
                           alignBand, minBasePerScaf);
     ContigClusterUnit CLUnit(params, inputFile);
     CLUnit.clusterContigs(numOfThreads);
-    //CLUnit.writeContigClusters(overlapFile);
+    CLUnit.writeContigClusters(overlapFile);
+    CLUnit.writeContigPairs("pairs"+overlapFile);
     return 0;
 }
 

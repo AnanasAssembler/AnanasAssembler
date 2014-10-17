@@ -14,8 +14,7 @@ void ContigClusterUnit::clusterContigs(int numOfThreads) {
 
     cout << "Clustering Contigs..." << endl;
 
-    AllReadOverlaps overlaps; 
-    overlaps.resize(totSize); // Make sure enough memory is declared 
+    m_overlaps.resize(totSize); // Make sure enough memory is declared 
 
     ThreadQueueVec threadQueue(totSize);
     ThreadHandler th;
@@ -25,7 +24,7 @@ void ContigClusterUnit::clusterContigs(int numOfThreads) {
         sprintf(tmp, "%d", i);
         string init = "init_";
         init += tmp;
-        th.AddThread(new FindOverlapsSingleThread< SubReads<RawReads> >(threadQueue, subreads, overlaps, 1, i));    
+        th.AddThread(new FindOverlapsSingleThread< SubReads<RawReads> >(threadQueue, subreads, m_overlaps, 1, i));    
         th.Feed(i, init);
     }
 
@@ -35,31 +34,32 @@ void ContigClusterUnit::clusterContigs(int numOfThreads) {
     cout << "\r===================== " << "100.0% " << flush; 
     cout << "Completed finding Overlaps." << endl;
 
-    ReadGroups nIdentGroupInfo(m_rawReads.getNumOfReads());   // Make sure enough memory is declared 
     for(int i=0; i<totSize; i++) {
       for(int dir=-1; dir<2; dir+=2) {
-        const svec<ReadOverlap>& currOverlaps  = overlaps.getReadOverlaps(i, dir);
+        const svec<ReadOverlap>& currOverlaps  = m_overlaps.getReadOverlaps(i, dir);
         for(int j=0; j<currOverlaps.isize(); j++) {
-          if(!nIdentGroupInfo.isGrouped(i, currOverlaps[j].getOverlapIndex())) { 
-            nIdentGroupInfo.group(i, currOverlaps[j].getOverlapIndex()); 
+          if(!m_clusters.isGrouped(i, currOverlaps[j].getOverlapIndex())) { 
+            m_clusters.group(i, currOverlaps[j].getOverlapIndex()); 
           }
         }
       }
     }         
-    nIdentGroupInfo.assignSingleGroups();
-    nIdentGroupInfo.setTags<RawReads>(m_rawReads);
-    nIdentGroupInfo.write("temp1.tmp");
-    writeContigClusters("temp.tmp", overlaps);
+    m_clusters.assignSingleGroups();
+    m_clusters.setTags<RawReads>(m_rawReads);
 }
 
-void ContigClusterUnit::writeContigClusters(const string& clusterFile, const AllReadOverlaps& overlaps) const {
+void ContigClusterUnit::writeContigClusters(const string& clusterFile) const {
+    m_clusters.write(clusterFile);
+}
+
+void ContigClusterUnit::writeContigPairs(const string& clusterFile) const {
     ofstream sout;
     sout.open(clusterFile.c_str());
-    int totNumOfReads = overlaps.getSize();
+    int totNumOfReads = m_overlaps.getSize();
     sout << totNumOfReads << endl;
     for(int index=0; index<totNumOfReads; index++) {
         for(int dir=-1; dir<2; dir+=2) {
-           const svec<ReadOverlap>& currOverlaps  = overlaps.getReadOverlaps(index, dir);
+           const svec<ReadOverlap>& currOverlaps  = m_overlaps.getReadOverlaps(index, dir);
            stringstream ss;
             for(int j=0; j<currOverlaps.isize(); j++) {
                ss << m_rawReads[index].Name()  << "\t" << m_rawReads[currOverlaps[j].getOverlapIndex()].Name() << "\t" 
