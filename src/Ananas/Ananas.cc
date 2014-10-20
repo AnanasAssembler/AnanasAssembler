@@ -256,8 +256,8 @@ int main( int argc, char** argv )
             cout << "Concatenating layout files: " << cmmd << endl;
             int ret = system(cmmd.c_str());
             cmmd = "cat " + outName + "/contigs.fasta.* > " + outName + "/contigs.fasta";
-            cout << "Concatenating fasta files: " << cmmd << endl;
-            ret = system(cmmd.c_str());
+            cout << "NOT Concatenating fasta files: " << cmmd << endl;
+            //ret = system(cmmd.c_str());
         }
     }
 
