@@ -12,7 +12,7 @@ int main(int argc,char** argv)
     commandArg<string> bCmmd("-o","File to Output overlaps", "contigClusters.out");
     commandArg<string> b0Cmmd("-t","Temporary file for pair/size info to be used by layout search", "pairSz.tmp");
     commandArg<string> b1Cmmd("-C","File to Output consensus reads", "contigConsesReads.out");
-    commandArg<bool>   cCmmd("-s","Single-strand data", true);
+    commandArg<bool>   cCmmd("-s","Single-strand data", false);
     commandArg<int>    dCmmd("-b","Subread block step", 50);
     commandArg<int>    eCmmd("-S","Seed size for choosing candidates", 30);
     commandArg<double> fCmmd("-I","Minimum acceptable identity for overlapping sequences", 0.95);
