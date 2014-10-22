@@ -274,9 +274,9 @@ float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector
   FILE_LOG(logDEBUG3) << "Checking Overlap: ";
   float matchScore        = 0;
   if (getAlignBand() == 0)
-    matchScore = origSeq.FindIdent(extSeq);  // Direct match identity without alignment (Rough estimate)
+    matchScore = origSeq.FindIdent(extSeq);    // Direct match identity without alignment (Rough estimate)
   else 
-    matchScore = origSeq.FindIdentHP(extSeq);  // Direct match, but forgives homopolymer indels
+    matchScore = origSeq.FindIdentHP(extSeq, 10);  // Direct match, but forgives homopolymer indels
 
   int origSeqAlignedBases = min(origSeq.size(), extSeq.size()); // Not absolutely correct esitmate but ok for significant identity 
   int extSeqAlignedBases  = origSeqAlignedBases;
@@ -291,6 +291,8 @@ float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector
     origSeqAlignedBases = algn.getTargetBaseAligned();
     extSeqAlignedBases  = algn.getQueryBaseAligned();
   }
+
+  FILE_LOG(logDEBUG4) << "Score: " << matchScore << endl;
 
   if(matchScore>=getMinIdentity()) {
     if(extSeq.size()>=origSeq.size()  && origSeqAlignedBases >=getMinEndCover()*origSeq.size()) {

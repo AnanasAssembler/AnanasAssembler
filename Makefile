@@ -230,7 +230,7 @@ ASSERT		= SLOW
 
 # OPEN_MP=yes enables OpenMP directives.  This is currently only supported for
 # CXX compilations.  Any other value is ignored.
-OPEN_MP		= no
+OPEN_MP		=yes 
 
 # Enables Posix multithreading.	 This is currently only supported for CXX
 # compilations, and partially for GCC v3.  This is enabled by default, since
