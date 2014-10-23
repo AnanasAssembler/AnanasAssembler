@@ -1,3 +1,7 @@
+#ifndef FORCE_DEBUG
+#define NDEBUG
+#endif
+
 #include <string>
 #include <omp.h>
 #include "base/CommandLineParser.h"

@@ -151,16 +151,18 @@ void AllReadOverlaps::addOverlapFromString(const string& strIn){
                atoi((const char*)*tokens[1]), atoi((const char*)*tokens[2]), 
                atof((const char*)*tokens[3]), (dir==">"?1:-1), (strand=="+"?1:-1));
 }
-
-void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {
-    int i;
-    for (i=0; i<m_overlaps.isize(); i++) {
+ 
+void AllReadOverlaps::actionsAfterOverlapSet() {
+    for (int i=0; i<m_overlaps.isize(); i++) {
         m_overlaps[i].sortLaps();
     }
+}
 
+void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {
+    actionsAfterOverlapSet();
     m_chimera.resize(m_overlaps.isize(), 0);
     int chimeras = 0;
-    for (i=0; i<m_overlaps.isize(); i++) {
+    for (int i=0; i<m_overlaps.isize(); i++) {
         bool b = m_overlaps[i].organizeLaps(consReads, i);
         if (b) {
             m_chimera[i] = 1;
@@ -192,6 +194,16 @@ bool ReadOverlap::operator < (const ReadOverlap & rO) const {
     }
     return (getOverlapIndex() < rO.getOverlapIndex()); 
 }
+
+string ReadOverlap::toString() const {
+    stringstream ss;
+    ss << getOverlapIndex() << "\t" 
+       << getContactPos() << "\t" << getScore() << "\t" 
+       << "\t" << (getDirection()==1?">":"<") << "\t"
+       << (getOrient()==1?"+":"-");
+    return ss.str();
+}
+
 
 //======================================================
 void ReadInfo::sortLaps() {
