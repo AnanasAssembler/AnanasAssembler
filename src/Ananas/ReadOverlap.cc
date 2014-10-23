@@ -55,9 +55,7 @@ string AllReadOverlaps::getOverlapString(int index, int dir) const {
     stringstream ss;
     const svec<ReadOverlap>& overlaps  = getReadOverlaps(index, dir);
     for(int j=0; j<overlaps.isize(); j++) {
-        ss << index  << "\t" << overlaps[j].getOverlapIndex() << "\t" 
-           << overlaps[j].getContactPos() << "\t" << overlaps[j].getScore() << "\t" << "\t" << (dir==1?">":"<") << "\t"
-           << (overlaps[j].getOrient()==1?"+":"-") << endl;
+        ss << index  << "\t" << overlaps[j].toString() << endl;  
     }
     return ss.str();
 }

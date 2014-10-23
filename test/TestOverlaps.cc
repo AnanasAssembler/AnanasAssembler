@@ -128,7 +128,7 @@ int main(int argc,char** argv)
        ReadInfo rInfo = allSimOverlaps[i];
        for(int j=0; j<rInfo.getNumLaps(); j++) {
            if(!allOverlaps.hasOverlap(i, rInfo.getLap(j).getOverlapIndex())) {
-               cout << i << "\t" <<allOverlaps[i].getLap(j).toString()<<endl;
+               cout << i << "\t" <<allSimOverlaps[i].getLap(j).toString()<<endl;
            }
        }
     }
