@@ -18,7 +18,7 @@ int main(int argc,char** argv)
     commandArg<string> b0Cmmd("-t","Temporary file for pair/size info to be used by layout search", "pairSz.tmp");
     commandArg<string> b1Cmmd("-C","File to Output consensus reads", "consensusReads.out");
     commandArg<bool>   cCmmd("-s","Single-strand data", true);
-    commandArg<int>    dCmmd("-b","Subread block step", 10);
+    commandArg<int>    dCmmd("-b","Subread block step", 30);
     commandArg<int>    eCmmd("-S","Seed size for choosing candidates", 15);
     commandArg<double> fCmmd("-I","Minimum acceptable identity for overlapping sequences", 0.99);
     commandArg<double> gCmmd("-c","Minimum Coverage of the read ends for an acceptable extension", 0.98);

@@ -48,7 +48,7 @@ template <class SuffixType>
 bool FindOverlapsThread<SuffixType>::OnDo(const string & msg) {
     int progCount = 0;
     int totSize   = (m_toIdx - m_fromIdx);
-    int inc       = totSize/100;
+    int inc       = totSize/1000;
     if (inc < 1)
         inc = 1;
 
@@ -69,7 +69,7 @@ bool FindOverlapsThread<SuffixType>::OnDo(const string & msg) {
 template <class SuffixType>
 bool FindOverlapsSingleThread<SuffixType>::OnDo(const string & msg) {
    int totSize = this->m_threadQueue.getSize();
-   int inc     = totSize/100;
+   int inc     = totSize/1000;
    if (inc < 1)
      inc = 1;
    int currIdx = this->m_threadQueue.getNext();
