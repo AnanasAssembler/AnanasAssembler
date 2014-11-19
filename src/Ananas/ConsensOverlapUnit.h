@@ -73,13 +73,13 @@ public:
   void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 
   void writeOverlaps(const string& overlapFile, int mode) const      { m_overlaps.write(overlapFile, mode);            } 
 
+  const ReadInfo& getOverlap(int i) const         { return m_overlaps[i]; }
+  const AllReadOverlaps& getOverlaps() const      { return m_overlaps;    }
+
 private:
   /** Group Near Identical reads and obtain consensus sequences */
   void createConsensReads(float minMatchScore_p);  
   void findPartners();
-
-  const ReadInfo& getOverlap(int i) const         { return m_overlaps[i]; }
-  const AllReadOverlaps& getOverlaps(int i) const { return m_overlaps;    }
 
   AssemblyParams         m_params;          /// Object containing the various parameters required for assembly
   RawReads               m_rawReads;        /// A list of reads from which subreads where constructed
