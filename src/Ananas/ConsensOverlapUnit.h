@@ -31,7 +31,7 @@ public:
   ConsensOverlapUnit(const string& rawReadFile, const string& consensFile)
                      : m_params(), m_rawReads(rawReadFile, 0), m_consReads(m_rawReads),
                        m_overlaps(0), m_partners() {
-    m_consReads.loadAsc(consensFile); 
+    m_consReads.loadBin(consensFile); 
     findPartners(); //Set the partners for the consensus reads
   }
 

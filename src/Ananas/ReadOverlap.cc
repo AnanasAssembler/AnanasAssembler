@@ -59,13 +59,11 @@ string AllReadOverlaps::getOverlapString(int index, int dir) const {
     return ss.str();
 }
 
-void AllReadOverlaps::load(const string& readOverlapFile, int mode) {
-    if(mode==0) { loadBin(readOverlapFile); } 
-    else        { loadAsc(readOverlapFile); }
+void AllReadOverlaps::load(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads, int mode) {
+    if(mode==0) { loadBin(readOverlapFile, good, consReads); } 
+    else        { loadAsc(readOverlapFile, good, consReads); }
 }
 
-
-//TODO this is temporary - remove
 void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
     ifstream sIn;
     sIn.open(readOverlapFile.c_str());
@@ -82,8 +80,8 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
             FILE_LOG(logERROR) << "Wrong overlap file format - five columns required"; 
             return;
         }
-        string dir    = (const char*) *tokens[4];
-        string strand = (const char*) *tokens[5];
+        string dir    = (const char*) *tokens[3];
+        string strand = (const char*) *tokens[4];
         if(good.isize() > 0 && (!good[atoi((const char*)*tokens[0])] && !good[atoi((const char*)*tokens[1])])) {
             continue;
         }
@@ -96,21 +94,7 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
     postReadActions(consReads); 
 }
 
-void AllReadOverlaps::loadAsc(const string& readOverlapFile) {
-    ifstream sIn;
-    sIn.open(readOverlapFile.c_str());
-    string line;
-    getline(sIn, line);
-    int totNumOfReads = atoi(line.c_str());
-    resize(totNumOfReads);
-    while(getline(sIn, line)) {
-        addOverlapFromString(line);
-    } 
-    sIn.close();
-    //  postReadActions();  TODO
-}
-
-void AllReadOverlaps::loadBin(const string& readOverlapFile) {
+void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
     CMReadFileStream fs;
     fs.Open(readOverlapFile.c_str());
     int totNumOfReads;
@@ -125,10 +109,13 @@ void AllReadOverlaps::loadBin(const string& readOverlapFile) {
         fs.Read(overlapIdx);
         fs.Read(contactPos);
         fs.Read(orient);
-     
+        if(good.isize() > 0 && (!good[readIdx] && !good[overlapIdx])) {
+            continue;
+        }
         addOverlap(readIdx, overlapIdx, contactPos, dir, orient);
     }
     fs.Close();
+    postReadActions(consReads); 
 }
 
 void AllReadOverlaps::addOverlapFromString(const string& strIn){
