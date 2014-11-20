@@ -11,17 +11,16 @@ class ReadOverlap
 {
 //TODO changing bool value of direction and orientation to int to accord with Search code but this is NOT correct
 public:
-    ReadOverlap():m_overlapIndex(-1), m_contactPos(-1), m_score(-1.), m_direction(-1),  m_orient(-1) {};
-    ReadOverlap(int oI, int cP, float s, int d, int o)
-                   :m_overlapIndex(oI), m_contactPos(cP), m_score(s), m_direction(d), m_orient(o) { }
+    ReadOverlap():m_overlapIndex(-1), m_contactPos(-1), m_direction(-1),  m_orient(-1) {};
+    ReadOverlap(int oI, int cP, int d, int o)
+                   :m_overlapIndex(oI), m_contactPos(cP), m_direction(d), m_orient(o) { }
 
-    void set(int oI, int cP, float s, int d, int o); 
+    void set(int oI, int cP, int d, int o); 
 
     string toString() const;
 
     int     getOverlapIndex() const       { return m_overlapIndex;  }  
     int     getContactPos() const         { return m_contactPos;    }  
-    float   getScore() const              { return m_score;         }
     int     getDirection() const          { return m_direction;     }
     int     getOrient() const             { return m_orient;        }
 
@@ -30,7 +29,6 @@ public:
 private: 
     int     m_overlapIndex;  /// The index of the read to which this item refers to
     int     m_contactPos;    /// The index in the read where this overlap occurs from 
-    float   m_score;         /// Identity score of the overlap
     int     m_direction;     /// The direction of the overlap (true: right  false: left)
     int     m_orient;        /// The orientation of the overlap (Whether the reads are of the same strand)
 };
@@ -48,8 +46,8 @@ public:
       else           {  return m_leftOverlaps;  } 
     }
 
-    void addOverlap(int overlapIndex, int contactPos, float score, int direction, int orient) {
-      addOverlap(ReadOverlap(overlapIndex, contactPos, score, direction, orient)); 
+    void addOverlap(int overlapIndex, int contactPos, int direction, int orient) {
+      addOverlap(ReadOverlap(overlapIndex, contactPos, direction, orient)); 
     }
 
     void addOverlap(const ReadOverlap & oL) {
@@ -105,8 +103,8 @@ public:
     const svec<ReadOverlap>& getLeftOverlaps(int idx)  const { return m_overlaps[idx].getOverlaps(-1);    }
  
     void addOverlap(int readIndex, int overlapIndex,
-                    int contactPos, float score, int direction, int orient) {
-        m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, score, direction, orient);
+                    int contactPos, int direction, int orient) {
+        m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
     }
 
     void resize(int sz)  { m_overlaps.resize(sz);     }
