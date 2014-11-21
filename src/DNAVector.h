@@ -458,32 +458,27 @@ class DNAVector
 
 
   string AsString() const {
-    string s;
-    for(unsigned int i=0; i<m_data.size(); i++) s.push_back(m_data[i]);
-    return s;
+    return Substring(0);
   }
   
-  void Substring(string & s, int start, int length) const {
-    s.resize(length);
-    for(int i=0; i<length; i++) 
-      s[i] = m_data[start+i];
-  }
-
   void Substring(string & s, int start) const {
-    int length = size() -start;
-    s.resize(length);
-    for(int i=0; i<length; i++) 
-      s[i] = m_data[start+i];
-  }
-
-  string Substring(int start, int length) const {
-    string s;    
-    for(int i=0; i<length; i++) s.push_back(m_data[start+i]);
-    return s;
+    Substring(s, start, size() -start);
   }
 
   string Substring(int start) const {
     return Substring(start, size()-start);
+  }
+
+  string Substring(int start, int length) const {
+    string s;    
+    Substring(s, start, length);
+    return s;
+  }
+
+  void Substring(string & s, int start, int length) const {
+    s.resize(length);
+    for(int i=0; i<length; i++) 
+      s[i] = m_data[start+i];
   }
 
   svec<char> & Data() {return m_data;}
