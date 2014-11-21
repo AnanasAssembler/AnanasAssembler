@@ -772,6 +772,18 @@ float DNAVector::FindIdentHP(const DNAVector& other, int max, int totaldiff) con
   return 1.-(float)misMatchCnt/len;
 }
 
+bool DNAVector::compare (const DNAVector & d, int offset_orig, int len_orig, int offset_cmp, int len_cmp) const {
+  int minLen = min(len_orig, len_cmp);
+  for (int i=0; i<minLen; i++) {
+    if (m_data[i+offset_orig] == d[i+offset_cmp])  { continue;     }
+    if (m_data[i+offset_orig]  < d[i+offset_cmp])  { return true;  }
+    if (m_data[i+offset_orig]  > d[i+offset_cmp])  { return false; }
+  }
+  if (len_orig < len_cmp) { return true; }
+  return false;
+}
+
+
 //////////////////////////////////////////////////////
 
 vecDNAVector::vecDNAVector() {

@@ -490,6 +490,9 @@ class DNAVector
   // As above, but allows for homopolymer indels (as in pyrosequencing)
   float FindIdentHP(const DNAVector& other, int max = 2, int totaldiff = 3) const;
  
+  /** full comparator function, given offset and size of sequence in comparator seq
+      & offset and size of sequence from the object being compared to */
+  bool compare (const DNAVector & d, int offset_orig, int len_orig, int offset_cmp, int len_cmp) const; 
 
 
  private:
