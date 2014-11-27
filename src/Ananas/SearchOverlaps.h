@@ -588,6 +588,7 @@ protected:
   int DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc = false);
 
   int CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
+  int CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
   int CountUnPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
   void SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit);
 
