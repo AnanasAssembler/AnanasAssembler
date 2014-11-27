@@ -235,12 +235,13 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
             if (raw[i].isize() == 0)
                 continue;
             int to, from;
- //int to_1, from_1;
- //CountPairs_fullStat(to_1, from_1, raw[i], COUnit, true);
+//int to_1, from_1;
+//CountPairs_fullStat(to_1, from_1, raw[i], COUnit, true);
             SetPairs(raw[i], COUnit);
             CountPairs(to, from, raw[i], COUnit, true);
 //if(to!=to_1 || from!=from_1) {
 //  cout<<"ERROR - newCode to:" << to << " from: " << from << endl; 
+//  cout<<"ERROR - origCode to:" << to_1 << " from: " << from_1 << endl; 
 //}
             raw[i].TrimRight(to);
             raw[i].TrimLeft(from);
@@ -275,6 +276,7 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
    CountPairs(to, from, m_workHyp, COUnit, true);
 //if(to!=to_2 || from!=from_2) {
 //  cout<<"ERROR - newCode to:" << to << " from: " << from << endl; 
+//  cout<<"ERROR - origCode to:" << to_2 << " from: " << from_2 << endl; 
 //}
 
     m_workHyp.TrimRight(to);
@@ -328,9 +330,13 @@ void Search::SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit)
 }
 
 int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
+//int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
 {
     if (m_pairDir == 0)
         return CountUnPairs(to, from, hyp, COUnit, bPrint);
+
+    from        =  0;
+    to          =  -1;
 
     // Stupid heuristics!!
     if (hyp.isize() < 2)
@@ -338,11 +344,13 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
 
     from        =  hyp[0].Start();  
     to          =  hyp[hyp.isize()-1].Stop();
+
     int pairCnt = 0;
     for (int i=0; i<hyp.isize(); i++) {
         const HypothesisNode & currNode = hyp[i];
-        if(currNode.Start()>to-m_discount) { // && pairCnt!=0) {
+        if(currNode.Start()>to-m_discount && pairCnt!=0) {
             return pairCnt; //Stop the extension as pair coverage is broken
+//cout<<"DEBUG - cut" <<from<<" "<<to<<" "<<pairCnt<<endl;
         }
         if(currNode.Pair()<0) { continue; } //Node is not paired - do no count
         const HypothesisNode & currPair = hyp[currNode.Pair()];
@@ -356,10 +364,12 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
 
 //TODO old code consistency!
 if(from>0) { from = from - 1; }
+//cout<<"DEBUG " <<from<<" "<<to<<" "<<pairCnt<<endl;
     return pairCnt;
 }
 
 int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
+//int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
 {
     if (m_pairDir == 0)
         return CountUnPairs(to, from, hyp, COUnit, bPrint);
@@ -865,6 +875,10 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     int pos = 0;
     int backoff = -1;
 
+    //This flag is used in order to avoid evaluating paths are a subset of
+    //another path which has been evaluated already and has not been extended
+    bool haveExtended = true;
+
     while (!stack.Empty()) {
         SearchNode & n = stack.Top();
         int curr = stack.Curr();
@@ -882,16 +896,19 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
                 // NOTE: This would be mch faster, but it doesn't work quite yet.
                 //cout << "Call Evaluate." << endl;
                 bReuse = true;
-                int limit = Evaluate(stack, COUnit);
+                int limit = -1; //Will pop one node from the stack if evaluation doesn't occur
+                if(haveExtended) { //Only re-evaluate if extension has been made after previous evaluation
+                    limit = Evaluate(stack, COUnit);
+                    haveExtended = false; //Set flag to indicated that path has been Evaluated and not extended yet
+                } 
 
                 //break; //MGG: This should make the search greedy!!!
 
                 if (limit < n.Pos()) {	  
-
                     // Do or do not not backoff all the way!!
                     backoff = limit;
                 } else {
-                    backoff = -1;
+                    backoff = -1; 
                 }
             }
             // Go backwards
@@ -928,6 +945,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
                 !m_usage.IsUsed(to_push.Read(), to_push.Pos())) {
                 n.SetExt();
                 stack.Push(to_push);
+                haveExtended = true; //Set flag to indicated that path has been Extended and not yet evaluated
                 //cout << " -> " << to_push.Read() << " " << to_push.Pos() << " " << COUnit.Sequences().Name(to_push.Read()) << endl; 
                 SetUsed(to_push);
                 if (m_exhaust)
