@@ -235,14 +235,8 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
             if (raw[i].isize() == 0)
                 continue;
             int to, from;
-//int to_1, from_1;
-//CountPairs_fullStat(to_1, from_1, raw[i], COUnit, true);
             SetPairs(raw[i], COUnit);
             CountPairs(to, from, raw[i], COUnit, true);
-//if(to!=to_1 || from!=from_1) {
-//  cout<<"ERROR - newCode to:" << to << " from: " << from << endl; 
-//  cout<<"ERROR - origCode to:" << to_1 << " from: " << from_1 << endl; 
-//}
             raw[i].TrimRight(to);
             raw[i].TrimLeft(from);
             SetPairs(raw[i], COUnit);
@@ -270,14 +264,8 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
 
     int to, from;
     //cout << "FINAL Check, " << m_sink.LastContig() << endl;
-//int to_2, from_2;
-//CountPairs_fullStat(to_2, from_2, m_workHyp, COUnit, true);
    SetPairs(m_workHyp, COUnit);
    CountPairs(to, from, m_workHyp, COUnit, true);
-//if(to!=to_2 || from!=from_2) {
-//  cout<<"ERROR - newCode to:" << to << " from: " << from << endl; 
-//  cout<<"ERROR - origCode to:" << to_2 << " from: " << from_2 << endl; 
-//}
 
     m_workHyp.TrimRight(to);
     m_workHyp.TrimLeft(from);
@@ -291,42 +279,31 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
 
 void Search::SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit)
 {
-    int i, j;
-
-    //cout << "Listing present (before)" << endl;
-    //for (i=0; i<m_present.isize(); i++) {
-    //  cout << i << " " << m_present[i] << endl;
-    //}
     m_present.clear();
     m_present.resize(COUnit.GetNumReads(), -1);
 
-    //cout << "Listing present (after)" << endl;
-    //for (i=0; i<m_present.isize(); i++) {
-    //  cout << i << " " << m_present[i] << endl;
-    //}
-
-    for (i=0; i<hyp.isize(); i++) {
+    for (int i=0; i<hyp.isize(); i++) {
         HypothesisNode & h = hyp[i];
         int r = h.Read();
         int numPartner = COUnit.getNumOfPartners(r);
         if (numPartner > 0) {
             for (int x = 0; x<numPartner; x++) {
-                //cout << "Set partner " << r << " -> " << COUnit.getPartner(r, x) << endl;
-                m_present.Set(COUnit.getPartner(r, x), i);
+              int partner = COUnit.getPartner(r, x);
+              if (x == 0 || m_present[partner] < 0)
+                m_present.Set(partner, i);
             }
         } else {
             h.SetPaired(-2);      
         }
     }
-    for (i=0; i<hyp.isize(); i++) {
+    for (int i=0; i<hyp.isize(); i++) {
         HypothesisNode & h = hyp[i];
         int r = h.Read();
-        //if (present[r] > -1) {
         if (h.Pair() != -2)
             h.SetPaired(m_present[r]);
-        //}
+        else
+            h.SetPaired(-1);
     }
-  
 }
 
 int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
@@ -335,28 +312,28 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
     if (m_pairDir == 0)
         return CountUnPairs(to, from, hyp, COUnit, bPrint);
 
-    from        =  0;
     to          =  -1;
+    from        =  0;
 
     // Stupid heuristics!!
     if (hyp.isize() < 2)
         return 0;
 
-    from        =  hyp[0].Start();  
     to          =  hyp[hyp.isize()-1].Stop();
+    from        =  hyp[0].Start();  
 
     int pairCnt = 0;
     for (int i=0; i<hyp.isize(); i++) {
         const HypothesisNode & currNode = hyp[i];
-        if(currNode.Start()>to-m_discount && pairCnt!=0) {
+        if(currNode.Start()+m_discount>to-m_discount && pairCnt!=0) {
             return pairCnt; //Stop the extension as pair coverage is broken
-//cout<<"DEBUG - cut" <<from<<" "<<to<<" "<<pairCnt<<endl;
         }
         if(currNode.Pair()<0) { continue; } //Node is not paired - do no count
         const HypothesisNode & currPair = hyp[currNode.Pair()];
         if (currPair.Start() < currNode.Start() ||
             currPair.Start() - currNode.Start() > 10000) { continue; } //Pair exceeds library size limit - do not count
         if (currPair.Ori() != m_pairDir*currNode.Ori())  { continue; }
+
         if(from > currNode.Start() || pairCnt==0) { from = currNode.Start(); } //Extend bracket start 
         if(to   < currPair.Stop()  || pairCnt==0) { to   = currPair.Stop();  } //Extend bracket stop
         pairCnt++; 
@@ -364,7 +341,6 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
 
 //TODO old code consistency!
 if(from>0) { from = from - 1; }
-//cout<<"DEBUG " <<from<<" "<<to<<" "<<pairCnt<<endl;
     return pairCnt;
 }
 
