@@ -21,9 +21,10 @@ class SearchNode
     m_lap = 0;
     m_pos = 0;
     m_counter = 0;
+    m_nodesSoFar = 0;
   }
 
-  SearchNode(int i, int b = -1, int ori = 1, int lap = 0, int pos = 0, int counter = 0) {
+  SearchNode(int i, int b = -1, int ori = 1, int lap = 0, int pos = 0, int counter = 0, int nodesSoFar=0) {
     m_read = i;
     m_back = b;
     m_ex = false;
@@ -31,11 +32,13 @@ class SearchNode
     m_lap = lap;
     m_pos = pos;
     m_counter = counter;
+    m_nodesSoFar = nodesSoFar;
   }
   
   void SetRead(int i) {m_read = i;}
   void SetOri(int o) {m_ori = o;}
   void SetPos(int i) {m_pos = i;}
+  void SetNodeCount(int n) {m_nodesSoFar = n; }
 
   int Overlap() const {return m_lap;}
   int Offset() const {return m_lap;}
@@ -46,6 +49,7 @@ class SearchNode
   bool Ext() const {return m_ex;}
   void SetExt() {m_ex = true;}
   int Counter() const {return m_counter;}
+  int NodeCount() const {return m_nodesSoFar;}
 
   void IncCounter() {m_counter++;}
 
@@ -57,6 +61,7 @@ class SearchNode
   int m_lap;
   int m_pos;
   int m_counter;
+  int m_nodesSoFar;
 };
 
 class SearchStack
@@ -96,7 +101,7 @@ public:
 
 
   int Size() const {return m_size;}
-
+/*
   void Minimal(SearchStack & s) {
     if (m_size == 0)
       return;
@@ -105,7 +110,24 @@ public:
       s.Push(m_stack[i]);
       i = m_stack[i].Back();
     }
+cout<<s.m_size<<"  "<<Top().NodeCount()<<endl;
   }
+*/
+  void Minimal(SearchStack & s) {
+    if (m_size == 0)
+      return;
+    int totSize = Top().NodeCount();
+    s.m_stack.resize(totSize);
+    int next  = m_size - 1;
+    int count = totSize - 1;
+    while (count>=0) {
+      s.m_stack[count] = m_stack[next];
+      next = m_stack[next].Back();
+      count--;
+    }
+    s.m_size = totSize;
+  }
+
   void SetPairs(int i) {m_pairs = i;}
 
   int Pairs() const {return m_pairs;}

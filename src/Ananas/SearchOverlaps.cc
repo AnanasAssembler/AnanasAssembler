@@ -72,13 +72,9 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
     if (m_results.isize() > 0 && minimal.Size() < 3)
         return -1;
 
-    SearchStack to_test = minimal;
-    to_test.Reverse();
- 
     m_workHyp.clear();
 
-
-    MakeHypothesis(m_workHyp, to_test, COUnit, (m_exhaust & !m_override) ); //TEST Last parameter.
+    MakeHypothesis(m_workHyp, minimal, COUnit, (m_exhaust & !m_override) ); //TEST Last parameter.
     int to, from;
 
     SetPairs(m_workHyp, COUnit);
@@ -163,7 +159,6 @@ int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
     //m_results[m_results.isize()-1].Print(COUnit);
 
     SearchStack & result = m_results[m_results.isize()-1];
-    result.Reverse();
  
     m_workHyp.clear();
     MakeHypothesis(m_workHyp, result, COUnit/*, true*/);
@@ -200,7 +195,6 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         for (i=0; i<m_results.isize(); i++) {
             //cout << "# " << i << " pairs: " << pairs << " Length: " << hypLen << endl;
             SearchStack resultN = m_results[i];
-            resultN.Reverse();
             //result.Print(COUnit);
             MakeHypothesis(raw[i], resultN, COUnit, !m_override);
             if (rc) {
@@ -253,8 +247,6 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
     }
 
     SearchStack & result = m_results[m_results.isize()-1];
-    //result.Print(COUnit);
-    result.Reverse();
  
     m_workHyp.clear();
     MakeHypothesis(m_workHyp, result, COUnit, !m_override);
@@ -673,25 +665,14 @@ int Search::CountUnPairs(int & to, int & from, const Hypothesis & hyp, const Con
 // Needs work...
 void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const ConsensOverlapUnit & COUnit, bool bAddIn)
 {
-    //bAddIn = false;
-
     const svec<SearchNode> & st = ss.Raw();
     const ConsensReads & consReads = COUnit.getConsReads();
   
     int i, j;
     int off = 0;
 
-    //cout << "START" << endl;
-
     //******************** Inefficient!!!! *********************  
     m_localUsed.clear();
-
-    // HARD CODED!!!!!
-    //if (ss.Size() > 300)
-    //bAddIn = false;
-  
-    // WARNING: Dynamic allocation (get rid of it!!!)
-    //svec<int> ids;
 
     if (bAddIn) {
         m_localUsed.resize(consReads.getNumOfReads(), 0);
@@ -840,6 +821,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     if (rc) {
         init.SetOri(-1);
     }
+    init.SetNodeCount(1);
     stack.Push(init);
     SetUsed(init);
     if (m_exhaust)
@@ -851,18 +833,14 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     int pos = 0;
     int backoff = -1;
 
-    //This flag is used in order to avoid evaluating paths are a subset of
-    //another path which has been evaluated already and has not been extended
-    bool haveExtended = true;
-
     while (!stack.Empty()) {
         SearchNode & n = stack.Top();
         int curr = stack.Curr();
         int pos = n.Pos();
-
         int index = n.Counter();
         int ori = n.Ori();
-  
+        int nodeCount = n.NodeCount();
+
         if (index == COUnit.GetNumDirLaps(n.Read(), ori)) {
             bool bReuse = false;
             if (!n.Ext()) {
@@ -872,11 +850,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
                 // NOTE: This would be mch faster, but it doesn't work quite yet.
                 //cout << "Call Evaluate." << endl;
                 bReuse = true;
-                int limit = -1; //Will pop one node from the stack if evaluation doesn't occur
-                if(haveExtended) { //Only re-evaluate if extension has been made after previous evaluation
-                    limit = Evaluate(stack, COUnit);
-                    haveExtended = false; //Set flag to indicated that path has been Evaluated and not extended yet
-                } 
+                int limit = Evaluate(stack, COUnit);
 
                 //break; //MGG: This should make the search greedy!!!
 
@@ -915,14 +889,13 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
         for (i=index; i < COUnit.GetNumDirLaps(n.Read(), ori); i++) {
             const ReadOverlap & l = COUnit.GetDirLap(n.Read(), i, ori);	
             SearchNode to_push(l.getOverlapIndex(), curr, ori*l.getOrient(), l.getContactPos(), pos + l.getContactPos());
+            to_push.SetNodeCount(nodeCount+1); 
             n.IncCounter();
 
             if (!m_globalUsed[to_push.Read()] && !IsUsed(to_push) &&
                 !m_usage.IsUsed(to_push.Read(), to_push.Pos())) {
                 n.SetExt();
                 stack.Push(to_push);
-                haveExtended = true; //Set flag to indicated that path has been Extended and not yet evaluated
-                //cout << " -> " << to_push.Read() << " " << to_push.Pos() << " " << COUnit.Sequences().Name(to_push.Read()) << endl; 
                 SetUsed(to_push);
                 if (m_exhaust)
                     m_usage.SetUsed(to_push.Read(), to_push.Pos());
