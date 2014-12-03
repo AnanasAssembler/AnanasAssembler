@@ -13,15 +13,15 @@ bool Hypothesis::ContainsSubset(const Hypothesis & h)
     int l1 = 0;
     int l2 = 0;
 
-    if (h.isize() == 0)
+    if (h.Size() == 0)
         return true;
 
     // Stupid heuristics!!!!!
     int max = 3;
     int k = 0;
-    for (int j=h.isize()-1; j>=0; j--) {
+    for (int j=h.Size()-1; j>=0; j--) {
         const HypothesisNode & n = h[j];
-        for (i=0; i<isize(); i++) {
+        for (i=0; i<Size(); i++) {
             if (n.CloseEnough(m_main[i]))
                 return true;
         }
@@ -48,9 +48,7 @@ bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 
     UniqueSort(ref);
     double ratio = (double)ref.isize()/(double)m;
-    //cout << "m=" << m << " merge=" << ref.isize() << " q=" << n << endl;
     if (ratio < 1.02) {
-      //cout << "Toasted!" << endl;
       return false;
     }
   }
@@ -61,12 +59,9 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
 {
     SearchStack minimal;
     stack.Minimal(minimal);
-    //cout << "Solution." << endl;
 
  
     int len = minimal.Length(COUnit);
-    //if (m_exhaust && len < m_minAltKeep)
-    //return -1;
 
     // TRY this to reduce processing tiny contigs.
     if (m_results.isize() > 0 && minimal.Size() < 3)
@@ -74,20 +69,13 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
 
     m_workHyp.clear();
 
-    MakeHypothesis(m_workHyp, minimal, COUnit, (m_exhaust & !m_override) ); //TEST Last parameter.
+    MakeHypothesis(m_workHyp, minimal, COUnit, false);
     int to, from;
 
     SetPairs(m_workHyp, COUnit);
     int pairs = CountPairs(to, from, m_workHyp, COUnit);
     //cout << "Pairs: " << pairs << " to: " << to << endl;
 
-    if (to >= 0) {
-        //cout << "Trimming hypothesis: " << to << endl;
-        //TESTING!!!!!!!
-        //minimal.Trim(COUnit, to);
-    }
-
- 
     minimal.SetPairs(pairs);
   
     if (m_exhaust) {    
@@ -141,7 +129,7 @@ int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
         m_workHyp.Reverse(hypLen);
     }
 
-    for (int i=0; i<m_workHyp.isize(); i++) {
+    for (int i=0; i<m_workHyp.Size(); i++) {
         if (m_workHyp[i].Ori() == 1)
             return m_workHyp[i].Read();
     }
@@ -179,11 +167,11 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         cout << "Starting to toast..." << endl;
         // Toast hypotheses... (get rid of the ones that are too similar)
         for (i=raw.isize()-1; i>0; i--) {
-            if (raw[i].isize() == 0)
+            if (raw[i].Size() == 0)
                 continue;
             //cout << "Checking hyp " << i << endl;
             for (j=i-1; j>=0; j--) {
-                if (raw[j].isize() == 0)
+                if (raw[j].Size() == 0)
                     continue;
                 if (raw[i].ContainsSubset(raw[j])) {
                     cout << "Toasting hypothesis " << j << " because of " << i << endl;
@@ -200,7 +188,7 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         bool bCont = false;
         cout << "Remaining hypotheses." << endl;
         for (i=raw.isize()-1; i>=0; i--) {
-            if (raw[i].isize() == 0)
+            if (raw[i].Size() == 0)
                 continue;
             int to, from;
             SetPairs(raw[i], COUnit);
@@ -248,7 +236,7 @@ void Search::SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit)
     m_present.clear();
     m_present.resize(COUnit.GetNumReads(), -1);
 
-    for (int i=0; i<hyp.isize(); i++) {
+    for (int i=0; i<hyp.Size(); i++) {
         HypothesisNode & h = hyp[i];
         int r = h.Read();
         int numPartner = COUnit.getNumOfPartners(r);
@@ -262,7 +250,7 @@ void Search::SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit)
             h.SetPaired(-2);      
         }
     }
-    for (int i=0; i<hyp.isize(); i++) {
+    for (int i=0; i<hyp.Size(); i++) {
         HypothesisNode & h = hyp[i];
         int r = h.Read();
         if (h.Pair() != -2)
@@ -282,14 +270,14 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
     from        =  0;
 
     // Stupid heuristics!!
-    if (hyp.isize() < 2)
+    if (hyp.Size() < 2)
         return 0;
 
-    to          =  hyp[hyp.isize()-1].Stop();
+    to          =  hyp[hyp.Size()-1].Stop();
     from        =  hyp[0].Start();  
 
     int pairCnt = 0;
-    for (int i=0; i<hyp.isize(); i++) {
+    for (int i=0; i<hyp.Size(); i++) {
         const HypothesisNode & currNode = hyp[i];
         if(currNode.Start()+m_discount>to-m_discount && pairCnt!=0) {
             return pairCnt; //Stop the extension as pair coverage is broken
@@ -325,7 +313,7 @@ int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, co
     from = 0;
 
     // Stupid heuristics!!
-    if (hyp.isize() < 2)
+    if (hyp.Size() < 2)
         return 0;
 
     //  bPrint = true;
@@ -337,7 +325,7 @@ int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, co
 
     int max = 0;
     int havePartner = 0;
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         const HypothesisNode & h = hyp[i];
         if (h.Stop() > max)
             max = h.Stop();
@@ -367,7 +355,7 @@ int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, co
     m_present.resize(COUnit.GetNumReads(), -1);
 
     int pairs = 0;
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         const HypothesisNode & h = hyp[i];
         int r = h.Read();
         int numPartner = COUnit.getNumOfPartners(r);
@@ -377,7 +365,7 @@ int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, co
                 m_present.Set(partner, i);
         }
     }
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         const HypothesisNode & h = hyp[i];
 
         // Sequence coverage
@@ -513,7 +501,7 @@ int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, co
 
     //cout << "from: " << from << " to: " << to << endl;  
 
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         const HypothesisNode & h = hyp[i];
         if (h.Start() < from)
             continue;
@@ -567,13 +555,13 @@ int Search::CountUnPairs(int & to, int & from, const Hypothesis & hyp, const Con
     from = 0;
 
     // Stupid heuristics!!
-    if (hyp.isize() < 2)
+    if (hyp.Size() < 2)
         return 0;
 
     int i, j;
  
     int max = 0;
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         const HypothesisNode & h = hyp[i];
         if (h.Stop() > max)
             max = h.Stop();    
@@ -583,7 +571,7 @@ int Search::CountUnPairs(int & to, int & from, const Hypothesis & hyp, const Con
     m_cov_seq.resize(max, 0);
  
     int total = 0;
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         const HypothesisNode & h = hyp[i];
 
         // Sequence coverage
@@ -712,7 +700,7 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
 void Search::Commit(const Hypothesis & hyp)
 {
     int i;
-    for (i=0; i<hyp.isize(); i++) {
+    for (i=0; i<hyp.Size(); i++) {
         m_globalUsed.Set(hyp[i].Read(), m_globalUsed[hyp[i].Read()]+1);
         m_report++;
         //cout << "Global used: " << hyp[i].Read() << endl;
