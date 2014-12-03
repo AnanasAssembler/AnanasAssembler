@@ -93,7 +93,7 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
     if (m_exhaust) {    
       if (m_results.isize() == 0) {
 	m_results.push_back(minimal);
-      } else {
+    } else {
 	if (!IsNew(minimal, COUnit)) { // Not different enough??
 	  return to;
 	}
@@ -107,31 +107,6 @@ int Search::Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit)
 	  }
 	}
       }
-
-
-      /*
-        //cout << "Num hyps: " << m_results.isize()  << endl;
-        if (m_override || m_results.isize() > m_maxResults) {
-            if (!m_override)
-                cout << "WARNING: Hypothesis buffer overflow!! Resetting to override." << endl;
-            // NOTE: Do something more sensible here.
-            m_override = true;
-            if (m_results[0] < minimal) {
-                m_results[0] = minimal;
-            }
-        } else {
-            if (pairs > 0 || m_lastNoPairs == -1) {
-                if (pairs == 0)
-                    m_lastNoPairs = m_results.isize();
-                m_results.push_back(minimal);
-            } else {
-                // No pairs, let's keep only one here.
-                if (m_results[m_lastNoPairs] < minimal) {
-                    m_results[m_lastNoPairs] = minimal;
-                }
-            }
-	    }*/
-
     } else {
         // Keep only one top-N (for memory)
         if (m_results.isize() == 0) {
@@ -195,7 +170,6 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         for (i=0; i<m_results.isize(); i++) {
             //cout << "# " << i << " pairs: " << pairs << " Length: " << hypLen << endl;
             SearchStack resultN = m_results[i];
-            //result.Print(COUnit);
             MakeHypothesis(raw[i], resultN, COUnit, !m_override);
             if (rc) {
                 raw[i].Reverse(hypLen);
@@ -256,8 +230,8 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
 
     int to, from;
     //cout << "FINAL Check, " << m_sink.LastContig() << endl;
-   SetPairs(m_workHyp, COUnit);
-   CountPairs(to, from, m_workHyp, COUnit, true);
+    SetPairs(m_workHyp, COUnit);
+    CountPairs(to, from, m_workHyp, COUnit, true);
 
     m_workHyp.TrimRight(to);
     m_workHyp.TrimLeft(from);

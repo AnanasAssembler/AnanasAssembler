@@ -270,64 +270,34 @@ class UsageTracker
  public:
   UsageTracker() {
     m_div = 10;
-    m_max = 100000; // Limit space 
   }
   UsageTracker(int n) {
-    m_div = 10;
     Resize(n);
   }
   
   void Resize(int n) {
-    m_cache.resize(n, -1);
+    m_full.resize(n);
   }
+
   void Clear() {
-    int n = m_cache.isize();
-    m_cache.clear();
-    m_cache.resize(n, -1);
+    int n = m_full.isize();
     m_full.clear();
+    Resize(n);
   }
 
   bool IsUsed(int read, int pos) {
-    pos /= m_div;
-    int p = m_cache[read];
-    if (p < 0)
-      return false;
-    // Limit the buffer
-    if (p == pos || m_full.isize() > m_max)
-      return true;
-    if (!m_bSorted) {
-      m_bSorted = true;
-      m_full.Sort();
-    }
-    //cout << "Need bin search..." << endl;
-    //int index = BinSearch(m_full, UsageItem(read, pos));
-    int index = m_full.BinSearch(UsageItem(read, pos));
-    if (index < 0) {
-      return false;
-    } else {
-      return true;
-    }
+    int groupPos = pos/m_div;
+    return (m_full[read].find(groupPos) != m_full[read].end());
   }
 
   void SetUsed(int read, int pos) {
-    if (IsUsed(read, pos))
-      return;
-    pos /= m_div;
-    //if (m_full.isize() > m_max) {
-    //  pos = 0;
-    //}
-    m_full.push_back(UsageItem(read, pos));
-    m_cache.Set(read, pos);
-    m_bSorted = false;
-    //cout << "USED Size: " << m_full.isize() << endl;
+    int groupPos = pos/m_div;
+    m_full[read][groupPos] = true; 
   }
 
  private:
-  bool m_bSorted;
-  svec_buff<UsageItem> m_full;
-  VecInt m_cache;
+  svec< map<int, bool> > m_full; 
   int m_div;
-  int m_max;
 };
 
 
