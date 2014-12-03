@@ -21,9 +21,10 @@ class SearchNode
     m_lap = 0;
     m_pos = 0;
     m_counter = 0;
+    m_nodesSoFar = 0;
   }
 
-  SearchNode(int i, int b = -1, int ori = 1, int lap = 0, int pos = 0, int counter = 0) {
+  SearchNode(int i, int b = -1, int ori = 1, int lap = 0, int pos = 0, int counter = 0, int nodesSoFar=0) {
     m_read = i;
     m_back = b;
     m_ex = false;
@@ -31,11 +32,13 @@ class SearchNode
     m_lap = lap;
     m_pos = pos;
     m_counter = counter;
+    m_nodesSoFar = nodesSoFar;
   }
   
   void SetRead(int i) {m_read = i;}
   void SetOri(int o) {m_ori = o;}
   void SetPos(int i) {m_pos = i;}
+  void SetNodeCount(int n) {m_nodesSoFar = n; }
 
   int Overlap() const {return m_lap;}
   int Offset() const {return m_lap;}
@@ -46,6 +49,7 @@ class SearchNode
   bool Ext() const {return m_ex;}
   void SetExt() {m_ex = true;}
   int Counter() const {return m_counter;}
+  int NodeCount() const {return m_nodesSoFar;}
 
   void IncCounter() {m_counter++;}
 
@@ -57,6 +61,7 @@ class SearchNode
   int m_lap;
   int m_pos;
   int m_counter;
+  int m_nodesSoFar;
 };
 
 class SearchStack
@@ -96,7 +101,7 @@ public:
 
 
   int Size() const {return m_size;}
-
+/*
   void Minimal(SearchStack & s) {
     if (m_size == 0)
       return;
@@ -105,7 +110,24 @@ public:
       s.Push(m_stack[i]);
       i = m_stack[i].Back();
     }
+cout<<s.m_size<<"  "<<Top().NodeCount()<<endl;
   }
+*/
+  void Minimal(SearchStack & s) {
+    if (m_size == 0)
+      return;
+    int totSize = Top().NodeCount();
+    s.m_stack.resize(totSize);
+    int next  = m_size - 1;
+    int count = totSize - 1;
+    while (count>=0) {
+      s.m_stack[count] = m_stack[next];
+      next = m_stack[next].Back();
+      count--;
+    }
+    s.m_size = totSize;
+  }
+
   void SetPairs(int i) {m_pairs = i;}
 
   int Pairs() const {return m_pairs;}
@@ -248,64 +270,34 @@ class UsageTracker
  public:
   UsageTracker() {
     m_div = 10;
-    m_max = 100000; // Limit space 
   }
   UsageTracker(int n) {
-    m_div = 10;
     Resize(n);
   }
   
   void Resize(int n) {
-    m_cache.resize(n, -1);
+    m_full.resize(n);
   }
+
   void Clear() {
-    int n = m_cache.isize();
-    m_cache.clear();
-    m_cache.resize(n, -1);
+    int n = m_full.isize();
     m_full.clear();
+    Resize(n);
   }
 
   bool IsUsed(int read, int pos) {
-    pos /= m_div;
-    int p = m_cache[read];
-    if (p < 0)
-      return false;
-    // Limit the buffer
-    if (p == pos || m_full.isize() > m_max)
-      return true;
-    if (!m_bSorted) {
-      m_bSorted = true;
-      m_full.Sort();
-    }
-    //cout << "Need bin search..." << endl;
-    //int index = BinSearch(m_full, UsageItem(read, pos));
-    int index = m_full.BinSearch(UsageItem(read, pos));
-    if (index < 0) {
-      return false;
-    } else {
-      return true;
-    }
+    int groupPos = pos/m_div;
+    return (m_full[read].find(groupPos) != m_full[read].end());
   }
 
   void SetUsed(int read, int pos) {
-    if (IsUsed(read, pos))
-      return;
-    pos /= m_div;
-    //if (m_full.isize() > m_max) {
-    //  pos = 0;
-    //}
-    m_full.push_back(UsageItem(read, pos));
-    m_cache.Set(read, pos);
-    m_bSorted = false;
-    //cout << "USED Size: " << m_full.isize() << endl;
+    int groupPos = pos/m_div;
+    m_full[read][groupPos] = true; 
   }
 
  private:
-  bool m_bSorted;
-  svec_buff<UsageItem> m_full;
-  VecInt m_cache;
+  svec< map<int, bool> > m_full; 
   int m_div;
-  int m_max;
 };
 
 
@@ -588,6 +580,7 @@ protected:
   int DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc = false);
 
   int CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
+  int CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
   int CountUnPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
   void SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit);
 

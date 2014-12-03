@@ -251,7 +251,7 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
           if(overlapDir==0 && mode==0) { //Containment overlap which this mode should exclude
             return;
           }
-          allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, matchScore, overlapDir, (*fIt).getStrand());
+          allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
           FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
                                << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
           readsUsed_curr[(*fIt).getIndex()] = true;

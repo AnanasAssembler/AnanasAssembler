@@ -15,6 +15,7 @@ public:
   ConsensRead():m_readIdxs(), m_dnaSeq(), m_seqSize(-1) {}
   
   const svec<int >& getReads() const           { return m_readIdxs;             }
+  int  getFirstRead() const                    { return m_readIdxs[0];          }
   int getNumOfReads() const                    { return m_readIdxs.isize();     } 
   bool isSingle() const                        { return (m_readIdxs.size()==1); }
   const DNAVector& getSeq() const              { return m_dnaSeq;               }
@@ -48,7 +49,7 @@ private:
 
   svec<int> m_readIdxs;  /// List of indexes of reads that constitute this consensus
   DNAVector m_dnaSeq;    /// Contains the consensus only if there's more than one read 
-  int       m_seqSize;   /// Used only when dnaSeq doesn't exist (for stages where memory efficiency is required)
+  int       m_seqSize;   /// Used when dnaSeq doesn't exist (for stages where memory efficiency is required)
 };
 //======================================================
 
@@ -180,9 +181,9 @@ public:
     m_groupInfo.resize(sReads.getNumOfReads(), -1);
   }
 
-  DNAVector operator[](int i) const {  
+  const DNAVector& operator[](int i) const {  
     if(m_consReads[i].isSingle()) {
-      return m_rawReads[m_consReads[i].getReads()[0]];     
+      return m_rawReads[m_consReads[i].getFirstRead()];     
     } else {
       return m_consReads[i].getSeq();     
     }

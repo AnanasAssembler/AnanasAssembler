@@ -64,7 +64,7 @@ void ContigClusterUnit::writeContigPairs(const string& clusterFile) const {
             for(int j=0; j<currOverlaps.isize(); j++) {
                ss << m_rawReads[index].Name()  << "\t" << m_rawReads[currOverlaps[j].getOverlapIndex()].Name() << "\t" 
                   << m_rawReads[index].size()  << "\t" << m_rawReads[currOverlaps[j].getOverlapIndex()].size() << "\t"
-                  << currOverlaps[j].getContactPos() << "\t" << currOverlaps[j].getScore() << "\t" << "\t" << (dir==1?">":"<") << "\t"
+                  << currOverlaps[j].getContactPos() << "\t" << "\t" << (dir==1?">":"<") << "\t"
                   << (currOverlaps[j].getOrient()==1?"+":"-") << endl;
             } 
             sout << ss.str();

@@ -64,7 +64,7 @@ void ReadSimulator::findAllOverlaps(AllReadOverlaps& allOverlaps, int minOverlap
             FILE_LOG(logDEBUG2) << "Offset_j: " << offset_j << " Offset_i: " << offset_i;
             if(origName_j!=origName_i || contactPos>(length_i-minOverlap)) { break; }
             int overlapDir = 1;
-            allOverlaps.addOverlap(i, j, contactPos, 1.0, overlapDir, true);
+            allOverlaps.addOverlap(i, j, contactPos, overlapDir, true);
         }
         for(int k=i-1; k>=0; k--) {
             FILE_LOG(logDEBUG2) << "Index k: " << k;
@@ -76,7 +76,7 @@ void ReadSimulator::findAllOverlaps(AllReadOverlaps& allOverlaps, int minOverlap
             FILE_LOG(logDEBUG2) << "Offset_i: " << offset_i << " Offset_k: " << offset_k;
             if(origName_k!=origName_i || contactPos>(length_i-minOverlap)) { break; }
             int overlapDir = -1;
-            allOverlaps.addOverlap(i, k, contactPos, 1.0, overlapDir, true);
+            allOverlaps.addOverlap(i, k, contactPos, overlapDir, true);
         }
     }
 }

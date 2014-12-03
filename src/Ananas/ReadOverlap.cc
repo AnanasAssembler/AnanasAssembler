@@ -42,7 +42,6 @@ void AllReadOverlaps::writeBin(const string& readOverlapFile) const {
                 fs.Write(i);
                 fs.Write(overlaps[j].getOverlapIndex());
                 fs.Write(overlaps[j].getContactPos());
-                fs.Write(overlaps[j].getScore());
                 fs.Write(overlaps[j].getDirection());
                 fs.Write(overlaps[j].getOrient());
             }
@@ -60,13 +59,11 @@ string AllReadOverlaps::getOverlapString(int index, int dir) const {
     return ss.str();
 }
 
-void AllReadOverlaps::load(const string& readOverlapFile, int mode) {
-    if(mode==0) { loadBin(readOverlapFile); } 
-    else        { loadAsc(readOverlapFile); }
+void AllReadOverlaps::load(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads, int mode) {
+    if(mode==0) { loadBin(readOverlapFile, good, consReads); } 
+    else        { loadAsc(readOverlapFile, good, consReads); }
 }
 
-
-//TODO this is temporary - remove
 void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
     ifstream sIn;
     sIn.open(readOverlapFile.c_str());
@@ -79,39 +76,25 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
         tokenizer.AddDelimiter("\t");
         CMPtrStringList tokens;
         tokenizer.Tokenize(tokens, line.c_str());
-        if(tokens.length()<6) { 
-            FILE_LOG(logERROR) << "Wrong overlap file format - six columns required"; 
+        if(tokens.length()<5) { 
+            FILE_LOG(logERROR) << "Wrong overlap file format - five columns required"; 
             return;
         }
-        string dir    = (const char*) *tokens[4];
-        string strand = (const char*) *tokens[5];
+        string dir    = (const char*) *tokens[3];
+        string strand = (const char*) *tokens[4];
         if(good.isize() > 0 && (!good[atoi((const char*)*tokens[0])] && !good[atoi((const char*)*tokens[1])])) {
             continue;
         }
         addOverlap(atoi((const char*)*tokens[0]), 
                    atoi((const char*)*tokens[1]), atoi((const char*)*tokens[2]), 
-                   atof((const char*)*tokens[3]), (dir==">"?1:-1), (strand=="+"?1:-1));
+                   (dir==">"?1:-1), (strand=="+"?1:-1));
 
     }
     sIn.close();
     postReadActions(consReads); 
 }
 
-void AllReadOverlaps::loadAsc(const string& readOverlapFile) {
-    ifstream sIn;
-    sIn.open(readOverlapFile.c_str());
-    string line;
-    getline(sIn, line);
-    int totNumOfReads = atoi(line.c_str());
-    resize(totNumOfReads);
-    while(getline(sIn, line)) {
-        addOverlapFromString(line);
-    } 
-    sIn.close();
-    //  postReadActions();  TODO
-}
-
-void AllReadOverlaps::loadBin(const string& readOverlapFile) {
+void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
     CMReadFileStream fs;
     fs.Open(readOverlapFile.c_str());
     int totNumOfReads;
@@ -121,17 +104,18 @@ void AllReadOverlaps::loadBin(const string& readOverlapFile) {
         int dir, orient;
         int readIdx, overlapIdx;
         int contactPos;
-        float score; 
         fs.Read(dir);
         fs.Read(readIdx);
         fs.Read(overlapIdx);
         fs.Read(contactPos);
-        fs.Read(score);
         fs.Read(orient);
-     
-        addOverlap(readIdx, overlapIdx, contactPos, score, dir, orient);
+        if(good.isize() > 0 && (!good[readIdx] && !good[overlapIdx])) {
+            continue;
+        }
+        addOverlap(readIdx, overlapIdx, contactPos, dir, orient);
     }
     fs.Close();
+    postReadActions(consReads); 
 }
 
 void AllReadOverlaps::addOverlapFromString(const string& strIn){
@@ -147,7 +131,7 @@ void AllReadOverlaps::addOverlapFromString(const string& strIn){
     string strand = (const char*) *tokens[5];
     addOverlap(atoi((const char*)*tokens[0]), 
                atoi((const char*)*tokens[1]), atoi((const char*)*tokens[2]), 
-               atof((const char*)*tokens[3]), (dir==">"?1:-1), (strand=="+"?1:-1));
+               (dir==">"?1:-1), (strand=="+"?1:-1));
 }
  
 void AllReadOverlaps::actionsAfterOverlapSet() {
@@ -174,10 +158,9 @@ void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {
 
 
 //======================================================
-void ReadOverlap::set(int oI, int cP, float s, int d, int o) {
+void ReadOverlap::set(int oI, int cP, int d, int o) {
     m_overlapIndex = oI;
     m_contactPos   = cP;
-    m_score        = s;
     m_direction    = d;
     m_orient       = o;
 }
@@ -196,7 +179,7 @@ bool ReadOverlap::operator < (const ReadOverlap & rO) const {
 string ReadOverlap::toString() const {
     stringstream ss;
     ss << getOverlapIndex() << "\t" 
-       << getContactPos() << "\t" << getScore() << "\t" 
+       << getContactPos() << "\t" 
        << "\t" << (getDirection()==1?">":"<") << "\t"
        << (getOrient()==1?"+":"-");
     return ss.str();

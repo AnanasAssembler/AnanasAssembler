@@ -58,7 +58,7 @@ void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
     cout << "Finding Near Ident Groupings..." << endl;
     int progCount = 0;
     int totSize   = subreads.getSize();
-    int inc = totSize/10000;
+    int inc = totSize/1000;
     if (inc == 0)
         inc = 1; //Let's not crash if we have too few reads 
     for(int i=0; i<totSize-1; i++) { 
