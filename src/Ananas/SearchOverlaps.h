@@ -101,18 +101,7 @@ public:
 
 
   int Size() const {return m_size;}
-/*
-  void Minimal(SearchStack & s) {
-    if (m_size == 0)
-      return;
-    int i = m_size - 1;
-    while (i >= 0) {
-      s.Push(m_stack[i]);
-      i = m_stack[i].Back();
-    }
-cout<<s.m_size<<"  "<<Top().NodeCount()<<endl;
-  }
-*/
+
   void Minimal(SearchStack & s) {
     if (m_size == 0)
       return;
@@ -129,7 +118,6 @@ cout<<s.m_size<<"  "<<Top().NodeCount()<<endl;
   }
 
   void SetPairs(int i) {m_pairs = i;}
-
   int Pairs() const {return m_pairs;}
  
   
@@ -375,7 +363,22 @@ private:
 class Hypothesis
 {
 public:
-  Hypothesis() {}
+  Hypothesis() {
+    m_pairs = 0;
+  }
+
+  bool operator < (const Hypothesis & h) const {
+    if (m_pairs != h.m_pairs)
+      return m_pairs < h.m_pairs;
+    return Length() < h.Length();
+  }
+
+  void SetPairs(int i) {m_pairs = i;}
+  int Pairs() const {return m_pairs;}
+  int Length() const { 
+    if(Size()==0) { return 0; } 
+    else           { return m_main[Size()-1].Stop(); } 
+  } 
 
   void Add(HypothesisNode & n) {
     m_main.push_back(n);
@@ -413,6 +416,17 @@ public:
     }    
   }
 
+  int GetNodes(svec<int> & nodes, const ConsensOverlapUnit & COUnit) const {
+    int len = 0;
+    int numOfNodes = Size();
+    nodes.resize(numOfNodes);
+    for (int i=numOfNodes-1; i>=0; i--) {
+      int r = m_main[i].Read();
+      nodes[i] = r;
+      len += m_main[i].Overlap();
+    }
+    return len;
+  }
   bool ContainsSubset(const Hypothesis & h);
 
   void Reverse(int totalLen) {
@@ -440,7 +454,7 @@ public:
 
     Hypothesis tmp = *this;
     m_main.clear();
-    for (i=0; i<tmp.isize(); i++) {
+    for (i=0; i<tmp.Size(); i++) {
       if (tmp[i].Pair() != -1)
 	Add(tmp[i]);
     }
@@ -468,7 +482,7 @@ public:
     Hypothesis tmp = *this;
     m_main.clear();
     //cout << "Before: " << tmp.isize() << endl;
-    for (i=0; i<tmp.isize(); i++) {
+    for (i=0; i<tmp.Size(); i++) {
       int start = tmp[i].Start();
       //cout << "start=" << start << " from=" << from << endl;
       if (start >= from) {
@@ -498,14 +512,14 @@ public:
     //cout << "After: " << m_main.isize() << endl;
   }
 
-  int isize() const {return m_main.isize();}
+  int Size() const {return m_main.isize();}
   const HypothesisNode & operator[] (int i) const {return m_main[i];}
   HypothesisNode & operator[] (int i) {return m_main[i];}
   void clear() {m_main.clear();}
 
 private:
-  //svec<HypothesisNode> m_main;
   svec_buff<HypothesisNode> m_main;
+  int m_pairs;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
