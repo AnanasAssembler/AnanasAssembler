@@ -241,7 +241,7 @@ int main( int argc, char** argv )
                 search.SetUsed(id, false);
             }
         }
-        cout << "Searching... " << t[l] << endl;
+        //cout << "Searching... " << t[l] << endl;
         search.SetExhaustive(true);
         if (s.isize() == 1)
             search.SetExhaustive(false);

@@ -54,14 +54,14 @@ bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
   return true;
 }
 
-int Search::Evaluate(SearchStack & stack, SearchNode & diffNode, const ConsensOverlapUnit & COUnit)
+int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit)
 {
     SearchStack minimal;
     stack.Minimal(minimal);
     minimal.Length(COUnit);
 
     // TRY this to reduce processing tiny contigs or where enough difference doesn't exist from previously evaluated path
-    if (m_results.isize() > 0 && (minimal.Size() < 3 || diffNode.NodeCount()<0.02*minimal.Size()) )
+    if (m_results.isize() > 0 && (minimal.Size() < 3 || diffNodeCount <0.02*minimal.Size()) )
         return -1;
 
     m_workHyp.clear();
@@ -85,11 +85,13 @@ int Search::Evaluate(SearchStack & stack, SearchNode & diffNode, const ConsensOv
 	if (m_results.isize() < m_maxResults) {
 	  m_results.push_back(minimal);  
 	} else {
-          sort(m_results.begin(), m_results.end());
-	  m_override = true;
-	  if (m_results[0] < minimal) {     
-	    m_results[0] = minimal;
-	  }
+          if(!m_override) { 
+              sort(m_results.begin(), m_results.end());
+	      m_override = true;  // Do not sort again 
+          }
+	  svec<SearchStack>::iterator lBound = lower_bound(m_results.begin(), m_results.end(), minimal); 
+          if (lBound!=m_results.end() && (*lBound) < minimal)      
+              (*lBound) = minimal; 
 	}
       }
     } else {
@@ -118,10 +120,8 @@ int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
     //cout << "Length: " << hypLen << endl;
     //m_results[m_results.isize()-1].Print(COUnit);
 
-    SearchStack & result = m_results[m_results.isize()-1];
- 
     m_workHyp.clear();
-    MakeHypothesis(m_workHyp, result, COUnit/*, true*/);
+    MakeHypothesis(m_workHyp, m_results[m_results.isize()-1], COUnit/*, true*/);
     if (rc) {
         m_workHyp.Reverse(hypLen);
     }
@@ -151,8 +151,7 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         raw.resize(m_results.isize());
         for (i=0; i<m_results.isize(); i++) {
             //cout << "# " << i << " pairs: " << pairs << " Length: " << hypLen << endl;
-            SearchStack & resultN = m_results[i];
-            MakeHypothesis(raw[i], resultN, COUnit, !m_override);
+            MakeHypothesis(raw[i], m_results[i], COUnit, !m_override);
             if (rc) {
                 raw[i].Reverse(hypLen);
             }
@@ -200,10 +199,8 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         //cout << "Pairs:" << pairs << " Length: " << hypLen << endl;
     }
 
-    SearchStack & result = m_results[m_results.isize()-1];
- 
     m_workHyp.clear();
-    MakeHypothesis(m_workHyp, result, COUnit, !m_override);
+    MakeHypothesis(m_workHyp, m_results[m_results.isize()-1], COUnit, !m_override);
     if (rc) {
         m_workHyp.Reverse(hypLen);
     }
@@ -724,7 +721,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
         m_results.reserve(1);
   
     SearchStack stack;
-    SearchNode  diffNode; // Used to keep track of differences from latest stack
+    int diffNodeCount = 0; // Used to keep track of differences from latest stack
 
     SearchNode init(index);
     if (rc) {
@@ -752,7 +749,8 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
 
         if (index == COUnit.GetNumDirLaps(n.Read(), ori)) {
             if (!n.Ext()) {
-                int limit = Evaluate(stack, diffNode, COUnit);
+                int limit = Evaluate(stack, diffNodeCount, COUnit);
+                diffNodeCount = 0;
 
                 //break; //MGG: This should make the search greedy!!!
 
@@ -791,7 +789,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
                 !m_usage.IsUsed(to_push.Read(), to_push.Pos())) {
                 n.SetExt();
                 stack.Push(to_push);
-                diffNode = to_push;
+                diffNodeCount++;
                 SetUsed(to_push);
                 if (m_exhaust)
                     m_usage.SetUsed(to_push.Read(), to_push.Pos());

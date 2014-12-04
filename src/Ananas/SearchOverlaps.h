@@ -233,39 +233,12 @@ private:
   int m_maxKeep;
 };
 
-
-class UsageItem
-{
- public:
-  UsageItem() {
-    m_read = -1;
-    m_pos = 0;
-  }
-  UsageItem(int read, int pos) {
-    m_read = read;
-    m_pos = pos/10;
-  }
-
-  bool operator < (const UsageItem & u) const {
-    if (m_read != u.m_read)
-      return m_read < u.m_read;
-    return m_pos < u.m_pos;
-  }
-
-  int Read() const {return m_read;}
-  int Pos()  const {return m_pos;}
-
- private:
-  int m_read;
-  int m_pos;
-};
-
 //=====================================================================
 class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 20;
+    m_div = 10;
   }
   UsageTracker(int n) {
     Resize(n);
@@ -642,7 +615,7 @@ protected:
 
   void SelectTopN(const ConsensOverlapUnit & COUnit, bool rc);
   int SelectLeftest(const ConsensOverlapUnit & COUnit,  bool rc);
-  int Evaluate(SearchStack & stack, SearchNode & diffNode, const ConsensOverlapUnit & COUnit);
+  int Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit);
   
   bool IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit);
   
