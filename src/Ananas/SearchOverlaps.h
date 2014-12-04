@@ -72,6 +72,14 @@ public:
     m_len = 0;
     m_pairs = 0;
   }
+  
+  void Resize(int size) {
+    m_stack.resize(size);
+  }
+
+  void Reset() {
+    m_size = 0;
+  }
 
   void Push(const SearchNode & n) {
     if (m_stack.isize() <= m_size)
@@ -106,7 +114,7 @@ public:
     if (m_size == 0)
       return;
     int totSize = Top().NodeCount();
-    s.m_stack.resize(totSize);
+    s.Resize(totSize);
     int next  = m_size - 1;
     int count = totSize - 1;
     while (count>=0) {
@@ -257,7 +265,7 @@ class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 10;
+    m_div = 20;
   }
   UsageTracker(int n) {
     Resize(n);
@@ -377,7 +385,11 @@ public:
   int Pairs() const {return m_pairs;}
   int Length() const { 
     if(Size()==0) { return 0; } 
-    else           { return m_main[Size()-1].Stop(); } 
+    else          { return m_main[Size()-1].Stop(); } 
+  } 
+  
+  void Reserve(int size) { 
+    m_main.reserve(size);
   } 
 
   void Add(HypothesisNode & n) {
@@ -385,8 +397,7 @@ public:
   }
 
   void Sort() {
-    //::Sort(m_main);
-    m_main.Sort();
+    sort(m_main.begin(), m_main.end());
   }
 
   void PrettyPrint(const ConsensOverlapUnit & COUnit) const {
@@ -518,7 +529,7 @@ public:
   void clear() {m_main.clear();}
 
 private:
-  svec_buff<HypothesisNode> m_main;
+  svec<HypothesisNode> m_main;
   int m_pairs;
 };
 
@@ -631,35 +642,28 @@ protected:
 
   void SelectTopN(const ConsensOverlapUnit & COUnit, bool rc);
   int SelectLeftest(const ConsensOverlapUnit & COUnit,  bool rc);
-  int Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit);
+  int Evaluate(SearchStack & stack, SearchNode & diffNode, const ConsensOverlapUnit & COUnit);
   
   bool IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit);
   
 private:
   //void WeedOut();
 
-  svec_buff<SearchStack> m_results;
+  svec<SearchStack> m_results;
   int m_maxResults;
   VecInt m_used;
-  //VecInt m_usedFW;
-  //VecInt m_usedRC;
   VecIntInc m_globalUsed;
 
   VecInt m_present;
   VecInt m_localUsed;
-  svec_buff<int> m_ids;
+  svec<int> m_ids;
   VecInt m_cov_seq;
   VecInt m_cov_pair;
-  //VecInt m_cov_seq_strict;
-  //VecInt m_cov_pair_strict;
 
-  //svec<int> m_used;
-  //svec<int> m_globalUsed;
   LayoutSink m_sink;
   bool m_exhaust;
   int m_discount;
   Hypothesis m_workHyp;
-
   
   UsageTracker m_usage;
   GlobalUsageHandler * m_pGlob;
