@@ -666,7 +666,8 @@ bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int startWithRead)
 {
     m_override = false;
     //cout << "Enter main loop." << endl;
-    m_usage.Resize(COUnit.GetNumReads());
+    if (m_exhaust)
+        m_usage.Resize(COUnit.GetNumReads());
 
     if (m_globalUsed.isize() == 0)
         m_globalUsed.resize(COUnit.GetNumReads(), 0);
@@ -705,9 +706,9 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
 int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
 {
     //cout << "Start searching read " << index << endl;
-
     m_lastNoPairs = -1;
-    m_usage.Clear();
+    if (m_exhaust)
+        m_usage.Clear();
 
     if (m_globalUsed.isize() == 0)
         m_globalUsed.resize(COUnit.GetNumReads(), 0);
@@ -787,7 +788,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
             n.IncCounter();
 
             if (!m_globalUsed[to_push.Read()] && !IsUsed(to_push) &&
-                !m_usage.IsUsed(to_push.Read(), to_push.Pos())) {
+                 (!m_exhaust || (m_exhaust && !m_usage.IsUsed(to_push.Read(), to_push.Pos())))) {
                 n.SetExt();
                 stack.Push(to_push);
                 diffNodeCount++;
