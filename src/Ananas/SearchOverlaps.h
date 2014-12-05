@@ -533,7 +533,7 @@ public:
     m_lastNoPairs = -1;
     m_pairDir = -1;
     m_override = false;
-    m_maxResults = 50;
+    m_maxResults = 500; //TODO depends on the strategy taken in structure chosen for m_results
     m_minAltKeep = 200;
   }
 

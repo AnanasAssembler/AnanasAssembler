@@ -78,7 +78,7 @@ int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverla
     if (m_exhaust) {    
       if (m_results.isize() == 0) {
 	m_results.push_back(minimal);
-    } else {
+    } else if(minimal.Pairs()>0) {  //TODO remove condition (just testing)
 //	if (!IsNew(minimal, COUnit)) { // Not different enough??
 //	  return to;
 //	}
@@ -89,9 +89,10 @@ int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverla
               sort(m_results.begin(), m_results.end());
 	      m_override = true;  // Do not sort again 
           }
+//TODO THIS DOESNT WORK CORRECTLY YET
 	  svec<SearchStack>::iterator lBound = lower_bound(m_results.begin(), m_results.end(), minimal); 
           if (lBound!=m_results.end() && (*lBound) < minimal)      
-              (*lBound) = minimal; 
+              m_results.insert(lBound, minimal); 
 	}
       }
     } else {
