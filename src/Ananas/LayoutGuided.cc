@@ -159,7 +159,6 @@ int main( int argc, char** argv )
     svec<int> ids;
     ids.resize(COUnit.GetNumReads(), 0);
 
-
     ScaffoldDispenser disp(of);
 
     // Count reads for the dispenser.
@@ -202,7 +201,9 @@ int main( int argc, char** argv )
     // Free up some unused space
     // COUnit.Prune(ids);
 
+    cout << "tokenizing..." << endl;
     COUnit.ReadOverlaps(lapName, ids);
+    cout << "Done." << endl;
 
     Search search;
     search.SetExhaustive(bEx);
@@ -223,15 +224,7 @@ int main( int argc, char** argv )
     for (l=0; l<t.isize(); l++) {
         const Scaffold & s = assembly[t[l]];
 
-	// Not needed any more, see above
-        /*if (s.isize() == 1) {
-            if (s[0].Highest() < minSize) {
-                cout << "Skipping scaffold " << t[l] << endl;
-                continue;
-            }
-	    }*/
-
-        cout << "Processing scaffold " << t[l] << endl;
+        cout << "Processing scaffold " << t[l] << " Number of reads= " << s.NumReads() << endl;
         search.SetUsedAll(COUnit);
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];

@@ -105,7 +105,7 @@ public:
   }
 
   SearchNode & Top() {return m_stack[m_size-1];}
-  bool Empty() const {return (m_size == 0);}
+  bool Empty() const {return (m_size == 0);    }
 
 
   int Size() const {return m_size;}
@@ -238,34 +238,47 @@ class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 10;
+    m_div = 10; 
   }
+
   UsageTracker(int n) {
     Resize(n);
   }
   
   void Resize(int n) {
     m_full.resize(n);
+    m_div = n/1000;
+    if(m_div<1) { m_div = 1; }
   }
 
   void Clear() {
-    int n = m_full.isize();
-    m_full.clear();
-    Resize(n);
+    int n = m_full.size();
+    for(int i=0; i<n; i++) {
+      if(m_full[i].size()>0) 
+        m_full[i].clear();
+    }
   }
 
   bool IsUsed(int read, int pos) {
-    int groupPos = pos/m_div;
-    return (m_full[read].find(groupPos) != m_full[read].end());
+    unsigned int groupPos = pos/m_div;
+    if(m_full[read].size()<groupPos){ 
+      return false; 
+    } else {
+      return m_full[read][groupPos];
+    }
   }
 
   void SetUsed(int read, int pos) {
-    int groupPos = pos/m_div;
+    unsigned int groupPos = pos/m_div;
+    if( m_full[read].size()<groupPos) {
+      m_full[read].resize(groupPos*3, false); 
+    }
     m_full[read][groupPos] = true; 
   }
 
  private:
-  svec< map<int, bool> > m_full; 
+  //svec< map<int, bool> > m_full; 
+  vector< vector<bool> > m_full;  //svec <svec<bool> > doesn't work
   int m_div;
 };
 

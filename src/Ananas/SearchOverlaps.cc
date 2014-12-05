@@ -56,13 +56,13 @@ bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 
 int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit)
 {
+    // TRY this to reduce processing tiny contigs or where enough difference doesn't exist from previously evaluated path
+    if (m_results.isize() > 0 && (stack.Top().NodeCount() < 3 || diffNodeCount <0.02*stack.Top().NodeCount()) )
+        return -1;
+
     SearchStack minimal;
     stack.Minimal(minimal);
     minimal.Length(COUnit);
-
-    // TRY this to reduce processing tiny contigs or where enough difference doesn't exist from previously evaluated path
-    if (m_results.isize() > 0 && (minimal.Size() < 3 || diffNodeCount <0.02*minimal.Size()) )
-        return -1;
 
     m_workHyp.clear();
 
