@@ -160,8 +160,8 @@ void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {
 void ReadOverlap::set(int oI, int cP, int d, int o) {
     m_overlapIndex = oI;
     m_contactPos   = cP;
-    m_direction    = d;
-    m_orient       = o;
+    m_direction    = (d==1)?true:false;
+    m_orient       = (o==1)?true:false;
 }
 
 
