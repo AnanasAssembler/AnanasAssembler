@@ -72,6 +72,14 @@ public:
     m_len = 0;
     m_pairs = 0;
   }
+  
+  void Resize(int size) {
+    m_stack.resize(size);
+  }
+
+  void Reset() {
+    m_size = 0;
+  }
 
   void Push(const SearchNode & n) {
     if (m_stack.isize() <= m_size)
@@ -97,7 +105,7 @@ public:
   }
 
   SearchNode & Top() {return m_stack[m_size-1];}
-  bool Empty() const {return (m_size == 0);}
+  bool Empty() const {return (m_size == 0);    }
 
 
   int Size() const {return m_size;}
@@ -106,7 +114,7 @@ public:
     if (m_size == 0)
       return;
     int totSize = Top().NodeCount();
-    s.m_stack.resize(totSize);
+    s.Resize(totSize);
     int next  = m_size - 1;
     int count = totSize - 1;
     while (count>=0) {
@@ -225,66 +233,52 @@ private:
   int m_maxKeep;
 };
 
-
-class UsageItem
-{
- public:
-  UsageItem() {
-    m_read = -1;
-    m_pos = 0;
-  }
-  UsageItem(int read, int pos) {
-    m_read = read;
-    m_pos = pos/10;
-  }
-
-  bool operator < (const UsageItem & u) const {
-    if (m_read != u.m_read)
-      return m_read < u.m_read;
-    return m_pos < u.m_pos;
-  }
-
-  int Read() const {return m_read;}
-  int Pos()  const {return m_pos;}
-
- private:
-  int m_read;
-  int m_pos;
-};
-
 //=====================================================================
 class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 10;
+    m_div = 10; 
   }
+
   UsageTracker(int n) {
     Resize(n);
   }
   
   void Resize(int n) {
     m_full.resize(n);
+    m_div = n/1000;
+    if(m_div<1) { m_div = 1; }
   }
 
   void Clear() {
-    int n = m_full.isize();
-    m_full.clear();
-    Resize(n);
+    int n = m_full.size();
+    for(int i=0; i<n; i++) {
+      if(m_full[i].size()>0) 
+        m_full[i].clear();
+    }
   }
 
   bool IsUsed(int read, int pos) {
-    int groupPos = pos/m_div;
-    return (m_full[read].find(groupPos) != m_full[read].end());
+    unsigned int groupPos = pos/m_div;
+    if(m_full[read].size()<groupPos){ 
+      return false; 
+    } else {
+      return m_full[read][groupPos];
+    }
   }
 
   void SetUsed(int read, int pos) {
-    int groupPos = pos/m_div;
+    unsigned int groupPos = pos/m_div;
+    if( m_full[read].size()<groupPos) {
+      m_full[read].resize(groupPos*3, false); 
+    }
     m_full[read][groupPos] = true; 
   }
 
  private:
-  svec< map<int, bool> > m_full; 
+  //svec< map<int, bool> > m_full; 
+  vector< vector<bool> > m_full;  //svec <svec<bool> > doesn't work
   int m_div;
 };
 
@@ -377,7 +371,11 @@ public:
   int Pairs() const {return m_pairs;}
   int Length() const { 
     if(Size()==0) { return 0; } 
-    else           { return m_main[Size()-1].Stop(); } 
+    else          { return m_main[Size()-1].Stop(); } 
+  } 
+  
+  void Reserve(int size) { 
+    m_main.reserve(size);
   } 
 
   void Add(HypothesisNode & n) {
@@ -385,8 +383,7 @@ public:
   }
 
   void Sort() {
-    //::Sort(m_main);
-    m_main.Sort();
+    sort(m_main.begin(), m_main.end());
   }
 
   void PrettyPrint(const ConsensOverlapUnit & COUnit) const {
@@ -518,7 +515,7 @@ public:
   void clear() {m_main.clear();}
 
 private:
-  svec_buff<HypothesisNode> m_main;
+  svec<HypothesisNode> m_main;
   int m_pairs;
 };
 
@@ -536,7 +533,7 @@ public:
     m_lastNoPairs = -1;
     m_pairDir = -1;
     m_override = false;
-    m_maxResults = 50;
+    m_maxResults = 500; //TODO depends on the strategy taken in structure chosen for m_results
     m_minAltKeep = 200;
   }
 
@@ -631,35 +628,28 @@ protected:
 
   void SelectTopN(const ConsensOverlapUnit & COUnit, bool rc);
   int SelectLeftest(const ConsensOverlapUnit & COUnit,  bool rc);
-  int Evaluate(SearchStack & stack, const ConsensOverlapUnit & COUnit);
+  int Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit);
   
   bool IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit);
   
 private:
   //void WeedOut();
 
-  svec_buff<SearchStack> m_results;
+  svec<SearchStack> m_results;
   int m_maxResults;
   VecInt m_used;
-  //VecInt m_usedFW;
-  //VecInt m_usedRC;
   VecIntInc m_globalUsed;
 
   VecInt m_present;
   VecInt m_localUsed;
-  svec_buff<int> m_ids;
+  svec<int> m_ids;
   VecInt m_cov_seq;
   VecInt m_cov_pair;
-  //VecInt m_cov_seq_strict;
-  //VecInt m_cov_pair_strict;
 
-  //svec<int> m_used;
-  //svec<int> m_globalUsed;
   LayoutSink m_sink;
   bool m_exhaust;
   int m_discount;
   Hypothesis m_workHyp;
-
   
   UsageTracker m_usage;
   GlobalUsageHandler * m_pGlob;

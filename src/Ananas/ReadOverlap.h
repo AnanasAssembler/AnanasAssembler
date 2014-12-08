@@ -39,7 +39,11 @@ private:
 class ReadInfo
 {
 public:
-    ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds() {}
+    ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds() {
+        m_rightOverlaps.reserve(300);
+        m_leftOverlaps.reserve(300);
+        m_overlapIds.reserve(600);
+    }
 
     const svec<ReadOverlap>& getOverlaps(int isRight) const { 
       if(isRight==1) {  return m_rightOverlaps; } 

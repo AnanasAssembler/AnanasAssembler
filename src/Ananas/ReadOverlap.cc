@@ -71,12 +71,12 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
     getline(sIn, line);
     int totNumOfReads = atoi(line.c_str());
     resize(totNumOfReads);
+    CMTokenizer tokenizer;
+    tokenizer.AddDelimiter("\t");
+    CMPtrStringList tokens;
     while(getline(sIn, line)) {
-        CMTokenizer tokenizer;
-        tokenizer.AddDelimiter("\t");
-        CMPtrStringList tokens;
         tokenizer.Tokenize(tokens, line.c_str());
-        if(tokens.length()<5) { 
+        if(tokens.length()!=5) { 
             FILE_LOG(logERROR) << "Wrong overlap file format - five columns required"; 
             return;
         }
@@ -88,7 +88,6 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
         addOverlap(atoi((const char*)*tokens[0]), 
                    atoi((const char*)*tokens[1]), atoi((const char*)*tokens[2]), 
                    (dir==">"?1:-1), (strand=="+"?1:-1));
-
     }
     sIn.close();
     postReadActions(consReads); 
