@@ -662,12 +662,11 @@ void Search::Commit(const Hypothesis & hyp)
     m_globalUsed.Reset();
 }
 
-bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int startWithRead)
+bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead)
 {
     m_override = false;
-    //cout << "Enter main loop." << endl;
     if (m_exhaust)
-        m_usage.Resize(COUnit.GetNumReads());
+        m_usage.Resize(COUnit.GetNumReads(), numAvailableReads);
 
     if (m_globalUsed.isize() == 0)
         m_globalUsed.resize(COUnit.GetNumReads(), 0);
@@ -679,11 +678,7 @@ bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int startWithRead)
     for (i=startWithRead; i<COUnit.GetNumReads(); i++) {
         if (!IsUsedGlobal(i)
             && HasExtensions(COUnit, i)) {
-            //DoSearch(COUnit, 17);
-            //cout << "SEARCHING." << endl;
-            //cout << "Finding start read: " << i << endl;
             int start = DoSearch(COUnit, i, true);
-            //cout << "Searching for real: " << start << endl;
             if(start>=0) { DoSearch(COUnit, start); }
         }
     }
@@ -705,7 +700,6 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
 
 int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
 {
-    //cout << "Start searching read " << index << endl;
     m_lastNoPairs = -1;
     if (m_exhaust)
         m_usage.Clear();
@@ -770,22 +764,28 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
                 // The current implementation is slightly too greedy
                 if (m_exhaust) {
                     if (backoff > 0 && !(pop.Pos() <= backoff)) {
-                        // cout << "Don't re-use
                     } else {
                         SetUsed(pop, false); // Let's allow for re-usage
                     }
                 }
-                //cout << "Popped " << pop.Read() << " " << pop.Pos() << endl;
             } while(backoff >=0 && pop.Pos() > backoff);
             backoff = -1;
             continue;
         }
     
-        for (i=index; i < COUnit.GetNumDirLaps(n.Read(), ori); i++) {
+        int overlapCnt = COUnit.GetNumDirLaps(n.Read(), ori); 
+        int limit      = COUnit.GetNumDirLaps(n.Read(), ori); //Limit the number of overlaps to consider
+        if(m_exhaust) {
+          limit = min(COUnit.getConsReadSize(n.Read()), overlapCnt);
+        }
+        for (i=index; i < overlapCnt; i++) {
+            n.IncCounter();
+            if(i>limit) { 
+                continue; 
+            }
             const ReadOverlap & l = COUnit.GetDirLap(n.Read(), i, ori);	
             SearchNode to_push(l.getOverlapIndex(), curr, ori*l.getOrient(), l.getContactPos(), pos + l.getContactPos());
             to_push.SetNodeCount(nodeCount+1); 
-            n.IncCounter();
 
             if (!m_globalUsed[to_push.Read()] && !IsUsed(to_push) &&
                  (!m_exhaust || (m_exhaust && !m_usage.IsUsed(to_push.Read(), to_push.Pos())))) {

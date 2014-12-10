@@ -37,7 +37,6 @@ string ConsensRead::genSeqName() {
 //======================================================
 void ConsensReads::setConsensus(ConsensRead& cRead) {
     Consensus cons;
-    int consSeqSize  = 0;
     bool setConsFlag = false;
     svec<int> readIdxs = cRead.getReads();
     int totLen = m_rawReads.getSize(readIdxs[0]);
@@ -57,9 +56,7 @@ void ConsensReads::setConsensus(ConsensRead& cRead) {
                     cons.Add(j, read[j]); 
                 }
                 setConsFlag = true;
-            } else {
-                if(consSeqSize < m_rawReads.getSize(idx)) { consSeqSize = m_rawReads.getSize(idx); }
-            }
+            } 
         }
 
         if(setConsFlag) {
@@ -70,7 +67,7 @@ void ConsensReads::setConsensus(ConsensRead& cRead) {
             }
             cRead.setSeq(out);
         } else {
-            cRead.setSize(consSeqSize);
+            cRead.setSize(totLen);
         }
     }
 }
@@ -163,8 +160,9 @@ void ConsensReads::addConReadFromString(const string& strIn){
     Tokenize(strIn, tokens);
     svec<int> idxs;
     int tot = tokens.size();
+    idxs.resize(tot);
     for(int i=0; i<tot; i++) {
-        idxs.push_back(atoi(tokens[i].c_str()));
+        idxs[i] = (atoi(tokens[i].c_str()));
     }
     addConsRead(idxs);
 }

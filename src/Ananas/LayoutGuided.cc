@@ -201,7 +201,6 @@ int main( int argc, char** argv )
     // Free up some unused space
     // COUnit.Prune(ids);
 
-    cout << "tokenizing..." << endl;
     COUnit.ReadOverlaps(lapName, ids);
     cout << "Done." << endl;
 
@@ -234,13 +233,11 @@ int main( int argc, char** argv )
                 search.SetUsed(id, false);
             }
         }
-        //cout << "Searching... " << t[l] << endl;
         search.SetExhaustive(true);
         if (s.isize() == 1)
             search.SetExhaustive(false);
-      
 
-        search.DoSearchAll(COUnit);
+        search.DoSearchAll(COUnit, s.NumReads());
     }
  
     cout << "All done!!!" << endl;

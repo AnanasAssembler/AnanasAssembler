@@ -241,14 +241,11 @@ class UsageTracker
     m_div = 10; 
   }
 
-  UsageTracker(int n) {
-    Resize(n);
-  }
-  
-  void Resize(int n) {
-    m_full.resize(n);
-    m_div = n/1000;
-    if(m_div<1) { m_div = 1; }
+  void Resize(int totReads, int totAvailReads) {
+    m_full.resize(totReads);
+    m_div = totAvailReads/1000;
+    if(m_div<1)    { m_div = 1; }    //min
+    if(m_div>1000) { m_div = 1000; } //max
   }
 
   void Clear() {
@@ -271,7 +268,7 @@ class UsageTracker
   void SetUsed(int read, int pos) {
     unsigned int groupPos = pos/m_div;
     if( m_full[read].size()<groupPos) {
-      m_full[read].resize(groupPos*3, false); 
+      m_full[read].resize(groupPos*5, false); 
     }
     m_full[read][groupPos] = true; 
   }
@@ -561,7 +558,7 @@ public:
     throw;
   }
 
-  bool DoSearchAll(const ConsensOverlapUnit & COUnit, int startWithRead = 0);
+  bool DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead = 0);
 
   void SetOutput(const string & layout) {
     m_sink.SetLayoutFile(layout);
@@ -596,14 +593,12 @@ protected:
   void SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit);
 
   bool IsUsedGlobal(const SearchNode & n) const {    
-    //cout << m_globalUsed.isize() << endl;
     return m_globalUsed[n.Read()];
   }
 
   bool HasExtensions(const ConsensOverlapUnit & COUnit, int id) const;
 
   bool IsUsed(const SearchNode & n) const {
-    //return false;
     if (m_globalUsed[n.Read()] > 0)
       return true;
     return (m_used[n.Read()] > 0);

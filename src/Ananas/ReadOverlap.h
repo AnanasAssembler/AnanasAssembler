@@ -46,9 +46,9 @@ class ReadInfo
 {
 public:
     ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds() {
-        m_rightOverlaps.reserve(300);
-        m_leftOverlaps.reserve(300);
-        m_overlapIds.reserve(600);
+        m_rightOverlaps.reserve(1000);
+        m_leftOverlaps.reserve(1000);
+        m_overlapIds.reserve(2000);
     }
 
     const svec<ReadOverlap>& getOverlaps(int isRight) const { 
@@ -67,6 +67,7 @@ public:
     }
     
     void sortLaps(); 
+    void sortOverlapIndexes(); 
 
     bool organizeLaps(const ConsensReads & allReads, int id);  
 

@@ -94,6 +94,7 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
 }
 
 void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
+    if(readOverlapFile=="") { return; }
     CMReadFileStream fs;
     fs.Open(readOverlapFile.c_str());
     int totNumOfReads;
@@ -103,10 +104,10 @@ void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & g
         int dir, orient;
         int readIdx, overlapIdx;
         int contactPos;
-        fs.Read(dir);
         fs.Read(readIdx);
         fs.Read(overlapIdx);
         fs.Read(contactPos);
+        fs.Read(dir);
         fs.Read(orient);
         if(good.isize() > 0 && (!good[readIdx] && !good[overlapIdx])) {
             continue;
@@ -140,7 +141,10 @@ void AllReadOverlaps::actionsAfterOverlapSet() {
 }
 
 void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {
-    actionsAfterOverlapSet();
+//    actionsAfterOverlapSet(); // No longer need this as overlaps should be in sorted order when written out the first time
+    for (int i=0; i<m_overlaps.isize(); i++) {
+        m_overlaps[i].sortOverlapIndexes();
+    }
     m_chimera.resize(m_overlaps.isize(), 0);
     int chimeras = 0;
     for (int i=0; i<m_overlaps.isize(); i++) {
@@ -189,6 +193,10 @@ string ReadOverlap::toString() const {
 void ReadInfo::sortLaps() {
     Sort(m_rightOverlaps);
     Sort(m_leftOverlaps);
+    Sort(m_overlapIds);
+}
+
+void ReadInfo::sortOverlapIndexes() {
     Sort(m_overlapIds);
 }
 

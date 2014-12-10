@@ -49,10 +49,12 @@ public:
   //TODO - temporary -remove
   void ReadOverlaps(const string& readOverlapFile) {
     svec<int>  good;
-    m_overlaps.loadAsc(readOverlapFile, good, m_consReads);  
+    //m_overlaps.loadAsc(readOverlapFile, good, m_consReads);  
+    m_overlaps.loadBin(readOverlapFile, good, m_consReads);  
   }
   void ReadOverlaps(const string& readOverlapFile, const svec<int> & good) {
-    m_overlaps.loadAsc(readOverlapFile, good, m_consReads);  
+    //m_overlaps.loadAsc(readOverlapFile, good, m_consReads);  
+    m_overlaps.loadBin(readOverlapFile, good, m_consReads);  
   }
 
   // Specific Read functions TODO - review
@@ -66,6 +68,7 @@ public:
 
   int getNumOfPartners(int readIdx) const                            { return m_partners.getNumOfPartners(readIdx);    }
   int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
+  int getConsReadSize(int readIdx) const                             { return m_consReads.getSize(readIdx);            }
 
   void findOverlaps(int numOfThreads, int mode, string groupedReadInfo="", double identThresh=0.99);  
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 

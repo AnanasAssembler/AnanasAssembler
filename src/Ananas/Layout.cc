@@ -40,7 +40,7 @@ protected:
         //int startRead = atol(msg);
         cout << "Starting search w/ " << msg << endl;
 
-        m_search.DoSearchAll(*m_pReads, m_startRead);
+        m_search.DoSearchAll(*m_pReads, m_pReads->GetNumReads(), m_startRead);
 
         cout << "Done!" << endl;
         return true;
@@ -110,7 +110,7 @@ int main( int argc, char** argv )
         search.SetExhaustive(bEx);
         search.SetDir(dir);
         search.SetOutput(layoutName);
-        search.DoSearchAll(COUnit);
+        search.DoSearchAll(COUnit, COUnit.GetNumReads());
     } else {
 
  
