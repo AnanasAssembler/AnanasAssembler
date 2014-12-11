@@ -3,6 +3,7 @@
 #endif
 
 #include <string>
+#include <ctime>
 #include "base/FileParser.h"
 #include "src/Ananas/SearchOverlaps.h"
 #include "src/Ananas/GlobUsage.h"
@@ -117,9 +118,6 @@ int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
     }
 
     int hypLen = m_results[m_results.isize()-1].Length();
-
-    //cout << "Length: " << hypLen << endl;
-    //m_results[m_results.isize()-1].Print(COUnit);
 
     m_workHyp.clear();
     MakeHypothesis(m_workHyp, m_results[m_results.isize()-1], COUnit/*, true*/);
@@ -249,7 +247,6 @@ void Search::SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit)
 }
 
 int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
-//int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
 {
     if (m_pairDir == 0)
         return CountUnPairs(to, from, hyp, COUnit, bPrint);
@@ -287,7 +284,6 @@ if(from>0) { from = from - 1; }
 }
 
 int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
-//int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
 {
     if (m_pairDir == 0)
         return CountUnPairs(to, from, hyp, COUnit, bPrint);
@@ -664,6 +660,7 @@ void Search::Commit(const Hypothesis & hyp)
 
 bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead)
 {
+    srand(time(NULL));
     m_override = false;
     if (m_exhaust)
         m_usage.Resize(COUnit.GetNumReads(), numAvailableReads);
@@ -775,12 +772,14 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     
         int overlapCnt = COUnit.GetNumDirLaps(n.Read(), ori); 
         int limit      = COUnit.GetNumDirLaps(n.Read(), ori); //Limit the number of overlaps to consider
+//        float randRatioLimit = 0.5;
         if(m_exhaust) {
           limit = min(COUnit.getConsReadSize(n.Read()), overlapCnt);
         }
         for (i=index; i < overlapCnt; i++) {
             n.IncCounter();
-            if(i>limit) { 
+//            if(i>limit || rand()>randRatioLimit) {
+            if(i>limit) {
                 continue; 
             }
             const ReadOverlap & l = COUnit.GetDirLap(n.Read(), i, ori);	

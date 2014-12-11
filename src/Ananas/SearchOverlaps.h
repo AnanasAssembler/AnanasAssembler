@@ -238,48 +238,47 @@ class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 10; 
+    m_div = 10;
+    m_maxPerRead = 10;
   }
 
   void Resize(int totReads, int totAvailReads) {
     m_full.resize(totReads);
-    m_div = totAvailReads/1000;
-    if(m_div<1)    { m_div = 1; }    //min
-    if(m_div>1000) { m_div = 1000; } //max
   }
 
   void Clear() {
     int n = m_full.size();
     for(int i=0; i<n; i++) {
-      if(m_full[i].size()>0) 
+      if(m_full[i].size()>0)
         m_full[i].clear();
     }
   }
 
   bool IsUsed(int read, int pos) {
     unsigned int groupPos = pos/m_div;
-    if(m_full[read].size()<groupPos){ 
-      return false; 
+    if(m_full[read].size()==m_maxPerRead){ 
+      return true;
     } else {
-      return m_full[read][groupPos];
+      if(m_full[read].find(groupPos)==m_full[read].end()) {
+        return false;
+      } else {
+        return true;
+      }
     }
   }
 
   void SetUsed(int read, int pos) {
-    unsigned int groupPos = pos/m_div;
-    if( m_full[read].size()<groupPos) {
-      m_full[read].resize(groupPos*5, false); 
+    if(m_full[read].size()<m_maxPerRead) {
+      unsigned int groupPos = pos/m_div;
+      m_full[read][groupPos] = true;
     }
-    m_full[read][groupPos] = true; 
   }
 
  private:
-  //svec< map<int, bool> > m_full; 
-  vector< vector<bool> > m_full;  //svec <svec<bool> > doesn't work
+  vector< map<int, bool> > m_full;  
   int m_div;
+  unsigned int m_maxPerRead;
 };
-
-
 //=====================================================================
 class HypothesisNode : public SearchNode
 {
