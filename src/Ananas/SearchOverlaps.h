@@ -238,51 +238,47 @@ class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 10; 
+    m_div = 10;
+    m_maxPerRead = 10;
   }
 
-  UsageTracker(int n) {
-    Resize(n);
-  }
-  
-  void Resize(int n) {
-    m_full.resize(n);
-    m_div = n/1000;
-    if(m_div<1) { m_div = 1; }
+  void Resize(int totReads, int totAvailReads) {
+    m_full.resize(totReads);
   }
 
   void Clear() {
     int n = m_full.size();
     for(int i=0; i<n; i++) {
-      if(m_full[i].size()>0) 
+      if(m_full[i].size()>0)
         m_full[i].clear();
     }
   }
 
   bool IsUsed(int read, int pos) {
     unsigned int groupPos = pos/m_div;
-    if(m_full[read].size()<groupPos){ 
-      return false; 
+    if(m_full[read].size()==m_maxPerRead){ 
+      return true;
     } else {
-      return m_full[read][groupPos];
+      if(m_full[read].find(groupPos)==m_full[read].end()) {
+        return false;
+      } else {
+        return true;
+      }
     }
   }
 
   void SetUsed(int read, int pos) {
-    unsigned int groupPos = pos/m_div;
-    if( m_full[read].size()<groupPos) {
-      m_full[read].resize(groupPos*3, false); 
+    if(m_full[read].size()<m_maxPerRead) {
+      unsigned int groupPos = pos/m_div;
+      m_full[read][groupPos] = true;
     }
-    m_full[read][groupPos] = true; 
   }
 
  private:
-  //svec< map<int, bool> > m_full; 
-  vector< vector<bool> > m_full;  //svec <svec<bool> > doesn't work
+  vector< map<int, bool> > m_full;  
   int m_div;
+  unsigned int m_maxPerRead;
 };
-
-
 //=====================================================================
 class HypothesisNode : public SearchNode
 {
@@ -561,7 +557,7 @@ public:
     throw;
   }
 
-  bool DoSearchAll(const ConsensOverlapUnit & COUnit, int startWithRead = 0);
+  bool DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead = 0);
 
   void SetOutput(const string & layout) {
     m_sink.SetLayoutFile(layout);
@@ -596,14 +592,12 @@ protected:
   void SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit);
 
   bool IsUsedGlobal(const SearchNode & n) const {    
-    //cout << m_globalUsed.isize() << endl;
     return m_globalUsed[n.Read()];
   }
 
   bool HasExtensions(const ConsensOverlapUnit & COUnit, int id) const;
 
   bool IsUsed(const SearchNode & n) const {
-    //return false;
     if (m_globalUsed[n.Read()] > 0)
       return true;
     return (m_used[n.Read()] > 0);

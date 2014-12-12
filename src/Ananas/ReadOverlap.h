@@ -11,9 +11,10 @@ class ReadOverlap
 {
 //TODO changing bool value of direction and orientation to int to accord with Search code but this is NOT correct
 public:
-    ReadOverlap():m_overlapIndex(-1), m_contactPos(-1), m_direction(-1),  m_orient(-1) {};
-    ReadOverlap(int oI, int cP, int d, int o)
-                   :m_overlapIndex(oI), m_contactPos(cP), m_direction(d), m_orient(o) { }
+    ReadOverlap():m_overlapIndex(-1), m_contactPos(-1), m_direction(false),  m_orient(false) {};
+    ReadOverlap(int oI, int cP, int d, int o) {
+      set(oI, cP, d, o);
+    }
 
     void set(int oI, int cP, int d, int o); 
 
@@ -21,16 +22,21 @@ public:
 
     int     getOverlapIndex() const       { return m_overlapIndex;  }  
     int     getContactPos() const         { return m_contactPos;    }  
-    int     getDirection() const          { return m_direction;     }
-    int     getOrient() const             { return m_orient;        }
+
+    int getDirection() const { 
+      return (m_direction)?1:-1;
+    }
+    int getOrient() const { 
+      return (m_orient)?1:-1;
+    }
 
     bool operator < (const ReadOverlap & rO) const; 
 
 private: 
     int     m_overlapIndex;  /// The index of the read to which this item refers to
     int     m_contactPos;    /// The index in the read where this overlap occurs from 
-    int     m_direction;     /// The direction of the overlap (true: right  false: left)
-    int     m_orient;        /// The orientation of the overlap (Whether the reads are of the same strand)
+    bool    m_direction;     /// The direction of the overlap (true (+1): right  false (-1): left) 
+    bool    m_orient;        /// The overlap orientat (Whether the reads are of the same strand) - same logic as direction
 };
 //======================================================
 
@@ -40,9 +46,9 @@ class ReadInfo
 {
 public:
     ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds() {
-        m_rightOverlaps.reserve(300);
-        m_leftOverlaps.reserve(300);
-        m_overlapIds.reserve(600);
+        m_rightOverlaps.reserve(1000);
+        m_leftOverlaps.reserve(1000);
+        m_overlapIds.reserve(2000);
     }
 
     const svec<ReadOverlap>& getOverlaps(int isRight) const { 
@@ -61,6 +67,7 @@ public:
     }
     
     void sortLaps(); 
+    void sortOverlapIndexes(); 
 
     bool organizeLaps(const ConsensReads & allReads, int id);  
 

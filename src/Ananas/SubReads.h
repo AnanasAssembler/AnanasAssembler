@@ -96,7 +96,7 @@ void sortSubs(bool consensMode);
  
   /** Return a vector of SubRead entry indexes for a given 
      read of those Subreads that share a significant subsequence 
-     mode 0: only overlaps that extend the read, mode 1: all overlaps*/
+     mode 0: only overlaps that extend the read, mode 1: all overlaps */
   void findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
 
 private:

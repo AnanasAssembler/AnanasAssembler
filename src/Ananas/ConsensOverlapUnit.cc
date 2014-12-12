@@ -41,7 +41,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
         usleep(10000);
     }
 
-    m_overlaps.actionsAfterOverlapSet();
+    m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps
 
     cout << "\r===================== " << "100.0% " << flush; 
     cout << "Completed finding Overlaps." << endl;
