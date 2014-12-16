@@ -39,9 +39,9 @@ bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 
   test.GetNodes(query, COUnit);
   int n = query.isize();
-  for (i=m_results.isize()-1; i>=0; i--) { 
+  for (i=m_results.Size()-1; i>=0; i--) { 
     svec<int> ref;
-    m_results[i].GetNodes(ref, COUnit);
+    m_results.GetResult(i).GetNodes(ref, COUnit);
     int m = ref.isize();
     for (j=0; j<query.isize(); j++)
       ref.push_back(query[j]);
@@ -58,7 +58,7 @@ bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit)
 {
     // TRY this to reduce processing tiny contigs or where enough difference doesn't exist from previously evaluated path
-    if (m_results.isize() > 0 && (stack.Top().NodeCount() < 3 || diffNodeCount <0.02*stack.Top().NodeCount()) )
+    if (m_results.Size() > 0 && (stack.Top().NodeCount() < 3 || diffNodeCount <0.02*stack.Top().NodeCount()) )
         return -1;
 
     SearchStack minimal;
@@ -66,65 +66,28 @@ int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverla
     minimal.Length(COUnit);
 
     m_workHyp.clear();
-
     MakeHypothesis(m_workHyp, minimal, COUnit, false);
-    int to, from;
-
     SetPairs(m_workHyp, COUnit);
-    int pairs = CountPairs(to, from, m_workHyp, COUnit);
-    //cout << "Pairs: " << pairs << " to: " << to << endl;
 
+    int to, from;
+    int pairs = CountPairs(to, from, m_workHyp, COUnit);
     minimal.SetPairs(pairs);
-  
-    if (m_exhaust) {    
-      if (m_results.isize() == 0) {
-	m_results.push_back(minimal);
-    } else if(minimal.Pairs()>0) {  //TODO remove condition (just testing)
-//	if (!IsNew(minimal, COUnit)) { // Not different enough??
-//	  return to;
-//	}
-	if (m_results.isize() < m_maxResults) {
-	  m_results.push_back(minimal);  
-	} else {
-          if(!m_override) { 
-              sort(m_results.begin(), m_results.end());
-	      m_override = true;  // Do not sort again 
-          }
-//TODO THIS DOESNT WORK CORRECTLY YET
-	  svec<SearchStack>::iterator lBound = lower_bound(m_results.begin(), m_results.end(), minimal); 
-          if (lBound!=m_results.end() && (*lBound) < minimal)      
-              m_results.insert(lBound, minimal); 
-	}
-      }
-    } else {
-        // Keep only one top-N (for memory)
-        if (m_results.isize() == 0) {
-            m_results.push_back(minimal);
-        } else {
-            if (m_results[0] < minimal) {
-                m_results[0] = minimal;
-            }
-        }
-    }
+    m_results.AddResult(minimal, m_exhaust);
     return to;
 }
 
 int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
 {
-    sort(m_results.begin(), m_results.end());
-    if (m_results.isize() == 0) {
-        //cout << "(none)" << endl;
+    if (m_results.Size() == 0) {
         return -1;
     }
-
-    int hypLen = m_results[m_results.isize()-1].Length();
+    int hypLen = m_results.GetTopResult().Length();
 
     m_workHyp.clear();
-    MakeHypothesis(m_workHyp, m_results[m_results.isize()-1], COUnit/*, true*/);
+    MakeHypothesis(m_workHyp, m_results.GetTopResult(), COUnit/*, true*/);
     if (rc) {
         m_workHyp.Reverse(hypLen);
     }
-
     for (int i=0; i<m_workHyp.Size(); i++) {
         if (m_workHyp[i].Ori() == 1)
             return m_workHyp[i].Read();
@@ -135,40 +98,28 @@ int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
 
 void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
 {
-    if (m_results.isize() == 0) {
-        return;
-    }
-    sort(m_results.begin(), m_results.end());
-    int i, j;
-    int hypLen = m_results[m_results.isize()-1].Length();
-    int pairs = m_results[m_results.isize()-1].Pairs();
+    if (m_results.Size() == 0) { return; }
 
     if (m_exhaust) {
-        //cout << "Reporting ALL hypotheses." << endl;
- 
         svec<Hypothesis> raw;
-        raw.resize(m_results.isize());
-        for (i=0; i<m_results.isize(); i++) {
-            //cout << "# " << i << " pairs: " << pairs << " Length: " << hypLen << endl;
-            MakeHypothesis(raw[i], m_results[i], COUnit, !m_override);
+        raw.resize(m_results.Size());
+        for (int i=0; i<m_results.Size(); i++) {
+            int hypLen = m_results.GetResult(i).Length();
+            MakeHypothesis(raw[i], m_results.GetResult(i), COUnit, !m_results.Override());
             if (rc) {
                 raw[i].Reverse(hypLen);
             }
         }
-
-        //cout << "Starting to toast..." << endl;
-        for (i=raw.isize()-1; i>0; i--) {
+        for (int i=0; i<raw.isize(); i++) {
             if (raw[i].Size() == 0)
                 continue;
-            for (j=i-1; j>=0; j--) {
+            for (int j=i+1; j<raw.isize(); j++) {
                 if (raw[j].Size() == 0)
                     continue;
                 if (raw[i].ContainsSubset(raw[j])) {
-                    //cout << "Toasting hypothesis " << j << " because of " << i << endl;
                     raw[j].clear();
                 }
                 if (raw[j].ContainsSubset(raw[i])) {
-                    //cout << "Toasting hypothesis (reverse)" << i << " because of " << j << endl;
                     raw[i] = raw[j];
                     raw[j].clear();
                 }
@@ -176,8 +127,7 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         }
 
         bool bCont = false;
-        //cout << "Remaining hypotheses." << endl;
-        for (i=raw.isize()-1; i>=0; i--) {
+        for (int i=0; i<raw.isize(); i++) {
             if (raw[i].Size() == 0)
                 continue;
             int to, from;
@@ -192,29 +142,25 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
             Commit(raw[i]);
             bCont = true;
         }
-        //cout << "done." << endl;
-        return; // Done here.
-    } else {
-        //cout << "Pairs:" << pairs << " Length: " << hypLen << endl;
+    } else { //None-exhaustive mode
+        m_workHyp.clear();
+        MakeHypothesis(m_workHyp, m_results.GetTopResult(), COUnit, !m_results.Override());
+        int hypLen = m_results.GetTopResult().Length();
+        if (rc) {
+            m_workHyp.Reverse(hypLen);
+        }
+
+        int to, from;
+        SetPairs(m_workHyp, COUnit);
+        CountPairs(to, from, m_workHyp, COUnit, true);
+
+        m_workHyp.TrimRight(to);
+        m_workHyp.TrimLeft(from);
+        SetPairs(m_workHyp, COUnit);
+        //hyp.RemoveUnpaired();
+        m_sink.Dump(m_workHyp, COUnit);
+        Commit(m_workHyp);
     }
-
-    m_workHyp.clear();
-    MakeHypothesis(m_workHyp, m_results[m_results.isize()-1], COUnit, !m_override);
-    if (rc) {
-        m_workHyp.Reverse(hypLen);
-    }
-
-    int to, from;
-    SetPairs(m_workHyp, COUnit);
-    CountPairs(to, from, m_workHyp, COUnit, true);
-
-    m_workHyp.TrimRight(to);
-    m_workHyp.TrimLeft(from);
-    SetPairs(m_workHyp, COUnit);
-    //hyp.RemoveUnpaired();
-    m_sink.Dump(m_workHyp, COUnit);
-    Commit(m_workHyp);
- 
 }
 
 void Search::SetPairs(Hypothesis & hyp, const ConsensOverlapUnit & COUnit)
@@ -661,15 +607,15 @@ void Search::Commit(const Hypothesis & hyp)
 bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead)
 {
     srand(time(NULL));
-    m_override = false;
     if (m_exhaust)
         m_usage.Resize(COUnit.GetNumReads(), numAvailableReads);
 
     if (m_globalUsed.isize() == 0)
         m_globalUsed.resize(COUnit.GetNumReads(), 0);
 
-    int i;
+    m_results.SetCapacity(m_exhaust);
 
+    int i;
  
     //cout << "Processing all remaining COUnit (fw/rc)." << endl;
     for (i=startWithRead; i<COUnit.GetNumReads(); i++) {
@@ -706,13 +652,9 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
 
     m_used.clear();
     m_used.resize(COUnit.GetNumReads(), 0);
-    m_results.clear();
-  
-    if (m_exhaust)
-        m_results.reserve(m_maxResults);
-    else
-        m_results.reserve(1);
-  
+
+    m_results.Reset();
+
     SearchStack stack;
     int diffNodeCount = 0; // Used to keep track of differences from latest stack
 
@@ -744,7 +686,6 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
             if (!n.Ext()) {
                 int limit = Evaluate(stack, diffNodeCount, COUnit);
                 diffNodeCount = 0;
-
                 //break; //MGG: This should make the search greedy!!!
 
                 if (limit < n.Pos()) {	  
@@ -754,7 +695,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
                     backoff = -1; 
                 }
             }
-            // Go backwards
+            // Backtrack 
             SearchNode pop;
             do {
                 stack.Pop(pop);
@@ -798,7 +739,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
             }
         }
     }
-
+    m_results.Sort();
     if (rc) {
         int z = SelectLeftest(COUnit, rc);
         if (z < 0) {
@@ -806,9 +747,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
         }
         return z;
     }
-
     SelectTopN(COUnit, rc);
-
     return -1;
 }
 
