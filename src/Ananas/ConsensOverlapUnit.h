@@ -58,23 +58,22 @@ public:
   }
 
   // Specific Read functions TODO - review
-  int GetNumLaps(int readIdx) const                                  { return getOverlap(readIdx).getNumLaps();        }
-  const ReadOverlap & GetLap(int readIdx, int i) const               { return getOverlap(readIdx).getLap(i);           }
-  int GetNumRightLaps(int readIdx) const                             { return getOverlap(readIdx).getNumRightLaps();   } 
-  const ReadOverlap & GetRightLap(int readIdx, int i) const          { return getOverlap(readIdx).getRightLap(i);      }
-  int GetNumDirLaps(int readIdx, int ori) const                      { return getOverlap(readIdx).getNumDirLaps(ori);  }
-  const ReadOverlap & GetDirLap(int readIdx, int i, int ori) const   { return getOverlap(readIdx).getDirLap(i, ori);   }
-  bool HasLap(int readIdx, int id) const                             { return getOverlap(readIdx).hasLap(id);          }
+  int GetNumLaps(int readIdx) const                                  { return getOverlap(readIdx).getNumLaps();              }
+  const ReadOverlap & GetLap(int readIdx, int i) const               { return getOverlap(readIdx).getLap(i);                 }
+  const ReadOverlap & GetRightLap(int readIdx, int i) const          { return getOverlap(readIdx).getRightLap(i);            }
+  int GetNumDirLaps(int readIdx, int ori) const                      { return getOverlap(readIdx).getNumDirLaps(ori);        }
+  const ReadOverlap & GetDirLap(int readIdx, int i, int ori) const   { return getOverlap(readIdx).getDirLap(i, ori);         }
+  bool HasLap(int readIdx, int id) const                             { return getOverlap(readIdx).hasLap(id);                }
 
-  int getNumOfPartners(int readIdx) const                            { return m_partners.getNumOfPartners(readIdx);    }
-  int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx); } 
-  int getConsReadSize(int readIdx) const                             { return m_consReads.getSize(readIdx);            }
+  int getNumOfPartners(int readIdx) const                            { return m_partners.getNumOfPartners(readIdx);          }
+  int getPartner(int readIdx, int partIdx) const                     { return m_partners.getPartner(readIdx, partIdx);       } 
+  int getConsReadSize(int readIdx) const                             { return m_consReads.getSize(readIdx);                  }
 
   void findOverlaps(int numOfThreads, int mode, string groupedReadInfo="", double identThresh=0.99);  
-  void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);         } 
-  void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);          } 
-  void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);        } 
-  void writeOverlaps(const string& overlapFile, int mode) const      { m_overlaps.write(overlapFile, mode);            } 
+  void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);               } 
+  void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);                } 
+  void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);              } 
+  void writeOverlaps(const string& overlapFile, int mode) const      { m_overlaps.write(overlapFile, mode);                  } 
 
   const ReadInfo& getOverlap(int i) const         { return m_overlaps[i]; }
   const AllReadOverlaps& getOverlaps() const      { return m_overlaps;    }

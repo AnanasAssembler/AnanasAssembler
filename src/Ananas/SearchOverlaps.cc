@@ -549,8 +549,9 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
         hyp.Add(node);
 
         if (bAddIn && i+1 < ss.Size()) {
-            int offLimit = st[i+1].Offset();
-            for (j=0; j<COUnit.GetNumLaps(node.Read()); j++) {
+            int offLimit  = st[i+1].Offset();
+            int numOfLaps = COUnit.GetNumLaps(node.Read());
+            for (j=0; j<numOfLaps; j++) {
                 const ReadOverlap & s = COUnit.GetLap(node.Read(), j);
                 if (m_globalUsed[s.getOverlapIndex()] > 0)
                     continue;
@@ -636,9 +637,9 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
     for (i=0; i<COUnit.GetNumDirLaps(id, ori); i++) {
         const ReadOverlap & l = COUnit.GetDirLap(id, i, ori);	
         if (m_globalUsed[l.getOverlapIndex()] == 0)
-            count++;
+            return true;
     }
-    return (count > 0);
+    return false; 
 }
 
 int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
