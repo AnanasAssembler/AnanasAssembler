@@ -631,10 +631,9 @@ bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableRead
 
 bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
 {
-    int i;
     int ori = 1;
-    int count = 0;
-    for (i=0; i<COUnit.GetNumDirLaps(id, ori); i++) {
+    int numLaps = COUnit.GetNumDirLaps(id, ori);
+    for (int i=0; i<numLaps; i++) {
         const ReadOverlap & l = COUnit.GetDirLap(id, i, ori);	
         if (m_globalUsed[l.getOverlapIndex()] == 0)
             return true;
