@@ -577,6 +577,7 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
 
                 if (COUnit.HasLap(st[i+1].Read(), s.getOverlapIndex())) {
                     HypothesisNode t = SearchNode(s.getOverlapIndex(), -1, s.getOrient() * node.Ori(), s.getContactPos());
+                    dSize = consReads.getSize(s.getOverlapIndex());
                     t.SetCoords(off + t.Offset(), off + t.Offset() + dSize);
                     hyp.Add(t);	
                     m_localUsed.Set(s.getOverlapIndex(), 1);
