@@ -41,7 +41,7 @@ public:
 	max = m;
       }	
     }
-    if (index == -1)
+    if (index == -1 || max==0)
       return 'N';
     return NucLetter(index);
   }

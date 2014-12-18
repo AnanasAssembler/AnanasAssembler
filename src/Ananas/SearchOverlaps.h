@@ -210,8 +210,13 @@ public:
     return m_len < s.m_len;
   }
 
-  int Length() const {return m_len;}
+  bool operator > (const SearchStack & s) const {
+    if (m_pairs != s.m_pairs)
+      return m_pairs > s.m_pairs;
+    return m_len > s.m_len;
+  }
 
+  int Length() const {return m_len;}
 
   void Reverse() {
     svec<SearchNode> tmp;
@@ -238,25 +243,26 @@ class UsageTracker
 {
  public:
   UsageTracker() {
-    m_div = 10;
-    m_maxPerRead = 10;
+    m_div         = 10;
+    m_maxPerRead  = 10;
+    m_usedCounter = 0;
   }
 
   void Resize(int totReads, int totAvailReads) {
     m_full.resize(totReads);
+    m_usedList.resize(totAvailReads);
   }
 
   void Clear() {
-    int n = m_full.size();
-    for(int i=0; i<n; i++) {
-      if(m_full[i].size()>0)
-        m_full[i].clear();
+    for(int i=0; i<m_usedCounter ; i++) {
+      m_full[m_usedList[i]].clear();
+      m_usedCounter = 0;
     }
   }
 
   bool IsUsed(int read, int pos) {
     unsigned int groupPos = pos/m_div;
-    if(m_full[read].size()==m_maxPerRead){ 
+    if(m_full[read].size()==m_maxPerRead){ //If maximum number of positions has been registered mark as used
       return true;
     } else {
       if(m_full[read].find(groupPos)==m_full[read].end()) {
@@ -268,16 +274,23 @@ class UsageTracker
   }
 
   void SetUsed(int read, int pos) {
-    if(m_full[read].size()<m_maxPerRead) {
+    unsigned int posCnt = m_full[read].size();
+    if(posCnt<m_maxPerRead) {
+      if(posCnt==0) { //First time a read is used (update used counter)
+         m_usedList[m_usedCounter] = read;
+         m_usedCounter++; 
+      } 
       unsigned int groupPos = pos/m_div;
       m_full[read][groupPos] = true;
     }
   }
 
  private:
-  vector< map<int, bool> > m_full;  
-  int m_div;
-  unsigned int m_maxPerRead;
+  vector< map<int, bool> > m_full; ///List of positions per used read (indexed over all reads) 
+  vector<int> m_usedList;          ///List of read indexes that have been used and need to be cleared in the next round
+  int m_usedCounter;               ///Counts the number of reads so far used (at least once) 
+  int m_div;                       ///Divide the position values into blocks 
+  unsigned int m_maxPerRead;       ///Maximum number of positions registered per read
 };
 //=====================================================================
 class HypothesisNode : public SearchNode
@@ -290,12 +303,11 @@ public:
   HypothesisNode(const SearchNode & s) {
     m_start = m_stop = -1;
     m_paired = -1;
-   *this = s;
+    *this = s;
   }
 
   void Print() const {
     //cout << "Read " << m_read << " ori " << m_ori << " " << m_start << " - " << m_stop << endl;
-   
   }
 
   HypothesisNode & operator = (const SearchNode & s) {
@@ -516,10 +528,88 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class ResultCache 
+{
+public:
+  ResultCache():m_results() {
+    m_resultCount    = 0;
+    m_maxResultsLow  = 50;
+    m_maxResultsHigh = 1000;
+    m_override       = false;
+  }
 
+  void SetCapacity(int exhaustMode) {
+    if (exhaustMode)
+      m_results.resize(m_maxResultsHigh);
+    else
+      m_results.resize(1);
+  }
+
+  void Sort() { 
+    if(Size()>1) {
+      //sort the m_resultCount elements
+      sort(m_results.begin(), m_results.begin()+Size(), greater<SearchStack>()); 
+    }
+    if (Size() > m_maxResultsLow) { m_resultCount = m_maxResultsLow; }
+  }
+  
+  int   Size()                          { return m_resultCount; }
+  bool  Override()                      { return m_override;    }
+  const SearchStack& GetResult(int i)   { return m_results[i];  }
+  const SearchStack& GetTopResult()     { return m_results[0];  }
+
+  void AddResult(SearchStack& ss, bool exhaustMode) {
+    if (exhaustMode) {    
+      if (Size()==0) {
+        m_results[m_resultCount] = ss;
+        m_resultCount = 1;
+      } else { 
+        if (Size() < m_maxResultsHigh) {
+          if (Size() < m_maxResultsLow) {
+            m_results[m_resultCount] = ss;
+            m_resultCount++;
+          } else {
+            if(Size() == m_maxResultsLow) { 
+              Sort(); 
+              m_override = true;  
+            }
+            //ss scores higher than the lowest in the list of top maxResultsLow results
+            if(GetResult(m_maxResultsLow-1)<ss) { 
+              m_results[m_resultCount] = ss;
+              m_resultCount++;
+            }
+          }
+        } else {
+          Sort();
+        }
+      }
+    } else { // Keep only one top-N (for memory)
+      if (Size() == 0) {
+        m_results[m_resultCount] = ss;
+        m_resultCount = 1;
+      } else if (m_results[0] < ss) {
+        m_results[0] = ss;
+      }
+    }
+  }
+ 
+  void Reset() {
+    m_resultCount    = 0;
+    m_override       = false;
+  }
+
+private:
+  svec<SearchStack> m_results;
+  int  m_resultCount;
+  int  m_maxResultsLow;
+  int  m_maxResultsHigh;
+  bool m_override;
+};
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Search
 {
- 
 public:
   Search() {
     m_exhaust = false;
@@ -528,8 +618,6 @@ public:
     m_report = 0;
     m_lastNoPairs = -1;
     m_pairDir = -1;
-    m_override = false;
-    m_maxResults = 500; //TODO depends on the strategy taken in structure chosen for m_results
     m_minAltKeep = 200;
   }
 
@@ -627,10 +715,7 @@ protected:
   bool IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit);
   
 private:
-  //void WeedOut();
-
-  svec<SearchStack> m_results;
-  int m_maxResults;
+  ResultCache m_results;
   VecInt m_used;
   VecIntInc m_globalUsed;
 
@@ -651,10 +736,10 @@ private:
   int m_lastNoPairs;
   int m_pairDir;
 
-  bool m_override;
   int m_minAltKeep;
 
 };
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #endif //SEARCHOVERLAPS_H

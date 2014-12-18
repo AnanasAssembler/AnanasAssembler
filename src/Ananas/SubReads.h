@@ -173,7 +173,6 @@ template<class ReadType>
 void SubReads<ReadType>::constructSubs(const ReadType& reads, int offsetStep, bool consensMode) {
   m_subReads.clear();
   for(int i=0; i<reads.getNumOfReads(); i++) {
-    //for(int j=0; j<reads[i].isize()-getMinOverlap(); j+=offsetStep) {
     for(int j=0; j<reads[i].isize(); j+=offsetStep) {
       m_subReads.push_back(SubRead(i, j, true)); //i:index j:offset 
       if(!isSingleStrand() && !consensMode) {

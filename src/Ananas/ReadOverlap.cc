@@ -141,13 +141,10 @@ void AllReadOverlaps::actionsAfterOverlapSet() {
 }
 
 void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {
-//    actionsAfterOverlapSet(); // No longer need this as overlaps should be in sorted order when written out the first time
-    for (int i=0; i<m_overlaps.isize(); i++) {
-        m_overlaps[i].sortOverlapIndexes();
-    }
     m_chimera.resize(m_overlaps.isize(), 0);
     int chimeras = 0;
     for (int i=0; i<m_overlaps.isize(); i++) {
+        m_overlaps[i].sortOverlapIndexes();
         bool b = m_overlaps[i].organizeLaps(consReads, i);
         if (b) {
             m_chimera[i] = 1;

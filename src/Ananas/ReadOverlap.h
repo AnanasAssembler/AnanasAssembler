@@ -45,24 +45,24 @@ private:
 class ReadInfo
 {
 public:
-    ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds() {
+    ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds(), m_numRightOL(0), m_numLeftOL(0) {
         m_rightOverlaps.reserve(1000);
         m_leftOverlaps.reserve(1000);
         m_overlapIds.reserve(2000);
     }
 
     const svec<ReadOverlap>& getOverlaps(int isRight) const { 
-      if(isRight==1) {  return m_rightOverlaps; } 
-      else           {  return m_leftOverlaps;  } 
+        if(isRight==1) {  return m_rightOverlaps; } 
+        else           {  return m_leftOverlaps;  } 
     }
 
     void addOverlap(int overlapIndex, int contactPos, int direction, int orient) {
-      addOverlap(ReadOverlap(overlapIndex, contactPos, direction, orient)); 
+        addOverlap(ReadOverlap(overlapIndex, contactPos, direction, orient)); 
     }
 
     void addOverlap(const ReadOverlap & oL) {
-        if(oL.getDirection()==-1) { m_leftOverlaps.push_back(oL);   }
-        else                      { m_rightOverlaps.push_back(oL);  }
+        if(oL.getDirection()==-1) { m_leftOverlaps.push_back(oL);  m_numLeftOL++;     }
+        else                      { m_rightOverlaps.push_back(oL); m_numRightOL++;    }
         m_overlapIds.push_back(oL.getOverlapIndex());
     }
     
@@ -71,31 +71,29 @@ public:
 
     bool organizeLaps(const ConsensReads & allReads, int id);  
 
-    int getNumLaps() const { return m_rightOverlaps.isize() + m_leftOverlaps.isize(); }
     const ReadOverlap & getLap(int i) const {
-      if(i<getNumRightLaps()) { return m_rightOverlaps[i]; }
-      else { return m_leftOverlaps[i-getNumRightLaps()]; }
+        if(i<getNumRightLaps()) { return m_rightOverlaps[i]; }
+        else { return m_leftOverlaps[i-getNumRightLaps()]; }
     }
-    int getNumRightLaps() const {return m_rightOverlaps.isize();}
-    const ReadOverlap & getRightLap(int i) const {return m_rightOverlaps[i];}
-    int getNumLeftLaps() const {return m_leftOverlaps.isize();}
-    const ReadOverlap & getLeftLap(int i) const {return m_leftOverlaps[i];}
+    int getNumLaps() const                       { return getNumRightLaps()+getNumLeftLaps(); }
+    int getNumRightLaps() const                  { return m_numRightOL;                       }
+    int getNumLeftLaps() const                   { return m_numLeftOL;                        }
+    const ReadOverlap & getRightLap(int i) const { return m_rightOverlaps[i];                 }
+    const ReadOverlap & getLeftLap(int i) const  { return m_leftOverlaps[i];                  }
   
-    int getNumDirLaps(int dir) const { return (dir==1? getNumRightLaps(): getNumLeftLaps()); }
-
-    const ReadOverlap & getDirLap(int i, int dir) const { return (dir==1? m_rightOverlaps[i]: m_leftOverlaps[i]); }
-
-    bool hasLap(int id) const { return (binary_search(m_overlapIds.begin(), m_overlapIds.end(), id)); }
+    int getNumDirLaps(int dir) const                    { return (dir==1? getNumRightLaps(): getNumLeftLaps());                 }
+    const ReadOverlap & getDirLap(int i, int dir) const { return (dir==1? m_rightOverlaps[i]: m_leftOverlaps[i]);               }
+    bool hasLap(int id) const                           { return (binary_search(m_overlapIds.begin(), m_overlapIds.end(), id)); }
   
 protected:
     bool isChimera(int len);
 
 private:
-
-    //int m_partner;  //TODO decide where this belongs
     svec<ReadOverlap> m_rightOverlaps;       /// Overlaps that extend from the right side
     svec<ReadOverlap> m_leftOverlaps;        /// Overlaps that extend from the left side
     svec<int>         m_overlapIds;          /// For fast searching
+    int               m_numRightOL;          /// Kept for saving on computing size of vector (freq usage)
+    int               m_numLeftOL;           /// Number of left overlaps (as above for right overlaps)
 };
 //======================================================
 
