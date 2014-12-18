@@ -170,7 +170,6 @@ void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asm
       }
       ConsensusBuilder cons;
       DNAVector dna;
-//cout<<name<<endl;
       cons.Build(dna, currCont, COUnit);
       if (IsSame(dna)) {
         cout << "Deep toasting sequence " << name << endl;
