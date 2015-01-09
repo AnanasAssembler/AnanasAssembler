@@ -2,6 +2,7 @@
 #define SEARCHOVERLAPS_H
 
 #include <string>
+#include <cmath>
 #include "src/DNAVector.h"
 #include "base/SVector.h"
 #include "src/Ananas/Consensus.h"
@@ -241,11 +242,11 @@ private:
 //=====================================================================
 class UsageTracker
 {
- public:
+public:
   UsageTracker() {
-    m_div         = 10;
-    m_maxPerRead  = 10;
-    m_usedCounter = 0;
+    m_div_p         = 10;  //TODO Should be parametrizable 
+    m_maxPerRead_p  = 5;   //TODO Should be parametrizable 
+    m_usedCounter   = 0;
   }
 
   void Resize(int totReads, int totAvailReads) {
@@ -256,41 +257,41 @@ class UsageTracker
   void Clear() {
     for(int i=0; i<m_usedCounter ; i++) {
       m_full[m_usedList[i]].clear();
-      m_usedCounter = 0;
     }
+    m_usedCounter = 0;
   }
 
   bool IsUsed(int read, int pos) {
-    unsigned int groupPos = pos/m_div;
-    if(m_full[read].size()==m_maxPerRead){ //If maximum number of positions has been registered mark as used
+    if(m_full[read].size()==m_maxPerRead_p){ //If maximum number of positions has been registered report as used
       return true;
     } else {
-      if(m_full[read].find(groupPos)==m_full[read].end()) {
-        return false;
-      } else {
+      unsigned int groupPos = round(pos/m_div_p);
+      if(m_full[read].find(groupPos)!=m_full[read].end()) {
         return true;
+      } else {
+        return false;
       }
     }
   }
 
   void SetUsed(int read, int pos) {
     unsigned int posCnt = m_full[read].size();
-    if(posCnt<m_maxPerRead) {
+    if(posCnt<m_maxPerRead_p) {
       if(posCnt==0) { //First time a read is used (update used counter)
          m_usedList[m_usedCounter] = read;
          m_usedCounter++; 
       } 
-      unsigned int groupPos = pos/m_div;
+      unsigned int groupPos = round(pos/m_div_p);
       m_full[read][groupPos] = true;
     }
   }
 
- private:
+private:
   vector< map<int, bool> > m_full; ///List of positions per used read (indexed over all reads) 
   vector<int> m_usedList;          ///List of read indexes that have been used and need to be cleared in the next round
   int m_usedCounter;               ///Counts the number of reads so far used (at least once) 
-  int m_div;                       ///Divide the position values into blocks 
-  unsigned int m_maxPerRead;       ///Maximum number of positions registered per read
+  int m_div_p;                     ///Divide the position values into blocks 
+  unsigned int m_maxPerRead_p;     ///Maximum number of positions registered per read
 };
 //=====================================================================
 class HypothesisNode : public SearchNode
