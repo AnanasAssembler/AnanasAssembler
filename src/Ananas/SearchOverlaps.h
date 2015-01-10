@@ -245,7 +245,7 @@ class UsageTracker
 public:
   UsageTracker() {
     m_div_p         = 10;  //TODO Should be parametrizable 
-    m_maxPerRead_p  = 5;   //TODO Should be parametrizable 
+    m_maxPerRead_p  = 10;  //TODO Should be parametrizable 
     m_usedCounter   = 0;
   }
 

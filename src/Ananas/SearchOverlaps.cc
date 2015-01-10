@@ -67,7 +67,7 @@ int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverla
     minimal.Length(COUnit);
 
     m_workHyp.clear();
-    MakeHypothesis(m_workHyp, minimal, COUnit, (m_exhaust));
+    MakeHypothesis(m_workHyp, minimal, COUnit, (m_exhaust && !m_results.Override()));
     SetPairs(m_workHyp, COUnit);
 
     int to, from;
