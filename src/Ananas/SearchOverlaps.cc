@@ -32,6 +32,7 @@ bool Hypothesis::ContainsSubset(const Hypothesis & h)
     }
     return false;
 }
+
 bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 {
   int i, j;
@@ -66,7 +67,7 @@ int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverla
     minimal.Length(COUnit);
 
     m_workHyp.clear();
-    MakeHypothesis(m_workHyp, minimal, COUnit, false);
+    MakeHypothesis(m_workHyp, minimal, COUnit, (m_exhaust && !m_results.Override()));
     SetPairs(m_workHyp, COUnit);
 
     int to, from;
@@ -577,6 +578,7 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
 
                 if (COUnit.HasLap(st[i+1].Read(), s.getOverlapIndex())) {
                     HypothesisNode t = SearchNode(s.getOverlapIndex(), -1, s.getOrient() * node.Ori(), s.getContactPos());
+                    dSize = consReads.getSize(s.getOverlapIndex());
                     t.SetCoords(off + t.Offset(), off + t.Offset() + dSize);
                     hyp.Add(t);	
                     m_localUsed.Set(s.getOverlapIndex(), 1);
@@ -587,7 +589,6 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
     }
     hyp.Sort();
 }
-
 
 void Search::Commit(const Hypothesis & hyp)
 {
@@ -665,9 +666,9 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     init.SetNodeCount(1);
     stack.Push(init);
     SetUsed(init);
-    if (m_exhaust)
+    if (m_exhaust) {
         m_usage.SetUsed(init.Read(), init.Pos());
-
+    }
     int i;
 
     SearchNode n;

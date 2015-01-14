@@ -11,23 +11,15 @@ void ConsensusBuilder::Build(DNAVector & out, const Contig& cont, const ConsensO
 {
   const ConsensReads & consReads = COUnit.getConsReads();
 
-  int len1 = 0;
+  int len = 0;
   for (int i=0; i<cont.isize(); i++) {
-    if (cont[i].Stop() > len1) {
-      len1 = cont[i].Stop();
+    if (cont[i].Stop() > len) {
+      len = cont[i].Stop();
     }
   }
-  int len2 = 0;
-  for (int i=0; i<cont.isize(); i++) {
-    DNAVector d = consReads[cont[i].Read()];
-    if (cont[i].Start() + d.isize() > len2)
-      len2 = cont[i].Start() + d.isize();
-  }
-
-//  if(len1!=len2) { cout<<"Noted possible disparity"<<endl; }
 
   Consensus cons;
-  cons.resize(len2);
+  cons.resize(len);
   
   int n = 0;
   for (int i=0; i<cont.isize(); i++) {
@@ -41,11 +33,9 @@ void ConsensusBuilder::Build(DNAVector & out, const Contig& cont, const ConsensO
       cons.Add(cont[i].Start() + x, d[x]);
     }
   }    
-  out.resize(len2);
-  for (int i=0; i<len2; i++) 
+  out.resize(len);
+  for (int i=0; i<len; i++) 
     out[i] = cons[i];
-  //NOTE: There is a potential bug here where garbage bases are appended at the end.
-  //out.resize(out.isize()-1);
 }
 
 LayoutSink::LayoutSink()
