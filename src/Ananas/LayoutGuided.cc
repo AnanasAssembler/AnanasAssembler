@@ -114,6 +114,7 @@ int main( int argc, char** argv )
     commandArg<bool> exCmmd("-e","DO NOT DO exhaustive search (report top-n)", false);
     commandArg<int> numCmmd("-num","Process # (for parallel runs)", 0);
     commandArg<int> ofCmmd("-of","Out of # processes (for parallel runs)", 1);
+    commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles COUnit from overlaps.");
     P.registerArg(fileCmmd);
@@ -127,6 +128,7 @@ int main( int argc, char** argv )
     P.registerArg(sizeCmmd);
     P.registerArg(numCmmd);
     P.registerArg(ofCmmd);
+    P.registerArg(prefixCmmd);
  
     P.parse();
   
@@ -140,6 +142,7 @@ int main( int argc, char** argv )
     int num = P.GetIntValueFor(numCmmd);
     int of = P.GetIntValueFor(ofCmmd);
     string consName = P.GetStringValueFor(consCmmd);
+    string prefix = P.GetStringValueFor(prefixCmmd);
  
     string dir = P.GetStringValueFor(dirCmmd);
     bool bEx = true;
@@ -216,6 +219,7 @@ int main( int argc, char** argv )
 
     search.SetOutput(layoutName);
     search.SetIndex(num);
+    search.SetPrefix(prefix);
     search.SetMinAltKeep(minSize);
 
 

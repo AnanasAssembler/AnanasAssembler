@@ -9,7 +9,6 @@
 
 class ReadOverlap 
 {
-//TODO changing bool value of direction and orientation to int to accord with Search code but this is NOT correct
 public:
     ReadOverlap():m_overlapIndex(-1), m_contactPos(-1), m_direction(false),  m_orient(false) {};
     ReadOverlap(int oI, int cP, int d, int o) {
