@@ -69,8 +69,13 @@ class LayoutSink
   ~LayoutSink();
  
   void SetLayoutFile(const string & layoutFile);
-  void SetPrefix(int i) {
-    m_prefix = i;
+
+  void SetPrefix(string pref) {
+    m_prefix = pref;
+  }
+
+  void SetIndex(int i) { 
+    m_index = i;
   }
  
   void Dump(const Hypothesis & hyp, const ConsensOverlapUnit & reads, bool bPrev = false, int minLen = 0);
@@ -92,7 +97,8 @@ class LayoutSink
   string m_lastScaffName;
   DNAVector m_lastCons;
   double m_minIdent;
-  int m_prefix;
+  int m_index;
+  string m_prefix;
 };
 
 

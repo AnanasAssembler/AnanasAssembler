@@ -44,7 +44,8 @@ LayoutSink::LayoutSink()
   m_minor = 0;
   m_pLayout = NULL;
   m_minIdent = 0.99;
-  m_prefix = 0;
+  m_index  = 0;
+  m_prefix = "Sample1";
 }
 
 LayoutSink::~LayoutSink()
@@ -106,7 +107,7 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
 
   int i;
   char name[512];
-  sprintf(name, ">Contig_%3d_%7d_%3d", m_prefix, m_counter, m_minor);
+  sprintf(name, ">Contig_%s_%3d_%7d_%3d", m_prefix.c_str(), m_index, m_counter, m_minor);
   for (i=0; i<(int)strlen(name); i++) {
     if (name[i] == ' ')
       name[i] = '0';
@@ -163,7 +164,7 @@ void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asm
     Scaffold currScaff = asmb[scafCnt];
     for(int contCnt=0; contCnt<currScaff.isize(); contCnt++) {
       Contig currCont = currScaff[contCnt];
-      sprintf(name, ">Contig_%3d_%7d_%3d", m_prefix, scafCnt, contCnt);
+      sprintf(name, ">Contig_%s_%3d_%7d_%3d", m_prefix.c_str(), m_index, scafCnt, contCnt);
       for (int i=0; i<(int)strlen(name); i++) {
         if (name[i] == ' ')
           name[i] = '0';

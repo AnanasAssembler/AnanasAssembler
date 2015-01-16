@@ -118,6 +118,7 @@ int main( int argc, char** argv )
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
     commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
+    commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
@@ -133,6 +134,7 @@ int main( int argc, char** argv )
     P.registerArg(cpuLapCmmd);
     P.registerArg(filtCmmd);
     P.registerArg(readGroupFileCmmd);
+    P.registerArg(prefixCmmd);
   
     P.parse();
   
@@ -149,6 +151,7 @@ int main( int argc, char** argv )
     int minoverlap = P.GetIntValueFor(mlCmmd);
     bool bGroup = P.GetBoolValueFor(filtCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
+    string prefix = P.GetStringValueFor(prefixCmmd);
 
     PrintLogo();
     cout << "Welcome to package " << ananas_software << " " << ananas_version << endl;
@@ -244,6 +247,7 @@ int main( int argc, char** argv )
         cmmd += " -o " + outName + "/contigs.layout";
         cmmd += " -g " + groupFile;
         cmmd += " -dir " + dir;
+        cmmd += " -prefix " + prefix;
     
         Run(exec_dir, cmmd);
     }
@@ -286,6 +290,7 @@ int main( int argc, char** argv )
     cmmd += " -s " + outName + "/scaffolds.layout";
     cmmd += " -g " + groupFile;
     cmmd += " -dir " + dir;
+    cmmd += " -prefix " + prefix;
 
     if (cpu2 == 1) {
         Run(exec_dir, cmmd);

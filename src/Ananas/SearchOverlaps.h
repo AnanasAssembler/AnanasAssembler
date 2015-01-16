@@ -669,7 +669,11 @@ public:
   }
 
   void SetIndex(int i) {
-    m_sink.SetPrefix(i);
+    m_sink.SetIndex(i);
+  }
+  
+  void SetPrefix(string pref) {
+    m_sink.SetPrefix(pref);
   }
 
 protected:

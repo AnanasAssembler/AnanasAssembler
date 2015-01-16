@@ -12,6 +12,7 @@ class SearchThread : public IOneThread
 public:
     SearchThread(const string & layoutName, 
                  int index,
+                 string prefix,
                  GlobalUsageHandler * pGlob, 
                  const ConsensOverlapUnit * pReads, 
                  int startRead,
@@ -24,6 +25,7 @@ public:
         m_search.SetOutput(layoutName);
         m_search.SetGlobalUsage(pGlob);
         m_search.SetIndex(index);
+        m_search.SetPrefix(prefix);
         m_search.SetDir(dir);
         m_index = index;
     }
@@ -71,6 +73,7 @@ int main( int argc, char** argv )
     commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
     commandArg<bool> exCmmd("-e","Exhaustive search (report top-n)", false);
     commandArg<bool> fCmmd("-force","Force using the thread handler", false);
+    commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles COUnit from overlaps.");
     P.registerArg(fileCmmd);
@@ -82,6 +85,7 @@ int main( int argc, char** argv )
     P.registerArg(minCmmd);
     P.registerArg(exCmmd);
     P.registerArg(fCmmd);
+    P.registerArg(prefixCmmd);
   
     P.parse();
   
@@ -95,6 +99,7 @@ int main( int argc, char** argv )
     int cpu = P.GetIntValueFor(cpuCmmd);
     int n = cpu;
     string dir = P.GetStringValueFor(dirCmmd);
+    string prefix = P.GetStringValueFor(prefixCmmd);
 
     ConsensOverlapUnit COUnit(pairSzFileName, consName, lapName);
  
@@ -131,6 +136,7 @@ int main( int argc, char** argv )
       
             th.AddThread(new SearchThread(layout, 
                                           i,
+                                          prefix,
                                           &glob, 
                                           &COUnit, 
                                           startRead,
