@@ -259,9 +259,9 @@ int main( int argc, char** argv )
             cmmd = "cat " + outName + "/contigs.layout.* > " + outName + "/contigs.layout";
             cout << "Concatenating layout files: " << cmmd << endl;
             int ret = system(cmmd.c_str());
-            cmmd = "cat " + outName + "/contigs.fasta.* > " + outName + "/contigs.fasta";
-            cout << "NOT Concatenating fasta files: " << cmmd << endl;
-            //ret = system(cmmd.c_str());
+//            cmmd = "cat " + outName + "/contigs.fasta.* > " + outName + "/contigs.fasta";
+//            cout << "NOT Concatenating fasta files: " << cmmd << endl;
+//            //ret = system(cmmd.c_str());
         }
     }
 
@@ -310,9 +310,9 @@ int main( int argc, char** argv )
         cmmd = "cat " + outName + "/contigs_altsplic.layout.* > " + outName + "/contigs_altsplic.layout";
         cout << "Concatenating layout files: " << cmmd << endl;
         int ret = system(cmmd.c_str());    
-        cmmd = "cat " + outName + "/contigs_altsplic.fasta.* > " + outName + "/contigs_altsplic.fasta";
-        cout << "Concatenating fasta files: " << cmmd << endl;
-        ret = system(cmmd.c_str());    
+//        cmmd = "cat " + outName + "/contigs_altsplic.fasta.* > " + outName + "/contigs_altsplic.fasta";
+//        cout << "Concatenating fasta files: " << cmmd << endl;
+//        ret = system(cmmd.c_str());    
     }
 
     //////////////////////////////////////////////////////////
@@ -325,6 +325,7 @@ int main( int argc, char** argv )
     cmmd += " -i " + outName + "/contigs_altsplic.layout";
     cmmd += " -c " + outName + "/consensusReads.out";
     cmmd += " -o " + outName + "/final.fa";
+    cmmd += " -prefix " + prefix;
     Run(exec_dir, cmmd);
 
     cout << GetTimeStatic() << " All DONE! " << endl;

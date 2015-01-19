@@ -16,6 +16,7 @@ int main( int argc, char** argv )
     commandArg<string> readsCmmd("-r","input reads file in fasta format");
     commandArg<string> consCmmd("-c","input read consensus group file");
     commandArg<string> outFastaCmmd("-o","output fasta file", "final.fa");
+    commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
 
     commandLineParser P(argc,argv);
     P.SetDescription("Generate Fasta file for the assembled sequences from a given contig file.");
@@ -23,12 +24,14 @@ int main( int argc, char** argv )
     P.registerArg(readsCmmd);
     P.registerArg(consCmmd);
     P.registerArg(outFastaCmmd);
+    P.registerArg(prefixCmmd);
     P.parse();
   
     string contigFile  = P.GetStringValueFor(contigCmmd);
     string readsFile   = P.GetStringValueFor(readsCmmd);
     string consFile    = P.GetStringValueFor(consCmmd);
     string outFile     = P.GetStringValueFor(outFastaCmmd);
+    string prefix      = P.GetStringValueFor(prefixCmmd);
  
     ConsensOverlapUnit COUnit(readsFile, consFile);
 
@@ -37,7 +40,7 @@ int main( int argc, char** argv )
     io.Read(assembly, contigFile);
   
     LayoutSink sink;
-    //sink.SetPrefix(i); //TODO
+    sink.SetPrefix(prefix);
     sink.fastaFromAssembly(outFile, assembly, COUnit);
     return 0;
 }
