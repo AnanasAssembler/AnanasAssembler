@@ -177,12 +177,17 @@ int main( int argc, char** argv )
 
     char exec_dir[8192];
     strcpy(exec_dir, pExec);
+    bool bSlash = false;
     for (i = strlen(exec_dir)-1; i>=0; i--) {
         if (exec_dir[i] == '/') {
             exec_dir[i+1] = 0;
+	    bSlash = true;
             break;
         }
     }
+    if (!bSlash)
+        strcpy(exec_dir, "");
+
 
     Run("mkdir ", outName);
     outName += "/";
