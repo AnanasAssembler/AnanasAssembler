@@ -110,7 +110,7 @@ int main( int argc, char** argv )
     commandArg<string> layoutCmmd("-o","output layout file", "contigs_guided.layout");
     commandArg<string> dirCmmd("-dir","direction of pairs (fr or ff)");
     commandArg<double> minCmmd("-m","minimum overlap identity", 0.985);
-    commandArg<int> sizeCmmd("-size","minimum length of a single-contig scaffold to report", 300);
+    commandArg<int> sizeCmmd("-size","minimum length of a single-contig scaffold to report", 200);
     commandArg<bool> exCmmd("-e","DO NOT DO exhaustive search (report top-n)", false);
     commandArg<int> numCmmd("-num","Process # (for parallel runs)", 0);
     commandArg<int> ofCmmd("-of","Out of # processes (for parallel runs)", 1);
