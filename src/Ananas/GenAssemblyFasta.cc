@@ -15,7 +15,7 @@ int main( int argc, char** argv )
     commandArg<string> contigCmmd("-i","input contig file");
     commandArg<string> readsCmmd("-r","input reads file in fasta format");
     commandArg<string> consCmmd("-c","input read consensus group file");
-    commandArg<int> sizeCmmd("-size","minimum length of a single-contig scaffold to report", 200);
+    commandArg<int> sizeCmmd("-minSize","minimum length of a single-contig scaffold to report", 200);
     commandArg<string> outFastaCmmd("-o","output fasta file", "final.fa");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
 

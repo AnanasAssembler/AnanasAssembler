@@ -116,6 +116,7 @@ int main( int argc, char** argv )
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
+    commandArg<int> sizeCmmd("-minSize","minimum length of a single-contig scaffold to report", 200);
     commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
@@ -127,6 +128,7 @@ int main( int argc, char** argv )
     P.registerArg(dirCmmd);
     P.registerArg(bandCmmd);
     P.registerArg(ssCmmd);
+    P.registerArg(sizeCmmd);
     P.registerArg(mlCmmd);
     P.registerArg(stepCmmd);
     P.registerArg(cpuCmmd);
@@ -142,6 +144,7 @@ int main( int argc, char** argv )
     string outName = P.GetStringValueFor(outCmmd);
     string dir = P.GetStringValueFor(dirCmmd);
     string ss = P.GetStringValueFor(ssCmmd);
+    int minSize = P.GetIntValueFor(sizeCmmd);
     double mI = P.GetDoubleValueFor(minCmmd);
     int cpu = P.GetIntValueFor(cpuCmmd);
     int cpu2 = P.GetIntValueFor(cpuCmmd2);
@@ -330,6 +333,7 @@ int main( int argc, char** argv )
     cmmd += " -i " + outName + "/contigs_altsplic.layout";
     cmmd += " -c " + outName + "/consensusReads.out";
     cmmd += " -o " + outName + "/final.fa";
+    cmmd += " -minSize " + Number(minSize);
     cmmd += " -prefix " + prefix;
     Run(exec_dir, cmmd);
 

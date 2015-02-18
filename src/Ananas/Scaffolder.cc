@@ -203,12 +203,12 @@ void Scaffolder::Join(Assembled & assembly, const ConsensOverlapUnit & COUnit)
         }
 
         int expect = (int)(150. * total / len + 0.5); 
-        cout << m.Scaff1() << " vs. " << m.Scaff2() << " c=" << count << " e=" << expect << " r1=" << r1 << " r2=" << r2 << endl;
+//        cout << m.Scaff1() << " vs. " << m.Scaff2() << " c=" << count << " e=" << expect << " r1=" << r1 << " r2=" << r2 << endl;
         if (count >= expect) {
-            cout << "Merging." << endl;
+//            cout << "Merging." << endl;
             Merge(assembly, COUnit, m.Scaff1(), m.Scaff2(), m.Dir());
         } else {
-            cout << "Discard." << endl;
+//            cout << "Discard." << endl;
         }
 
         //    if (CheckOverlaps(assembly[m.Scaff1()], assembly[m.Scaff2()], COUnit))
@@ -245,7 +245,7 @@ bool Scaffolder::CheckOverlaps(const Scaffold & s1, const Scaffold & s2, const C
     if (total == 0)
         return false;
     double frac = (double)good/(double)total;
-    cout << "Fraction: " << frac << ", " << good << " out of " << total << endl;
+//    cout << "Fraction: " << frac << ", " << good << " out of " << total << endl;
     if (frac >= 0.1)
         //if (good > 0)
         return true;
@@ -259,7 +259,7 @@ void Scaffolder::Merge(Assembled & assembly, const ConsensOverlapUnit & COUnit, 
         return;
     }
 
-    cout << "Merging scaffolds " << s1 << " <- " << s2 << endl;
+//    cout << "Merging scaffolds " << s1 << " <- " << s2 << endl;
     if (dir == -1)
         assembly[s2].Reverse();
     assembly[s1].push_back(assembly[s2], 0, 1);
