@@ -116,7 +116,7 @@ int main( int argc, char** argv )
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
-    commandArg<int> sizeCmmd("-minSize","minimum length of a single-contig scaffold to report", 200);
+    commandArg<int> sizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
     commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
