@@ -33,6 +33,24 @@ bool Hypothesis::ContainsSubset(const Hypothesis & h)
     return false;
 }
 
+bool Hypothesis::IsNew(const Hypothesis & h, const ConsensOverlapUnit & COUnit) 
+{
+  svec<int> query;
+  h.GetNodes(query, COUnit);
+  int n = query.isize();
+  svec<int> ref;
+  GetNodes(ref, COUnit);
+  int m = ref.isize();
+  for (int i=0; i<query.isize(); i++)
+      ref.push_back(query[i]);
+  UniqueSort(ref);
+  double ratio = (double)ref.isize()/(double)m;
+  if (ratio < 1.02) {
+    return false;
+  }
+  return true;
+}
+
 bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 {
   int i, j;
@@ -117,6 +135,9 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
             for (int j=i+1; j<raw.isize(); j++) {
                 if (raw[j].Size() == 0)
                     continue;
+                if(raw[i].IsNew(raw[j], COUnit)) { 
+                    raw[j].clear();
+                }
                 if (raw[i].ContainsSubset(raw[j])) {
                     raw[j].clear();
                 }

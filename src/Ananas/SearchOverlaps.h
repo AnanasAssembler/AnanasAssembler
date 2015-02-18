@@ -204,14 +204,26 @@ public:
     return len;
   }
   const svec<SearchNode> & Raw() const {return m_stack;}
+  
+  float GetPairSizeScore() const { return m_pairs/m_size; } 
 
   bool operator < (const SearchStack & s) const {
+/*
+    if (GetPairSizeScore() != s.GetPairSizeScore())
+      return GetPairSizeScore() < s.GetPairSizeScore();
+    return m_len < s.m_len;
+*/
     if (m_pairs != s.m_pairs)
       return m_pairs < s.m_pairs;
     return m_len < s.m_len;
   }
 
   bool operator > (const SearchStack & s) const {
+/*
+    if (GetPairSizeScore() != s.GetPairSizeScore())
+      return GetPairSizeScore() > s.GetPairSizeScore();
+    return m_len > s.m_len;
+*/
     if (m_pairs != s.m_pairs)
       return m_pairs > s.m_pairs;
     return m_len > s.m_len;
@@ -434,6 +446,7 @@ public:
     return len;
   }
   bool ContainsSubset(const Hypothesis & h);
+  bool IsNew(const Hypothesis & h, const ConsensOverlapUnit & COUnit); 
 
   void Reverse(int totalLen) {
     int i;
@@ -547,8 +560,7 @@ public:
   }
 
   void Sort() { 
-    if(Size()>1) {
-      //sort the m_resultCount elements
+    if(Size()>1) { //sort the m_resultCount elements
       sort(m_results.begin(), m_results.begin()+Size(), greater<SearchStack>()); 
     }
     if (Size() > m_maxResultsLow) { m_resultCount = m_maxResultsLow; }
