@@ -15,6 +15,7 @@ int main( int argc, char** argv )
     commandArg<string> contigCmmd("-i","input contig file");
     commandArg<string> readsCmmd("-r","input reads file in fasta format");
     commandArg<string> consCmmd("-c","input read consensus group file");
+    commandArg<int> sizeCmmd("-size","minimum length of a single-contig scaffold to report", 200);
     commandArg<string> outFastaCmmd("-o","output fasta file", "final.fa");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
 
@@ -23,6 +24,7 @@ int main( int argc, char** argv )
     P.registerArg(contigCmmd);
     P.registerArg(readsCmmd);
     P.registerArg(consCmmd);
+    P.registerArg(sizeCmmd);
     P.registerArg(outFastaCmmd);
     P.registerArg(prefixCmmd);
     P.parse();
@@ -30,6 +32,7 @@ int main( int argc, char** argv )
     string contigFile  = P.GetStringValueFor(contigCmmd);
     string readsFile   = P.GetStringValueFor(readsCmmd);
     string consFile    = P.GetStringValueFor(consCmmd);
+    int minSize        = P.GetIntValueFor(sizeCmmd);
     string outFile     = P.GetStringValueFor(outFastaCmmd);
     string prefix      = P.GetStringValueFor(prefixCmmd);
  
@@ -41,6 +44,6 @@ int main( int argc, char** argv )
   
     LayoutSink sink;
     sink.SetPrefix(prefix);
-    sink.fastaFromAssembly(outFile, assembly, COUnit);
+    sink.fastaFromAssembly(outFile, assembly, COUnit, minSize);
     return 0;
 }

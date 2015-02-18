@@ -153,7 +153,7 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   fflush(m_pLayout);
 }
 
-void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asmb, const ConsensOverlapUnit & COUnit)
+void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen)
 {
   FILE* pFasta = fopen(fastaFile.c_str(), "w");
   if (pFasta == NULL) {
@@ -176,6 +176,7 @@ void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asm
         cout << "Deep toasting sequence " << name << endl;
         return;
       }
+      if(dna.isize()<minLen) { continue; }
       fprintf(pFasta, "%s\n", name);
       for (int i=0; i<dna.isize(); i++) {
         fprintf(pFasta, "%c", dna[i]);
