@@ -90,6 +90,13 @@ string Number(int i)
     string f = tmp;
     return f;
 }
+string NumberFloat(double d)
+{
+    char tmp[256];
+    sprintf(tmp, "%f", d);
+    string f = tmp;
+    return f;
+}
 
 
 void PrintLogo()
@@ -114,6 +121,7 @@ int main( int argc, char** argv )
     commandArg<string> fileCmmd("-i","input fasta file");
     commandArg<string> outCmmd("-o","output directory", "ananas_out");
     commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
+    commandArg<double> minGroupCmmd("-mg","minimum identity for grouping", 0.99);
     commandArg<int> cpuCmmd("-n","number of CPU cores", 1);
     commandArg<int> cpuCmmd2("-n2","number of CPU cores for isoform enumeration", 1);
     commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
@@ -131,6 +139,7 @@ int main( int argc, char** argv )
     P.registerArg(fileCmmd);
     P.registerArg(outCmmd);
     P.registerArg(minCmmd);
+    P.registerArg(minGroupCmmd);
     P.registerArg(dirCmmd);
     P.registerArg(bandCmmd);
     P.registerArg(ssCmmd);
@@ -152,6 +161,7 @@ int main( int argc, char** argv )
     string ss = P.GetStringValueFor(ssCmmd);
     int minSize = P.GetIntValueFor(sizeCmmd);
     double mI = P.GetDoubleValueFor(minCmmd);
+    double minGroupI = P.GetDoubleValueFor(minGroupCmmd);
     int cpu = P.GetIntValueFor(cpuCmmd);
     int cpu2 = P.GetIntValueFor(cpuCmmd2);
     int cpuLap = P.GetIntValueFor(cpuLapCmmd);
@@ -221,11 +231,11 @@ int main( int argc, char** argv )
     if (bUnpaired)
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-      cmmd = "findOverlaps -S 25 -I 0.98 -d 0.98 -b " + Number(step);
+      cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step);
     else
-      cmmd = "findOverlaps -I 0.98 -d 0.98 -b " + Number(step);
+      cmmd = "findOverlaps -I 0.98 -b " + Number(step);
 
-    cmmd += " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
+    cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
              + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " + readGroupFile + " -C " + groupFile + " -o " + lapFile;
 
   if   (Exists(lapFile)) {
