@@ -7,13 +7,19 @@
 #include "util/SysTime.h"
 #include "src/Ananas/Version.h"
 
-int Run(const string & exec, const string & cmmd)
+int Run(const string & exec, const string & cmmd, bool bIgnoreFailure = false)
 {
     string c = exec + cmmd;
 
     cout << GetTimeStatic();
     cout << " Executing: " << c << endl;
     int ret = system(c.c_str());
+    if (ret != 0 && !bIgnoreFailure) {
+      cout << GetTimeStatic() << " ERROR running " << c << endl;
+      cout << "Terminated abnormally." << endl;
+      exit(-1);
+    }
+
     cout << GetTimeStatic() << " Completed " << endl;
     return ret;
 }
@@ -117,7 +123,7 @@ int main( int argc, char** argv )
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
     commandArg<int> sizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
-    commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
+    //commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);
@@ -134,7 +140,7 @@ int main( int argc, char** argv )
     P.registerArg(cpuCmmd);
     P.registerArg(cpuCmmd2);
     P.registerArg(cpuLapCmmd);
-    P.registerArg(filtCmmd);
+    //P.registerArg(filtCmmd);
     P.registerArg(readGroupFileCmmd);
     P.registerArg(prefixCmmd);
   
@@ -152,7 +158,7 @@ int main( int argc, char** argv )
     int step = P.GetIntValueFor(stepCmmd);
     int bandwidth = P.GetIntValueFor(bandCmmd);
     int minoverlap = P.GetIntValueFor(mlCmmd);
-    bool bGroup = P.GetBoolValueFor(filtCmmd);
+    //bool bGroup = P.GetBoolValueFor(filtCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string prefix = P.GetStringValueFor(prefixCmmd);
 
@@ -192,7 +198,7 @@ int main( int argc, char** argv )
         strcpy(exec_dir, "");
 
 
-    Run("mkdir ", outName);
+    Run("mkdir ", outName, true);
     outName += "/";
     string cmmd;
 
@@ -215,9 +221,9 @@ int main( int argc, char** argv )
     if (bUnpaired)
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-      cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step);
+      cmmd = "findOverlaps -S 25 -I 0.98 -d 0.98 -b " + Number(step);
     else
-      cmmd = "findOverlaps -I 0.98 -b " + Number(step);
+      cmmd = "findOverlaps -I 0.98 -d 0.98 -b " + Number(step);
 
     cmmd += " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
              + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " + readGroupFile + " -C " + groupFile + " -o " + lapFile;
