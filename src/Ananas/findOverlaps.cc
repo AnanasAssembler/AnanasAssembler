@@ -28,7 +28,7 @@ int main(int argc,char** argv)
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
-    commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.99);
+    commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");
 
     commandLineParser P(argc,argv);
@@ -88,6 +88,7 @@ int main(int argc,char** argv)
     ConsensOverlapUnit COUnit(params, inputFile);
     COUnit.findOverlaps(numOfThreads, 0, readGroupFile, readGroupThresh);
     COUnit.writePairSzInfo(pairSzFile);
+    //COUnit.writeOverlaps(overlapFile, 1);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);
     //COUnit.writeConsensReads("temp_consensRead.fa");

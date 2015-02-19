@@ -45,7 +45,7 @@ bool Hypothesis::IsNew(const Hypothesis & h, const ConsensOverlapUnit & COUnit)
       ref.push_back(query[i]);
   UniqueSort(ref);
   double ratio = (double)ref.isize()/(double)m;
-  if (ratio < 1.02) {
+  if (ratio < 1.1) { //TODO parameterise
     return false;
   }
   return true;
