@@ -221,7 +221,6 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
     if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { return; } //Rough way of disregarding nonesense characters (TODO look into)
     svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeq1, CmpSubReadOL(*this));
     for (;fIt!=m_subReads.end(); fIt++) {
-      if(mode==0 && (*fIt).getOffset()==0 && i==0) { continue; }                      //No extension case in wrong mode
       if(min((*fIt).getOffset(), i) > 2*getSubreadStep()) { continue; }               //These should have been found already
       map<unsigned long, bool>::iterator it = readsUsed_curr.find((*fIt).getIndex()); //Check if read has already been used
       if(it==readsUsed_curr.end()) {
@@ -243,7 +242,8 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
           } else {
             contactPos = (readSize-i) - (m_reads[(*fIt).getIndex()].size()-(*fIt).getOffset()); 
           } 
-          if(contactPos<=0 ){ // overlapDir=0 doesnt extend overlap to any side
+          //if(contactPos<=0 ){ // overlapDir=0 doesnt extend overlap to any side //TODO limiting by this adversly affects results!
+          if(contactPos<0 ){ // overlapDir=0 doesnt extend overlap to any side
             if(mode==1) {
               contactPos = abs(contactPos);
             } else { continue; }
