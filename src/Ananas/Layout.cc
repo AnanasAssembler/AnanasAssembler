@@ -17,6 +17,7 @@ public:
                  const ConsensOverlapUnit * pReads, 
                  int startRead,
                  const string & dir,
+                 int libSize,
                  bool bEx)
     {
         m_startRead = startRead;
@@ -27,6 +28,7 @@ public:
         m_search.SetIndex(index);
         m_search.SetPrefix(prefix);
         m_search.SetDir(dir);
+        m_search.SetLibSize(libSize);
         m_index = index;
     }
 
@@ -34,7 +36,7 @@ public:
 protected:
 
     virtual bool OnDie() {
-        cout << "Killed!!" << endl;
+        //cout << "Killed!!" << endl;
         return true;
     }
 
@@ -68,6 +70,7 @@ int main( int argc, char** argv )
     commandArg<string> lapCmmd("-l","input read overlap file");
     commandArg<string> consCmmd("-g","input read consensus group file");
     commandArg<string> layoutCmmd("-o","output layout file", "contigs.layout");
+    commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     commandArg<string> dirCmmd("-dir","direction of pairs (fr or ff)");
     commandArg<int> cpuCmmd("-n","number of CPUs/cores to use", 1);
     commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
@@ -80,6 +83,7 @@ int main( int argc, char** argv )
     P.registerArg(lapCmmd);
     P.registerArg(consCmmd);
     P.registerArg(layoutCmmd);
+    P.registerArg(libSizeCmmd);
     P.registerArg(dirCmmd);
     P.registerArg(cpuCmmd);
     P.registerArg(minCmmd);
@@ -93,6 +97,7 @@ int main( int argc, char** argv )
     string lapName = P.GetStringValueFor(lapCmmd);
     string consName = P.GetStringValueFor(consCmmd);
     string layoutName = P.GetStringValueFor(layoutCmmd);
+    int libSize = P.GetIntValueFor(libSizeCmmd);
     double mI = P.GetDoubleValueFor(minCmmd);
     bool bEx = P.GetBoolValueFor(exCmmd);
     bool bForce = P.GetBoolValueFor(fCmmd);
@@ -141,6 +146,7 @@ int main( int argc, char** argv )
                                           &COUnit, 
                                           startRead,
                                           dir,
+                                          libSize,
                                           bEx), "init");
       
             startRead += step;

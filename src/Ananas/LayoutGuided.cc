@@ -109,8 +109,9 @@ int main( int argc, char** argv )
     commandArg<string> scaffCmmd("-s","scaffolds file");
     commandArg<string> layoutCmmd("-o","output layout file", "contigs_guided.layout");
     commandArg<string> dirCmmd("-dir","direction of pairs (fr or ff)");
+    commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     commandArg<double> minCmmd("-m","minimum overlap identity", 0.985);
-    commandArg<int> sizeCmmd("-size","minimum length of a single-contig scaffold to report", 200);
+    commandArg<int> minContigCmmd("-minContig","minimum length of a single-contig scaffold to report", 200);
     commandArg<bool> exCmmd("-e","DO NOT DO exhaustive search (report top-n)", false);
     commandArg<int> numCmmd("-num","Process # (for parallel runs)", 0);
     commandArg<int> ofCmmd("-of","Out of # processes (for parallel runs)", 1);
@@ -122,10 +123,11 @@ int main( int argc, char** argv )
     P.registerArg(consCmmd);
     P.registerArg(scaffCmmd);
     P.registerArg(layoutCmmd);
+    P.registerArg(libSizeCmmd);
     P.registerArg(minCmmd);
     P.registerArg(exCmmd);
     P.registerArg(dirCmmd);
-    P.registerArg(sizeCmmd);
+    P.registerArg(minContigCmmd);
     P.registerArg(numCmmd);
     P.registerArg(ofCmmd);
     P.registerArg(prefixCmmd);
@@ -138,7 +140,8 @@ int main( int argc, char** argv )
     string scaffName = P.GetStringValueFor(scaffCmmd);
     double mI = P.GetDoubleValueFor(minCmmd);
     bool bEx2 = P.GetBoolValueFor(exCmmd);
-    int minSize = P.GetIntValueFor(sizeCmmd);
+    int libSize = P.GetIntValueFor(libSizeCmmd);
+    int minContig = P.GetIntValueFor(minContigCmmd);
     int num = P.GetIntValueFor(numCmmd);
     int of = P.GetIntValueFor(ofCmmd);
     string consName = P.GetStringValueFor(consCmmd);
@@ -169,7 +172,7 @@ int main( int argc, char** argv )
      
         const Scaffold & s = assembly[l];
         if (s.isize() == 1) {
-            if (s[0].Highest() < minSize) {
+            if (s[0].Highest() < minContig) {
 	        //cout << "Skipping scaffold " << l << endl;
                 continue;
             }
@@ -220,7 +223,8 @@ int main( int argc, char** argv )
     search.SetOutput(layoutName);
     search.SetIndex(num);
     search.SetPrefix(prefix);
-    search.SetMinAltKeep(minSize);
+    search.SetLibSize(libSize);
+    search.SetMinAltKeep(minContig);
 
 
     // Main loop over scaffolds

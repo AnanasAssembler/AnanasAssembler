@@ -133,7 +133,7 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
     fprintf(m_pLayout, "<SCAFFOLD> %s\n", scaffName);
     m_lastScaffName = scaffName;
   }
-  fprintf(m_pLayout, "<CONTIG> %s\n", name);
+  fprintf(m_pLayout, "<CONTIG> %s %d \n", name, hyp.Pairs());
   for (i=0; i<hyp.Size(); i++) {
     int r = hyp[i].Read();
     int numPartner = COUnit.getNumOfPartners(r);

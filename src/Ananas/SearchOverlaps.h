@@ -631,6 +631,7 @@ public:
     m_report = 0;
     m_lastNoPairs = -1;
     m_pairDir = -1;
+    m_libSize = 1000;
     m_minAltKeep = 200;
   }
 
@@ -657,6 +658,10 @@ public:
     }
     throw;
   }
+ 
+  void SetLibSize(int sz) {
+    m_libSize = sz;
+  } 
 
   bool DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead = 0);
 
@@ -752,6 +757,7 @@ private:
   int m_report;
   int m_lastNoPairs;
   int m_pairDir;
+  int m_libSize;
 
   int m_minAltKeep;
 

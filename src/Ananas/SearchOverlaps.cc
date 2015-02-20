@@ -152,16 +152,17 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         for (int i=0; i<raw.isize(); i++) {
             if (raw[i].Size() == 0)
                 continue;
+            Commit(raw[i]);
             int to, from;
             SetPairs(raw[i], COUnit);
-            CountPairs(to, from, raw[i], COUnit, true);
+            int numOfPairs = CountPairs(to, from, raw[i], COUnit, true);
+            raw[i].SetPairs(numOfPairs);
             raw[i].TrimRight(to);
             raw[i].TrimLeft(from);
             SetPairs(raw[i], COUnit);
             //raw[i].RemoveUnpaired();
       
             m_sink.Dump(raw[i], COUnit, bCont, m_minAltKeep);
-            Commit(raw[i]);
             bCont = true;
         }
     } else { //None-exhaustive mode
@@ -172,16 +173,16 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
             m_workHyp.Reverse(hypLen);
         }
 
+        Commit(m_workHyp);
         int to, from;
         SetPairs(m_workHyp, COUnit);
-        CountPairs(to, from, m_workHyp, COUnit, true);
-
+        int numOfPairs = CountPairs(to, from, m_workHyp, COUnit, true);
+        m_workHyp.SetPairs(numOfPairs);
         m_workHyp.TrimRight(to);
         m_workHyp.TrimLeft(from);
         SetPairs(m_workHyp, COUnit);
-        //hyp.RemoveUnpaired();
+        //m_workHyp.RemoveUnpaired();
         m_sink.Dump(m_workHyp, COUnit);
-        Commit(m_workHyp);
     }
 }
 
@@ -238,17 +239,18 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
         if(currNode.Pair()<0) { continue; } //Node is not paired - do no count
         const HypothesisNode & currPair = hyp[currNode.Pair()];
         if (currPair.Start() < currNode.Start() ||
-            currPair.Start() - currNode.Start() > 10000) { continue; } //Pair exceeds library size limit - do not count
-        if (currPair.Ori() != m_pairDir*currNode.Ori())  { continue; }
+            currPair.Start() - currNode.Start() > m_libSize) { continue; } //Pair exceeds library size limit - do not count
+        if (currPair.Ori() != m_pairDir*currNode.Ori())      { continue; }
 
         if(from > currNode.Start() || pairCnt==0) { from = currNode.Start(); } //Extend bracket start 
         if(to   < currPair.Stop()  || pairCnt==0) { to   = currPair.Stop();  } //Extend bracket stop
         pairCnt++; 
     }
 
-//TODO old code consistency!
-if(from>0) { from = from - 1; }
-    return pairCnt;
+  //TODO old code consistency!
+  if(from>0) { from = from - 1; }
+
+  return pairCnt;
 }
 
 int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint)
