@@ -479,12 +479,10 @@ public:
     }
   }
 
-
   void TrimLeft(int from) {
     if (from == 0)
       return;
     int i;
-    //int off = 0;
     int lowest = -1;
     for (i=0; i<m_main.isize(); i++) {
       int start = m_main[i].Start();
@@ -497,38 +495,33 @@ public:
 	}
       } 
     }
-    //cout << "Left trimming hypothesis, offset: " << lowest << endl;
     Hypothesis tmp = *this;
     m_main.clear();
-    //cout << "Before: " << tmp.isize() << endl;
     for (i=0; i<tmp.Size(); i++) {
       int start = tmp[i].Start();
-      //cout << "start=" << start << " from=" << from << endl;
       if (start >= from) {
-	//cout << "Add." << endl;
 	tmp[i].SetCoords(tmp[i].Start()-lowest, tmp[i].Stop()-lowest);
 	Add(tmp[i]);
       }
     }
-    //cout << "After: " << m_main.isize() << endl;
   }
+
   void TrimRight(int to) {
     if (to < 0)
       return;
     int i;
-    //int off = 0;
     int highest = -1;
     for (i=0; i<m_main.isize(); i++) {
       int start = m_main[i].Start();
       if (start < to) {
+//      int stop = m_main[i].Stop();
+//      if (stop < to) {
 	highest = i;
       } else {
 	break;
       }
     }
     m_main.resize(highest+1);
- 
-    //cout << "After: " << m_main.isize() << endl;
   }
 
   int Size() const {return m_main.isize();}

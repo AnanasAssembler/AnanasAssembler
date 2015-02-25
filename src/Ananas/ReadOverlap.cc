@@ -105,11 +105,12 @@ void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & g
         int readIdx, overlapIdx;
         int contactPos;
         fs.Read(readIdx);
+        if(fs.IsEnd()) { break; }  //End of file readched
         fs.Read(overlapIdx);
         fs.Read(contactPos);
         fs.Read(dir);
         fs.Read(orient);
-        if(good.isize() > 0 && (!good[readIdx] && !good[overlapIdx])) {
+        if(good.isize() > max(readIdx, overlapIdx) && (!good[readIdx] && !good[overlapIdx])) {
             continue;
         }
         addOverlap(readIdx, overlapIdx, contactPos, dir, orient);
