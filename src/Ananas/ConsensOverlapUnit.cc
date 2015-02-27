@@ -6,6 +6,7 @@
 #include "extern/logger/log.h"
 #include "base/RandomStuff.h"
 #include "src/Ananas/ConsensOverlapUnit.h"
+#include "src/Ananas/ThreadQueueVec.h"
 
 //======================================================
 
@@ -22,7 +23,8 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
     FILE_LOG(logDEBUG1) << "Finding Overlaps";
     cout << "Finding All Overlaps..." << endl;
 
-    m_overlaps.resize(totSize); // Make sure enough memory is declared 
+    m_overlaps.resize(totSize);          // Make sure enough memory is declared 
+    ThreadQueueVec threadQueue(totSize); // Use for queueing instances threads should handle
 
     ThreadHandler th;
     if(numOfThreads>totSize) { numOfThreads = totSize; }
@@ -31,9 +33,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
         sprintf(tmp, "%d", i);
         string init = "init_";
         init += tmp;
-        int from = i*totSize/numOfThreads;
-        int to   = (i+1)*totSize/numOfThreads;
-        th.AddThread(new FindOverlapsThread< SubReads<ConsensReads> >(subreads, m_overlaps, mode, from, to, i));    
+        th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, i));    
         th.Feed(i, init);
     }
 
