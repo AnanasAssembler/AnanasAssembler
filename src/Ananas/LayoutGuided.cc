@@ -208,7 +208,6 @@ int main( int argc, char** argv )
     // COUnit.Prune(ids);
 
     COUnit.ReadOverlaps(lapName, ids);
-    cout << "Done." << endl;
 
     Search search;
     search.SetExhaustive(bEx);
@@ -231,7 +230,7 @@ int main( int argc, char** argv )
     for (l=0; l<t.isize(); l++) {
         const Scaffold & s = assembly[t[l]];
 
-        cout << "Processing scaffold " << t[l] << " Number of reads= " << s.NumReads() << endl;
+        cout << "\rProcessing scaffold " << t[l] << " Number of reads= " << s.NumReads() << flush;
         search.SetUsedAll(COUnit);
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];

@@ -41,17 +41,11 @@ protected:
     }
 
     virtual bool OnDo(const string & msg) {
-        //int startRead = atol(msg);
-        cout << "Starting search w/ " << msg << endl;
-
         m_search.DoSearchAll(*m_pReads, m_pReads->GetNumReads(), m_startRead);
-
-        cout << "Done!" << endl;
         return true;
     }
 
     virtual bool OnInitialize(const string & msg) {
-        cout << "Initializing!" << endl;
         return true;
     }
 private:

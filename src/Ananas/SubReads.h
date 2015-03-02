@@ -97,7 +97,7 @@ void sortSubs(bool consensMode);
   /** Return a vector of SubRead entry indexes for a given 
      read of those Subreads that share a significant subsequence 
      mode 0: only overlaps that extend the read, mode 1: all overlaps */
-  void findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
+  int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
 
 private:
   struct CmpSubReadCO { //SubRead comparison struct for consensus finding
@@ -210,15 +210,17 @@ void SubReads<ReadType>::sortSubs(bool consensMode) {
 }
 
 template<class ReadType>
-void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const { 
+int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const { 
   map<unsigned long, bool> readsUsed_curr;    //Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;           //Add the read index to the used list so that overlaps with itself won't be computed
   DNAVector extSeq, origSeq1, origSeq2;       //extension and read sequence (1 for checkInit step and 2 for the alignment)
-  int readSize = m_reads[readIndex].isize();
+  int readSize   = m_reads[readIndex].isize();
+  int overlapCnt = 0;
+
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
     origSeq1.SetToSubOf(m_reads[readIndex], i);
-    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { return; } //Rough way of disregarding nonesense characters (TODO look into)
+    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { return overlapCnt; } //Rough way of disregarding nonesense characters (TODO look into)
     svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeq1, CmpSubReadOL(*this));
     for (;fIt!=m_subReads.end(); fIt++) {
       if(min((*fIt).getOffset(), i) > 2*getSubreadStep()) { continue; }               //These should have been found already
@@ -252,6 +254,7 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
             continue;
           }
           allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
+          if(mode==0 && (overlapCnt++)>=readSize*3) { return overlapCnt; }  //Limiting overlaps for very high coverage reads 
           FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
                                << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
           readsUsed_curr[(*fIt).getIndex()] = true;
@@ -259,6 +262,7 @@ void SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& 
       }
     }
   }
+  return overlapCnt;
 }
 
 template<class ReadType>

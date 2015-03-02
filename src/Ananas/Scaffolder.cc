@@ -380,7 +380,7 @@ int main( int argc, char** argv )
     int i, j;
   
     for (i=0; i<5; i++) {
-        cout << "Scaffolding, iteration " << i << endl;
+        cout << "\rScaffolding, iteration " << i << "  " << flush;
         scaffolder.Join(assembly, laps);
         string tmpName = outName + ".iter.";
         char tmp[64];

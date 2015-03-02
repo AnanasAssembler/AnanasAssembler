@@ -39,7 +39,7 @@ void GlobalUsageHandler::Sync(VecIntInc & s)
     int inc = m_list.isize() / 1000;
     if (now > m_counter + inc) {
         m_counter = now;
-        cout << "Reads processed: " << m_counter << " " << 100.*(double)m_counter/(double)m_list.isize() << " %" << endl;
+        cout << "\rReads processed: " << m_counter << " " << 100.*(double)m_counter/(double)m_list.isize() << " %" << flush;
     }
 
     //CHECK HERE
