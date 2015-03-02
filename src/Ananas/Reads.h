@@ -204,7 +204,7 @@ public:
   void write(const string& consReadFile, int mode) const; 
   void writeSeqsAsc(const string& fastaFile) const;       // The consesus sequences in fasta format
   void writeNamesAsc(const string& fastaReadsFile) const; // The ids of the reads that consititute this consensus read 
-  void writeAsc(const string& consReadFile) const;   // Ascii
+  void writeAsc(const string& consReadFile) const;        // Ascii
   void writeBin(const string& consReadFile) const; 
   /** mode: 0 for binary and 1 for ascii */
   void load(const string& consReadFile, int mode); 

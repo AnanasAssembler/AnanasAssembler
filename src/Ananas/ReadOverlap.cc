@@ -202,6 +202,8 @@ bool ReadInfo::organizeLaps(const ConsensReads& allReads, int id) {
     if (isChimera(allReads.getSize(id))) {
         m_rightOverlaps.clear();
         m_leftOverlaps.clear();
+        m_numRightOL = 0;    
+        m_numLeftOL  = 0;   
         return true;
     }
     return false;
