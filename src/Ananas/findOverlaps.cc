@@ -77,6 +77,9 @@ int main(int argc,char** argv)
     FILE* pFile               = fopen(applicationFile.c_str(), "w");
     Output2FILE::Stream()     = pFile;
     FILELog::ReportingLevel() = logINFO; 
+#if defined(FORCE_DEBUG)
+    FILELog::ReportingLevel() = logDEBUG4; 
+#endif
     
 #if defined(OPEN_MP)
     omp_set_num_threads(numOfThreads); //The sort functions still use OMP

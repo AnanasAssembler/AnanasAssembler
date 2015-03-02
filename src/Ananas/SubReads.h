@@ -220,7 +220,7 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
     origSeq1.SetToSubOf(m_reads[readIndex], i);
-    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { return overlapCnt; } //Rough way of disregarding nonesense characters (TODO look into)
+    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { continue; } //Rough way of disregarding nonesense characters (TODO look into)
     svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeq1, CmpSubReadOL(*this));
     for (;fIt!=m_subReads.end(); fIt++) {
       if(min((*fIt).getOffset(), i) > 2*getSubreadStep()) { continue; }               //These should have been found already

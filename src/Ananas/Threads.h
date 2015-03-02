@@ -74,6 +74,7 @@ bool FindOverlapsSingleThread<SuffixType>::OnDo(const string & msg) {
      inc = 1;
    int currIdx = this->m_threadQueue.getNext();
    while(currIdx>=0) {
+     FILE_LOG(logDEBUG3) << "Finding overlaps for read idx: " << currIdx; 
      this->m_subreads.findOverlaps(currIdx, this->m_overlaps, this->m_mode); 
      if (currIdx  % inc == 0) 
             cout << "\r===================== " << 100.0*currIdx/totSize 
