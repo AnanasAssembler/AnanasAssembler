@@ -124,10 +124,10 @@ void ConsensReads::writeNamesAsc(const string& fastaReadsFile) const {
     ofstream sout;
     sout.open(fastaReadsFile.c_str());
     for(int i=0; i<m_consReads.isize(); i++) {
-        sout << (*this)[i].getName() << " - \t";
+        sout << (*this)[i].getName() << " (" << i << ") - \t";
         svec<int> readIdxs = m_consReads[i].getReads();
         for(int j=0; j<readIdxs.isize(); j++) {
-          sout << m_rawReads[readIdxs[j]].Name() << "\t";
+          sout << m_rawReads[readIdxs[j]].Name() << " (" << readIdxs[j] << ") \t";
         }
         sout << endl;
     } 
