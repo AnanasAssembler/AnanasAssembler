@@ -88,10 +88,13 @@ int main(int argc,char** argv)
     ConsensOverlapUnit COUnit(params, inputFile);
     COUnit.findOverlaps(numOfThreads, 0, readGroupFile, readGroupThresh);
     COUnit.writePairSzInfo(pairSzFile);
-    //COUnit.writeOverlaps(overlapFile, 1);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);
-    //COUnit.writeConsensReads("temp_consensRead.fa");
+#if defined(FORCE_DEBUG)
+    COUnit.writeOverlaps(overlapFile+".Ascii", 1); //Ascii version
+    COUnit.writeConsensReadNames(consensFile+".Names"); 
+    COUnit.writeConsensReads(consensFile+".Sequences");
+#endif
     return 0;
 }
 

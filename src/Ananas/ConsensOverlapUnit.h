@@ -72,7 +72,8 @@ public:
   void findOverlaps(int numOfThreads, int mode, string groupedReadInfo="", double identThresh=0.99);  
   void writePairSzInfo(const string& pairSzFile) const               { m_rawReads.writePairSzInfo(pairSzFile);               } 
   void writeConsensInfo(const string& consReadFile, int mode) const  { m_consReads.write(consReadFile, mode);                } 
-  void writeConsensReads(const string& readFastaFile) const          { m_consReads.writeSeqsAsc(readFastaFile);              } 
+  void writeConsensReads(const string& consReadFile) const           { m_consReads.writeSeqsAsc(consReadFile);               } 
+  void writeConsensReadNames(const string& consReadFile) const       { m_consReads.writeNamesAsc(consReadFile);              } 
   void writeOverlaps(const string& overlapFile, int mode) const      { m_overlaps.write(overlapFile, mode);                  } 
 
   const ReadInfo& getOverlap(int i) const         { return m_overlaps[i]; }

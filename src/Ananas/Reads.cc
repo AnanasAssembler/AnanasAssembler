@@ -120,6 +120,20 @@ void ConsensReads::writeSeqsAsc(const string& fastaReadsFile) const {
     sout.close();
 }
 
+void ConsensReads::writeNamesAsc(const string& fastaReadsFile) const {
+    ofstream sout;
+    sout.open(fastaReadsFile.c_str());
+    for(int i=0; i<m_consReads.isize(); i++) {
+        sout << (*this)[i].getName() << " - \t";
+        svec<int> readIdxs = m_consReads[i].getReads();
+        for(int j=0; j<readIdxs.isize(); j++) {
+          sout << m_rawReads[readIdxs[j]].Name() << "\t";
+        }
+        sout << endl;
+    } 
+    sout.close();
+}
+
 void ConsensReads::writeBin(const string& consReadFile) const {
     CMWriteFileStream fs;
     fs.Open(consReadFile.c_str());
