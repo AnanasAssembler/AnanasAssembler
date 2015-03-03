@@ -120,14 +120,14 @@ int main( int argc, char** argv )
 
     commandArg<string> fileCmmd("-i","input fasta file");
     commandArg<string> outCmmd("-o","output directory", "ananas_out");
-    commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
+    commandArg<double> minCmmd("-m","minimum overlap identity", 0.8);
     commandArg<double> minGroupCmmd("-mg","minimum identity for grouping", 0.99);
     commandArg<int> cpuCmmd("-n","number of CPU cores", 1);
     commandArg<int> cpuCmmd2("-n2","number of CPU cores for isoform enumeration", 1);
     commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
     commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 1);
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
-    commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
+    commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 22);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
@@ -234,9 +234,9 @@ int main( int argc, char** argv )
     if (bUnpaired)
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
       //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-      cmmd = "findOverlaps -S 25 -I 0.98 -b " + Number(step);
+      cmmd = "findOverlaps -S 25 -I " + NumberFloat(mI) + " -b " + Number(step);
     else
-      cmmd = "findOverlaps -I 0.98 -b " + Number(step);
+      cmmd = "findOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
              + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " + readGroupFile + " -C " + groupFile + " -o " + lapFile;
