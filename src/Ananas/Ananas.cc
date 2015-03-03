@@ -120,7 +120,7 @@ int main( int argc, char** argv )
 
     commandArg<string> fileCmmd("-i","input fasta file");
     commandArg<string> outCmmd("-o","output directory", "ananas_out");
-    commandArg<double> minCmmd("-m","minimum overlap identity", 0.8);
+    commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
     commandArg<double> minGroupCmmd("-mg","minimum identity for grouping", 0.99);
     commandArg<int> cpuCmmd("-n","number of CPU cores", 1);
     commandArg<int> cpuCmmd2("-n2","number of CPU cores for isoform enumeration", 1);

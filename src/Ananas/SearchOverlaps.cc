@@ -77,7 +77,7 @@ bool Search::IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit)
 int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit)
 {
     // TRY this to reduce processing tiny contigs or where enough difference doesn't exist from previously evaluated path
-  cout << "Call Evaluate with " << stack.Size() << " elements" << endl;
+  //cout << "Call Evaluate with " << stack.Size() << " elements" << endl;
 
     if (m_results.Size() > 0 && (stack.Top().NodeCount() < 3 || diffNodeCount <0.02*stack.Top().NodeCount()) )
         return -1;
@@ -648,9 +648,9 @@ bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableRead
     for (i=startWithRead; i<COUnit.GetNumReads(); i++) {
         if (!IsUsedGlobal(i)
             && HasExtensions(COUnit, i)) {
-	  cout << "Left w/ " << i << endl;
+	    //cout << "Left w/ " << i << endl;
             int start = DoSearch(COUnit, i, true);
-	    cout << "Yielded " << start << endl;
+	    //cout << "Yielded " << start << endl;
             if(start>=0) { DoSearch(COUnit, start); }
         }
     }
@@ -672,8 +672,8 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
 int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
 {
 
-  cout << "call DoSearch w/ " << index << " left " <<  COUnit.GetNumDirLaps(index, -1) << " ";
-  cout << " right " <<  COUnit.GetNumDirLaps(index, 1) << endl;
+  //cout << "call DoSearch w/ " << index << " left " <<  COUnit.GetNumDirLaps(index, -1) << " ";
+  //cout << " right " <<  COUnit.GetNumDirLaps(index, 1) << endl;
    
 
 
