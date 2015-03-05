@@ -99,6 +99,9 @@ void sortSubs(bool consensMode);
      mode 0: only overlaps that extend the read, mode 1: all overlaps */
   int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
 
+  // Update the overlap parameters to allow for more overlaps to be detected
+  void increaseTolerance(float identTolRatio, float overlapTolRatio);
+
 private:
   struct CmpSubReadCO { //SubRead comparison struct for consensus finding
     CmpSubReadCO(const SubReads& s) : m_subreads(s) {}
@@ -127,6 +130,8 @@ private:
   void getDNA(const SubRead& sr, DNAVector& outDNA) const { outDNA.SetFromBases(getSeq(sr)); }
   bool checkInitMatch(const DNAVector& origSeq, const DNAVector& extSeq) const; 
   float checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq, int& isForward) const; 
+  // Flag any exisitng overlaps from previous iterations as used reads.
+  void flagOverlapReads(const AllReadOverlaps& allOverlaps, map<unsigned long, bool>& readsUsed, unsigned long readIndex) const;  
 
   svec<SubRead>        m_subReads;   /// vector of subreads 
   const ReadType&      m_reads;      /// Reference to the list of reads from which subreads where constructed
@@ -214,55 +219,53 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
   map<unsigned long, bool> readsUsed_curr;    //Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;           //Add the read index to the used list so that overlaps with itself won't be computed
   DNAVector extSeq, origSeq1, origSeq2;       //extension and read sequence (1 for checkInit step and 2 for the alignment)
-  int readSize   = m_reads[readIndex].isize();
-  int overlapCnt = 0;
-
+  flagOverlapReads(allOverlaps, readsUsed_curr, readIndex); // Flag any exisitng overlaps from previous iterations as used reads.
+  int readSize = m_reads[readIndex].isize();
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
     origSeq1.SetToSubOf(m_reads[readIndex], i);
-    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n')) { continue; } //Rough way of disregarding nonesense characters (TODO look into)
+    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n'))   { continue; } //Rough way of disregarding nonesense characters (TODO look into)
     svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeq1, CmpSubReadOL(*this));
     for (;fIt!=m_subReads.end(); fIt++) {
-      if(min((*fIt).getOffset(), i) > 2*getSubreadStep()) { continue; }               //These should have been found already
-      map<unsigned long, bool>::iterator it = readsUsed_curr.find((*fIt).getIndex()); //Check if read has already been used
-      if(it==readsUsed_curr.end()) {
-        FILE_LOG(logDEBUG4)  << "Investigating subread: "<< (*fIt).getIndex() 
-                             << ", " << (*fIt).getOffset() << ", " << ((*fIt).getStrand()==1?"+":"-");
-        extSeq.SetFromBases(getSeq(*fIt));
-        if(!checkInitMatch(origSeq1, extSeq)) { break; }
-        int adjustForAlign = min((*fIt).getOffset(), i); //To find alignments from beginning
-        FILE_LOG(logDEBUG4)  << "Adjusting for alignment by: " << adjustForAlign << " bases";
-        origSeq2.SetToSubOf(m_reads[readIndex], i-adjustForAlign);
-        extSeq.SetFromBases(getSeq(*fIt, (*fIt).getOffset()-adjustForAlign, m_reads[(*fIt).getIndex()].size()-1));
-        if(min(extSeq.size(), origSeq2.size())<getMinOverlap()) { continue; } //Skip the rest if extension or read < than min overlap
-        int overlapDir;
-        float matchScore = checkOverlap(origSeq2, extSeq, overlapDir);
-        if(matchScore>=0) {
-          int contactPos;
-          if(overlapDir==1) { 
-            contactPos = i - (*fIt).getOffset(); 
-          } else {
-            contactPos = (readSize-i) - (m_reads[(*fIt).getIndex()].size()-(*fIt).getOffset()); 
-          } 
-          //if(contactPos<=0 ){ // overlapDir=0 doesnt extend overlap to any side //TODO limiting by this adversly affects results!
-          if(contactPos<0 ){ // overlapDir=0 doesnt extend overlap to any side
-            if(mode==1) {
-              contactPos = abs(contactPos);
-            } else { continue; }
-          }  
-          if(overlapDir==0 && mode==0) { //Containment overlap which this mode should exclude
-            continue;
-          }
-          allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
-          if(mode==0 && (overlapCnt++)>=readSize*3) { return overlapCnt; }  //Limiting overlaps for very high coverage reads 
-          FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
-                               << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
-          readsUsed_curr[(*fIt).getIndex()] = true;
+      if(min((*fIt).getOffset(), i) > 2*getSubreadStep())              { continue; } //These should have been found already
+      if(readsUsed_curr.find((*fIt).getIndex())!=readsUsed_curr.end()) { continue; } //Check if read has already been used
+      FILE_LOG(logDEBUG4)  << "Investigating subread: "<< (*fIt).getIndex() 
+                           << ", " << (*fIt).getOffset() << ", " << ((*fIt).getStrand()==1?"+":"-");
+      extSeq.SetFromBases(getSeq(*fIt));
+      if(!checkInitMatch(origSeq1, extSeq)) { break; }
+      int adjustForAlign = min((*fIt).getOffset(), i); //To find alignments from beginning
+      FILE_LOG(logDEBUG4)  << "Adjusting for alignment by: " << adjustForAlign << " bases";
+      origSeq2.SetToSubOf(m_reads[readIndex], i-adjustForAlign);
+      extSeq.SetFromBases(getSeq(*fIt, (*fIt).getOffset()-adjustForAlign, m_reads[(*fIt).getIndex()].size()-1));
+      if(min(extSeq.size(), origSeq2.size())<getMinOverlap()) { continue; } //Skip the rest if extension or read < than min overlap
+      int overlapDir;
+      float matchScore = checkOverlap(origSeq2, extSeq, overlapDir);
+      if(matchScore>=0) {
+        int contactPos;
+        if(overlapDir==1) { 
+          contactPos = i - (*fIt).getOffset(); 
+        } else {
+          contactPos = (readSize-i) - (m_reads[(*fIt).getIndex()].size()-(*fIt).getOffset()); 
         } 
+        if(contactPos<0 ){ // overlapDir=0 doesnt extend overlap to any side
+          if(mode==1) {
+            contactPos = abs(contactPos);
+          } else { continue; }
+        }  
+        if(overlapDir==0 && mode==0) { //Containment overlap which this mode should exclude
+          continue;
+        }
+        allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
+        if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=readSize && allOverlaps[readIndex].getNumLeftLaps()>=readSize) { 
+          return allOverlaps[readIndex].getNumLaps(); 
+        }  //Limiting overlaps for very high coverage reads 
+        FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
+                             << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
+        readsUsed_curr[(*fIt).getIndex()] = true;
       }
     }
   }
-  return overlapCnt;
+  return allOverlaps[readIndex].getNumLaps();
 }
 
 template<class ReadType>
@@ -313,6 +316,21 @@ float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector
   return -1;
 }
 
+template<class ReadType>
+void SubReads<ReadType>::flagOverlapReads(const AllReadOverlaps& allOverlaps, 
+                                         map<unsigned long, bool>& readsUsed, 
+                                         unsigned long readIndex) const { 
+  const ReadInfo& rInfo = allOverlaps[readIndex];
+  int totLaps     =  rInfo.getNumLaps();
+  for(int i=0; i<totLaps; i++) {
+    readsUsed[rInfo.getLap(i).getOverlapIndex()] = true;
+  }
+}
 
-//======================================================
+template<class ReadType>
+void SubReads<ReadType>::increaseTolerance(float identTolRatio, float overlapTolRatio) {
+  m_params.setMinIdentity(m_params.getMinIdentity()*(1-identTolRatio));
+  m_params.setMinOverlap(m_params.getMinOverlap()*(1-overlapTolRatio));
+}
+ //======================================================
 #endif //_SUB_READS_H_

@@ -24,7 +24,7 @@ void ContigClusterUnit::clusterContigs(int numOfThreads) {
         sprintf(tmp, "%d", i);
         string init = "init_";
         init += tmp;
-        th.AddThread(new FindOverlapsSingleThread< SubReads<RawReads> >(threadQueue, subreads, m_overlaps, 1, i));    
+        th.AddThread(new FindOverlapsSingleThread< SubReads<RawReads> >(threadQueue, subreads, m_overlaps, 1, 0, i));    
         th.Feed(i, init);
     }
 

@@ -119,7 +119,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, simReadOutputFile);
-    COUnit.findOverlaps(numOfThreads, 0, readGroupFile, readGroupThresh);
+    COUnit.findOverlaps(numOfThreads, 0, 1, readGroupThresh, readGroupFile);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 1);
 

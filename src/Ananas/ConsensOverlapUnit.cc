@@ -10,7 +10,7 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string groupedReadInfo, double identThresh) {
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters, double identThresh, string groupedReadInfo) {
     if(groupedReadInfo=="") {
         createConsensReads(identThresh); 
     } else {
@@ -19,26 +19,29 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, string grouped
 
     SubReads<ConsensReads>  subreads(m_consReads, m_params, false); // Object handling the subreads 
     int totSize   = m_consReads.getNumOfReads();
+    if(numOfThreads>totSize) { numOfThreads = totSize; }
 
     FILE_LOG(logDEBUG1) << "Finding Overlaps";
     cout << "Finding All Overlaps..." << endl;
 
     m_overlaps.resize(totSize);          // Make sure enough memory is declared 
     ThreadQueueVec threadQueue(totSize); // Use for queueing instances threads should handle
-
     ThreadHandler th;
-    if(numOfThreads>totSize) { numOfThreads = totSize; }
-    for (int i=0; i<numOfThreads; i++) {
-        char tmp[256];
-        sprintf(tmp, "%d", i);
-        string init = "init_";
-        init += tmp;
-        th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, i));    
-        th.Feed(i, init);
-    }
 
-    while (!th.AllDone()) {
-        usleep(10000);
+    for(int iter=0; iter<numOfIters; iter++) {
+        threadQueue.reset();
+        subreads.increaseTolerance(iter*0.1, iter*0.4);
+        for (int i=0; i<numOfThreads; i++) {
+            char tmp[256];
+            sprintf(tmp, "%d", i);
+            string init = "init_";
+            init += tmp;
+            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, 10, i));
+            th.Feed(i, init);
+        }
+        while (!th.AllDone()) {
+            usleep(10000);
+        }
     }
 
     m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps

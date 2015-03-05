@@ -12,6 +12,7 @@ public:
 
     void setSize(int n) { m_totalInstances = n;    }
     int  getSize()      { return m_totalInstances; }
+    void reset()        { m_currIndex = 0;         }
      
     int getNext() {
         int retVal = -1;
