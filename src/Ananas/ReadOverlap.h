@@ -2,6 +2,7 @@
 #define _READOVERLAP_H_
 
 #include <stdint.h>
+#include "base/ThreadHandler.h"
 #include "base/SVector.h"
 #include "src/Ananas/Reads.h"
 
@@ -101,10 +102,10 @@ private:
 class AllReadOverlaps
 {
 public:
-    AllReadOverlaps():m_overlaps(), m_chimera() {}
+    AllReadOverlaps():m_overlaps(), m_chimera(), m_mutex() {}
 
     //  TODO Can only be constructed with size as parameter so that user is aware that size should be set 
-    AllReadOverlaps(int size):m_overlaps(), m_chimera() {resize(size);}
+    AllReadOverlaps(int size):m_overlaps(), m_chimera(), m_mutex() {resize(size);}
    
     const ReadInfo& operator[](int i) const                  { return m_overlaps[i];                      }
     const svec<ReadOverlap>& getRightOverlaps(int idx) const { return m_overlaps[idx].getOverlaps(1);     }
@@ -113,6 +114,13 @@ public:
     void addOverlap(int readIndex, int overlapIndex,
                     int contactPos, int direction, int orient) {
         m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
+    }
+
+    void addOverlapSync(int readIndex, int overlapIndex,
+                    int contactPos, int direction, int orient) {
+        m_mutex.Lock();
+        m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
+        m_mutex.Unlock();
     }
 
     void resize(int sz)  { m_overlaps.resize(sz);     }
@@ -146,6 +154,7 @@ private:
 
     svec<ReadInfo> m_overlaps;     /// All Overlap info , one item per read
     svec<int> m_chimera;           /// TODO comment
+    ThreadMutex  m_mutex;          /// To use for locking while assigning overlaps
 };
 //======================================================
 

@@ -179,9 +179,9 @@ void SubReads<ReadType>::constructSubs(const ReadType& reads, int offsetStep, bo
   m_subReads.clear();
   for(int i=0; i<reads.getNumOfReads(); i++) {
     for(int j=0; j<reads[i].isize(); j+=offsetStep) {
-      m_subReads.push_back(SubRead(i, j, true)); //i:index j:offset 
+      m_subReads.push_back(SubRead(i, j, 1)); //i:index j:offset 
       if(!isSingleStrand() && !consensMode) {
-        m_subReads.push_back(SubRead(i, j, false)); //i:index j:offset 
+        m_subReads.push_back(SubRead(i, j, -1)); //i:index j:offset 
       }
     }
   }
@@ -216,9 +216,9 @@ void SubReads<ReadType>::sortSubs(bool consensMode) {
 
 template<class ReadType>
 int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const { 
-  map<unsigned long, bool> readsUsed_curr;    //Flagset for reads that have been searched for a given extension
-  readsUsed_curr[readIndex] = true;           //Add the read index to the used list so that overlaps with itself won't be computed
-  DNAVector extSeq, origSeq1, origSeq2;       //extension and read sequence (1 for checkInit step and 2 for the alignment)
+  map<unsigned long, bool> readsUsed_curr;                  // Flagset for reads that have been searched for a given extension
+  readsUsed_curr[readIndex] = true;                         // Add the read index to the used list so that overlaps with itself won't be computed
+  DNAVector extSeq, origSeq1, origSeq2;                     // Extension and read sequence (1 for checkInit step and 2 for the alignment)
   flagOverlapReads(allOverlaps, readsUsed_curr, readIndex); // Flag any exisitng overlaps from previous iterations as used reads.
   int readSize = m_reads[readIndex].isize();
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
@@ -255,10 +255,15 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
         if(overlapDir==0 && mode==0) { //Containment overlap which this mode should exclude
           continue;
         }
-        allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
+       
+        // Synchronized version of overlap adding that locks so no iterference occurs with other threads
+        allOverlaps.addOverlapSync(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
+        allOverlaps.addOverlapSync((*fIt).getIndex(), readIndex, contactPos+(m_reads[(*fIt).getIndex()].isize()-readSize), overlapDir*(-1)*((*fIt).getStrand()), (*fIt).getStrand());
+
         if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=readSize && allOverlaps[readIndex].getNumLeftLaps()>=readSize) { 
           return allOverlaps[readIndex].getNumLaps(); 
         }  //Limiting overlaps for very high coverage reads 
+
         FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
                              << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
         readsUsed_curr[(*fIt).getIndex()] = true;

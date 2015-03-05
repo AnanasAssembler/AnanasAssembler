@@ -476,6 +476,7 @@ class DNAVector
   }
 
   void Substring(string & s, int start, int length) const {
+    if(m_data.isize()<(start+length)) { length = m_data.isize() - start; }
     s.resize(length);
     for(int i=0; i<length; i++) 
       s[i] = m_data[start+i];
