@@ -214,7 +214,7 @@ bool ReadInfo::isChimera(int len)
     int iRight = -1;
     int iLeft = -1;
 
-    if (getNumDirLaps(1) < 5 && getNumDirLaps(-1) < 5) // HARD CODED
+    if (getNumDirLaps(1) < 25 && getNumDirLaps(-1) < 25) // HARD CODED
         return false;
 
     int i;

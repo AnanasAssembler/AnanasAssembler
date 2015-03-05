@@ -127,7 +127,7 @@ int main( int argc, char** argv )
     commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
     commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 1);
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
-    commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 22);
+    commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
