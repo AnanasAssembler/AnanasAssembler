@@ -287,9 +287,8 @@ public:
   }
 
   void SetUsed(int read, int pos) {
-    unsigned int posCnt = m_full[read].size();
-    if(posCnt<m_maxPerRead_p) {
-      if(posCnt==0) { //First time a read is used (update used counter)
+    if(m_usedCounter<m_maxPerRead_p) {
+      if(m_usedCounter==0) { //First time a read is used (update used counter)
          m_usedList[m_usedCounter] = read;
          m_usedCounter++; 
       } 
