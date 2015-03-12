@@ -84,6 +84,8 @@ class Contig
   void clear() {
     m_placements.clear();
     m_name = "";
+    m_numOfReads = 0;
+    m_numOfPaired = 0;
   }
 
   void Reverse() {

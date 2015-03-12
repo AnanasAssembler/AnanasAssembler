@@ -634,12 +634,15 @@ void Search::Commit(const Hypothesis & hyp)
 bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableReads, int startWithRead)
 {
     srand(time(NULL));
-    if (m_exhaust)
+    if (m_exhaust) {
+        m_usage.Clear();
         m_usage.Resize(COUnit.GetNumReads(), numAvailableReads);
+    }
 
     if (m_globalUsed.isize() == 0)
         m_globalUsed.resize(COUnit.GetNumReads(), 0);
 
+    m_results.Reset();
     m_results.SetCapacity(m_exhaust);
 
     int i;
@@ -761,7 +764,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
             SearchNode to_push(l.getOverlapIndex(), curr, ori*l.getOrient(), l.getContactPos(), pos + l.getContactPos());
             to_push.SetNodeCount(nodeCount+1); 
 
-            if (!m_globalUsed[to_push.Read()] && !IsUsed(to_push) &&
+            if (!IsUsed(to_push) &&
                  (!m_exhaust || (m_exhaust && !m_usage.IsUsed(to_push.Read(), to_push.Pos())))) {
                 n.SetExt();
                 stack.Push(to_push);

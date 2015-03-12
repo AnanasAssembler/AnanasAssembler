@@ -257,7 +257,7 @@ class UsageTracker
 public:
   UsageTracker() {
     m_div_p         = 10;  //TODO Should be parametrizable 
-    m_maxPerRead_p  = 10;   //TODO Should be parametrizable 
+    m_maxPerRead_p  = 5;   //TODO Should be parametrizable 
     m_usedCounter   = 0;
   }
 
@@ -299,11 +299,11 @@ public:
   }
 
 private:
-  vector< map<int, bool> > m_full; ///List of positions per used read (indexed over all reads) 
-  vector<int> m_usedList;          ///List of read indexes that have been used and need to be cleared in the next round
-  int m_usedCounter;               ///Counts the number of reads so far used (at least once) 
-  int m_div_p;                     ///Divide the position values into blocks 
-  unsigned int m_maxPerRead_p;     ///Maximum number of positions registered per read
+  svec< map<int, bool> > m_full; ///List of positions per used read (indexed over all reads) 
+  svec<int> m_usedList;          ///List of read indexes that have been used and need to be cleared in the next round
+  int m_usedCounter;             ///Counts the number of reads so far used (at least once) 
+  int m_div_p;                   ///Divide the position values into blocks 
+  unsigned int m_maxPerRead_p;   ///Maximum number of positions registered per read
 };
 //=====================================================================
 class HypothesisNode : public SearchNode

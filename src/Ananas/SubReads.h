@@ -87,7 +87,7 @@ public:
 
   //The consensMode argument has been added to override parameters for building consensus reads with no reverse strand
   void constructSubs(const ReadType& reads, int offsetStep, bool consensMode); 
-void sortSubs(bool consensMode); 
+  void sortSubs(bool consensMode); 
 
   string getSeq(const SubRead& sr, int startIdx, int endIdx) const; 
   string getSeq(const SubRead& sr, int len) const; 
@@ -147,13 +147,9 @@ string SubReads<ReadType>::getSeq(const SubRead& sr, int startIdx, int endIdx) c
   if(endIdx>=readSize) { endIdx = readSize-1; }
   int to = endIdx-startIdx+1;
   if(sr.getStrand()==1) {
-    return m_reads[sr.getIndex()].Substring(startIdx, to); 
+    return m_reads.getReadByIndex(sr.getIndex()).Substring(startIdx, to); 
   } else {
-    DNAVector read = m_reads[sr.getIndex()];
-    read.ReverseComplement();
-    DNAVector readSub;
-    readSub.SetToSubOf(read, startIdx, to);
-    return readSub.AsString(); 
+    return m_reads.getReadRCByIndex(sr.getIndex()).Substring(startIdx, to); 
   }
 }
 

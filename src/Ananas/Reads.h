@@ -12,21 +12,26 @@
 class ConsensRead 
 {
 public:
-  ConsensRead():m_readIdxs(), m_dnaSeq(), m_seqSize(-1) {}
+  ConsensRead():m_readIdxs(), m_dnaSeq(), m_dnaSeqRC(), m_seqSize(-1) {}
   
   const svec<int >& getReads() const           { return m_readIdxs;             }
   int  getFirstRead() const                    { return m_readIdxs[0];          }
   int getNumOfReads() const                    { return m_readIdxs.isize();     } 
   bool isSingle() const                        { return (m_readIdxs.size()==1); }
   const DNAVector& getSeq() const              { return m_dnaSeq;               }
+  const DNAVector& getSeqRC() const            { return m_dnaSeqRC;             }
   int  getSize() const                         { return m_seqSize;              }
  
   void setSize(int size)                       { m_seqSize = size;              }
   void addRead(int readIdx)                    { m_readIdxs.push_back(readIdx); }
   void setReads(svec<int>& readIdxs)           { m_readIdxs = readIdxs;         }
 
-  void setSeq(const DNAVector& seq) { 
+  void setSeq(const DNAVector& seq, bool isSingleStrand) { 
     m_dnaSeq  = seq;               
+    if(!isSingleStrand) { 
+      m_dnaSeqRC = seq;
+      m_dnaSeqRC.ReverseComplement(); 
+    } 
     m_seqSize = m_dnaSeq.size();
   }
 
@@ -49,6 +54,7 @@ private:
 
   svec<int> m_readIdxs;  /// List of indexes of reads that constitute this consensus
   DNAVector m_dnaSeq;    /// Contains the consensus only if there's more than one read 
+  DNAVector m_dnaSeqRC;  /// Contains the consensus only if there's more than one read  (Reverse Complemented)
   int       m_seqSize;   /// Used when dnaSeq doesn't exist (for stages where memory efficiency is required)
 };
 //======================================================
@@ -83,18 +89,20 @@ private:
 class RawReads {
 public:
   // Default Ctor:
-  RawReads(): m_reads(), m_pairInfo(), m_sizeInfo() {}
+  RawReads(): m_reads(), m_readsRC(), m_pairInfo(), m_sizeInfo(), m_isSingleStrand_p(true) {}
 
   // Ctor 2:
   /* mode:0 fasta input  mode:1 pair/size input */
-  RawReads(const string& fileName, int mode): m_reads(), m_pairInfo(), m_sizeInfo() { 
+  RawReads(const string& fileName, int mode, bool isSingleStrand)
+          : m_reads(), m_readsRC(), m_pairInfo(), m_sizeInfo(), m_isSingleStrand_p(isSingleStrand) { 
     if(mode==0) { load(fileName);           }
     else        { loadPairSzInfo(fileName); }
   }
 
   const DNAVector& operator[](int i) const              { return m_reads[i];            }
   const vecDNAVector& getReads() const                  { return m_reads;               }
-  const DNAVector& getReadByIndex(int idx)              { return m_reads[idx];          } 
+  const DNAVector& getReadByIndex(int idx) const        { return m_reads[idx];          } 
+  const DNAVector& getReadRCByIndex(int idx) const      { return m_readsRC[idx];        } 
   bool hasSeq(int idx) const                            { return (m_reads.isize()>idx); }
   int getNumOfReads() const                             { return (m_reads.size())!=0? m_reads.size(): m_sizeInfo.size(); } 
   int getSize(int idx) const                            { return ((hasSeq(idx))? m_reads[idx].size(): m_sizeInfo[idx]);  }
@@ -112,9 +120,11 @@ public:
   void clearRead(int id) { m_reads[id].clear(); }   //TODO comment (function created for adapting to Overlaps class pruning
 
 private:
-  vecDNAVector m_reads;        /// Vector containing all reads 
-  svec<int>    m_pairInfo;     /// For every raw read index contains the index of a read that's paired with it
-  svec<int>    m_sizeInfo;     /// The size of each read, this is used only when the read seqs are not aquired
+  vecDNAVector m_reads;            /// Vector containing all reads 
+  vecDNAVector m_readsRC;          /// Vector containing all reads in reverse complement in stranded mode
+  svec<int>    m_pairInfo;         /// For every raw read index contains the index of a read that's paired with it
+  svec<int>    m_sizeInfo;         /// The size of each read, this is used only when the read seqs are not aquired
+  bool         m_isSingleStrand_p; /// Flag identifiying wether reads are single strand   
 };
 
 //======================================================
@@ -177,16 +187,13 @@ private:
 class ConsensReads {
 public:
   // Ctor1:
-  ConsensReads(const RawReads& sReads): m_rawReads(sReads), m_consReads(), m_groupInfo() {
+  ConsensReads(const RawReads& sReads, bool isSingleStrand)
+              : m_rawReads(sReads), m_consReads(), m_groupInfo(), m_isSingleStrand_p(isSingleStrand) {
     m_groupInfo.resize(sReads.getNumOfReads(), -1);
   }
 
   const DNAVector& operator[](int i) const {  
-    if(m_consReads[i].isSingle()) {
-      return m_rawReads[m_consReads[i].getFirstRead()];     
-    } else {
-      return m_consReads[i].getSeq();     
-    }
+    return getReadByIndex(i);
   }
 
   const svec<int>& getConsMembers(int idx) const              { return m_consReads[idx].getReads();     }
@@ -196,6 +203,22 @@ public:
   int whichGroup(int rawIdx) const                            { return m_groupInfo[rawIdx];             }  
   bool hasGroupInfo(int rawIdx) const                         { return (whichGroup(rawIdx) != -1);      }  
   bool hasGroupInfo(const svec<int>& idxs) const;
+
+  const DNAVector& getReadByIndex(int idx) const {
+    if(m_consReads[idx].isSingle()) {
+      return m_rawReads.getReadByIndex(m_consReads[idx].getFirstRead());     
+    } else {
+      return m_consReads[idx].getSeq();     
+    }
+  } 
+
+  const DNAVector& getReadRCByIndex(int idx) const {
+    if(m_consReads[idx].isSingle()) {
+      return m_rawReads.getReadRCByIndex(m_consReads[idx].getFirstRead());     
+    } else {
+      return m_consReads[idx].getSeqRC();     
+    }
+  } 
 
   void addConsRead(const svec<int>& rawIdxs);
   void reserveMem(int numOfElements)                          { m_consReads.reserve(numOfElements);     }
@@ -219,9 +242,10 @@ private:
   /** Should be called when all the child reads have been identified */
   void setConsensus(ConsensRead& cRead);
 
-  const RawReads&          m_rawReads;        /// Reference to inidvidual reads 
-  svec<ConsensRead>        m_consReads;       /// Consensus Read Info
-  svec<int>                m_groupInfo;       /// For every raw read index contains the index into consensus reads vector 
+  const RawReads&      m_rawReads;         /// Reference to inidvidual reads 
+  svec<ConsensRead>    m_consReads;        /// Consensus Read Info
+  svec<int>            m_groupInfo;        /// For every raw read index contains the index into consensus reads vector 
+  bool                 m_isSingleStrand_p; /// Flag identifiying wether reads are single strand   
 };
 
 //======================================================

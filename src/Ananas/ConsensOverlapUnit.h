@@ -16,11 +16,13 @@ public:
 
   // Basic Constructor used for finding overlaps
   ConsensOverlapUnit(const AssemblyParams& params, const string& inputFile)
-            :m_params(params), m_rawReads(inputFile, 0), m_consReads(m_rawReads), m_overlaps(0), m_partners() {}
+            :m_params(params), m_rawReads(inputFile, 0, m_params.isSingleStrand()), 
+             m_consReads(m_rawReads, m_params.isSingleStrand()), m_overlaps(0), m_partners() {}
 
   // Constructor used for stages where the raw reads are not required and only pair info is required
   ConsensOverlapUnit(const string& pairSzInfoFile, const string& consensFile,
-                     const string overlapFile): m_params(), m_rawReads(pairSzInfoFile, 1), m_consReads(m_rawReads),
+                     const string overlapFile): m_params(), m_rawReads(pairSzInfoFile, 1, m_params.isSingleStrand()), 
+                                                m_consReads(m_rawReads, m_params.isSingleStrand()),
                                                 m_overlaps(0), m_partners() {
     m_consReads.loadAsc(consensFile); 
     findPartners(); //Set the partners for the consensus reads
@@ -29,7 +31,8 @@ public:
 
   // Constructor used for final stage to contain only the raw and consensus reads for generating final assembled fasta 
   ConsensOverlapUnit(const string& rawReadFile, const string& consensFile)
-                     : m_params(), m_rawReads(rawReadFile, 0), m_consReads(m_rawReads),
+                     : m_params(), m_rawReads(rawReadFile, 0, m_params.isSingleStrand()), 
+                       m_consReads(m_rawReads, m_params.isSingleStrand()),
                        m_overlaps(0), m_partners() {
     m_consReads.loadAsc(consensFile); 
     findPartners(); //Set the partners for the consensus reads

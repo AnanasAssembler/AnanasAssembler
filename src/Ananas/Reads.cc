@@ -65,7 +65,7 @@ void ConsensReads::setConsensus(ConsensRead& cRead) {
             for (int i=0; i<totLen; i++) {
                 out[i] = cons[i];
             }
-            cRead.setSeq(out);
+            cRead.setSeq(out, m_isSingleStrand_p);
         } else {
             cRead.setSize(totLen);
         }
@@ -191,6 +191,10 @@ void RawReads::write(const string& rawReadsFile) const {
 
 void RawReads::load(const string& rawReadsFile) {
     m_reads.Read(rawReadsFile);
+    if(!m_isSingleStrand_p) {
+      m_readsRC = m_reads;
+      m_readsRC.ReverseComplement();
+    }
     // Set pair info
     m_pairInfo.resize(m_reads.isize());
     int cc = 0;

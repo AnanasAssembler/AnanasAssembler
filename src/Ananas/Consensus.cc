@@ -103,7 +103,7 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   if (bPrev)
     m_minor++;
 
-  int currNumReads = 0, currNumPairedReads = 0;
+  int currNumPairedReads = 0;
 
   int i;
   char name[512];
@@ -141,13 +141,12 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Read():hyp[i].Pair(),  
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Ori():hyp[i].Pair());
     m_currReads[r] = true;
-    currNumReads++;
     if (hyp[i].Pair() >= 0) {
       m_currPairedReads[r] = true;
       currNumPairedReads++;
     }
   }
-  fprintf(m_pLayout, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", name, currNumReads);
+  fprintf(m_pLayout, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", name, hyp.Size());
   fprintf(m_pLayout, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", name, currNumPairedReads/2);
   fprintf(m_pLayout, "</CONTIG> %s\n", name);
   fflush(m_pLayout);

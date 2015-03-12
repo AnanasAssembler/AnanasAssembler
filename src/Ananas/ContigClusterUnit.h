@@ -15,7 +15,8 @@ public:
 
     // Basic Constructor used for finding clusters 
     ContigClusterUnit(const AssemblyParams& params, const string& inputFile)
-              :m_params(params), m_rawReads(inputFile, 0), m_overlaps(), m_clusters(m_rawReads.getNumOfReads()) {}
+              :m_params(params), m_rawReads(inputFile, 0, m_params.isSingleStrand()),
+               m_overlaps(), m_clusters(m_rawReads.getNumOfReads()) {}
 
     int getNumOfRawReads() const              { return m_rawReads.getNumOfReads();  } 
 
