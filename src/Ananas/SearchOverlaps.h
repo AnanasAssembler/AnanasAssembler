@@ -667,9 +667,10 @@ public:
   }
 
   void SetUsedAll(const ConsensOverlapUnit & COUnit) {
-    m_globalUsed.clear();
+    m_globalUsed.hard_clear(); //Using clear doesn't always work correctly for next search round
     m_globalUsed.resize(COUnit.GetNumReads(), 1);
   }
+
   void SetUsed(int i, bool b) {
     if (b == false)
       m_globalUsed.Set(i, 0);
