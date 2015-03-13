@@ -78,6 +78,7 @@ public:
     int getNumLaps() const                       { return getNumRightLaps()+getNumLeftLaps(); }
     int getNumRightLaps() const                  { return m_numRightOL;                       }
     int getNumLeftLaps() const                   { return m_numLeftOL;                        }
+    const svec<int>& getOverlapIds() const       { return m_overlapIds;                       }
     const ReadOverlap & getRightLap(int i) const { return m_rightOverlaps[i];                 }
     const ReadOverlap & getLeftLap(int i) const  { return m_leftOverlaps[i];                  }
   
@@ -143,6 +144,7 @@ public:
       return m_overlaps[readIndex].getOverlaps(isRight);
     }
   
+    void sortOverlapIndexes(); 
     void actionsAfterOverlapSet();
 
 private:

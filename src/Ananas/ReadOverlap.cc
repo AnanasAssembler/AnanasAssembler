@@ -134,11 +134,15 @@ void AllReadOverlaps::addOverlapFromString(const string& strIn){
                atoi((const char*)*tokens[1]), atoi((const char*)*tokens[2]), 
                (dir==">"?1:-1), (strand=="+"?1:-1));
 }
- 
-void AllReadOverlaps::actionsAfterOverlapSet() {
+
+void AllReadOverlaps::sortOverlapIndexes() {
     for (int i=0; i<m_overlaps.isize(); i++) {
         m_overlaps[i].sortLaps();
     }
+}
+
+void AllReadOverlaps::actionsAfterOverlapSet() {
+    sortOverlapIndexes();
 }
 
 void AllReadOverlaps::postReadActions(const ConsensReads& consReads) {

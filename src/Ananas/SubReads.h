@@ -99,6 +99,9 @@ public:
      mode 0: only overlaps that extend the read, mode 1: all overlaps */
   int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
 
+  /** Add in any missing reciprocal overlaps in the end (if heuristics meant they were missed) */
+  void addMissingReciprocals(AllReadOverlaps& allOverlaps) const; 
+
   // Update the overlap parameters to allow for more overlaps to be detected
   void increaseTolerance(float identTolRatio, float overlapTolRatio);
 
@@ -252,9 +255,7 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
           continue;
         }
        
-        // Synchronized version of overlap adding that locks so no iterference occurs with other threads
-        allOverlaps.addOverlapSync(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
-        allOverlaps.addOverlapSync((*fIt).getIndex(), readIndex, contactPos+(m_reads[(*fIt).getIndex()].isize()-readSize), overlapDir*(-1)*((*fIt).getStrand()), (*fIt).getStrand());
+        allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
 
         if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=readSize && allOverlaps[readIndex].getNumLeftLaps()>=readSize) { 
           return allOverlaps[readIndex].getNumLaps(); 
@@ -267,6 +268,25 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
     }
   }
   return allOverlaps[readIndex].getNumLaps();
+}
+
+template<class ReadType>
+void SubReads<ReadType>::addMissingReciprocals(AllReadOverlaps& allOverlaps) const {
+  allOverlaps.sortOverlapIndexes(); // To be able to perform binary look ups
+  int instCount = 0; 
+  for (int readIdx=0; readIdx<allOverlaps.getSize(); readIdx++) {
+    int numLaps = allOverlaps[readIdx].getNumLaps();
+    for(int j=0; j<numLaps; j++) {
+      const ReadOverlap& lap = allOverlaps[readIdx].getLap(j);
+      int overlapIdx = lap.getOverlapIndex();
+      if(!allOverlaps[overlapIdx].hasLap(readIdx)) {
+        allOverlaps.addOverlap(overlapIdx, readIdx, lap.getContactPos()+(m_reads[overlapIdx].isize()-m_reads[readIdx].isize()), 
+                               lap.getDirection()*(-1)*lap.getOrient(), lap.getOrient());
+        instCount++;
+      }
+    }
+  }
+  cout << "Added " << instCount << " reciprocal overlap instances." << endl;
 }
 
 template<class ReadType>
