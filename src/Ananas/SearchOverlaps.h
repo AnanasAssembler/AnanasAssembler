@@ -688,7 +688,11 @@ public:
   }
 
 protected:
-  int DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc = false);
+  int SelectStartNode(const ConsensOverlapUnit & COUnit, int index, bool& seedReverse); 
+  int DoSearch(const ConsensOverlapUnit & COUnit, int index, bool seedReverse); 
+
+   //Helper function
+  int SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse);
 
   int CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
   int CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
@@ -724,8 +728,8 @@ protected:
 
   void Commit(const Hypothesis & hyp);
 
-  void SelectTopN(const ConsensOverlapUnit & COUnit, bool rc);
-  int SelectLeftest(const ConsensOverlapUnit & COUnit,  bool rc);
+  void SelectTopN(const ConsensOverlapUnit & COUnit);
+  int SelectLeftest(const ConsensOverlapUnit & COUnit, bool& seedReverse);
   int Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverlapUnit & COUnit);
   
   bool IsNew(const SearchStack & test, const ConsensOverlapUnit & COUnit);

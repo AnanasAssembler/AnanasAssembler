@@ -97,7 +97,7 @@ int Search::Evaluate(SearchStack & stack, int diffNodeCount, const ConsensOverla
     return to;
 }
 
-int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
+int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool& seedReverse)
 {
     if (m_results.Size() == 0) {
         return -1;
@@ -106,18 +106,16 @@ int Search::SelectLeftest(const ConsensOverlapUnit & COUnit, bool rc)
 
     m_workHyp.clear();
     MakeHypothesis(m_workHyp, m_results.GetTopResult(), COUnit/*, true*/);
-    if (rc) {
-        m_workHyp.Reverse(hypLen);
-    }
-    for (int i=0; i<m_workHyp.Size(); i++) {
-        if (m_workHyp[i].Ori() == 1)
-            return m_workHyp[i].Read();
+    m_workHyp.Reverse(hypLen);
+    if(m_workHyp.Size()>0) {
+        seedReverse = (m_workHyp[0].Ori() != 1);
+        return m_workHyp[0].Read();
     }
     return -1;
 }
 
 
-void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
+void Search::SelectTopN(const ConsensOverlapUnit & COUnit)
 {
     if (m_results.Size() == 0) { return; }
 
@@ -127,9 +125,6 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         for (int i=0; i<m_results.Size(); i++) {
             int hypLen = m_results.GetResult(i).Length();
             MakeHypothesis(raw[i], m_results.GetResult(i), COUnit, !m_results.Override());
-            if (rc) {
-                raw[i].Reverse(hypLen);
-            }
         }
         for (int i=0; i<raw.isize(); i++) {
             if (raw[i].Size() == 0)
@@ -171,9 +166,6 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit, bool rc)
         m_workHyp.clear();
         MakeHypothesis(m_workHyp, m_results.GetTopResult(), COUnit, !m_results.Override());
         int hypLen = m_results.GetTopResult().Length();
-        if (rc) {
-            m_workHyp.Reverse(hypLen);
-        }
 
         Commit(m_workHyp);
         int to, from;
@@ -652,9 +644,10 @@ bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableRead
         if (!IsUsedGlobal(i)
             && HasExtensions(COUnit, i)) {
 	    //cout << "Left w/ " << i << endl;
-            int start = DoSearch(COUnit, i, true);
+            bool seedReversed = false;
+            int start = SelectStartNode(COUnit, i, seedReversed);
 	    //cout << "Yielded " << start << endl;
-            if(start>=0) { DoSearch(COUnit, start); }
+            if(start>=0) { DoSearch(COUnit, start, seedReversed); }
         }
     }
     return true;
@@ -672,7 +665,7 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
     return false; 
 }
 
-int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
+int Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse)
 {
 
   //cout << "call DoSearch w/ " << index << " left " <<  COUnit.GetNumDirLaps(index, -1) << " ";
@@ -696,7 +689,7 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
     int diffNodeCount = 0; // Used to keep track of differences from latest stack
 
     SearchNode init(index);
-    if (rc) {
+    if (seedReverse) {
         init.SetOri(-1);
     }
     init.SetNodeCount(1);
@@ -777,15 +770,20 @@ int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool rc)
         }
     }
     m_results.Sort();
-    if (rc) {
-        int z = SelectLeftest(COUnit, rc);
-        if (z < 0) {
-            cout << "ERROR!!!" << endl;
-        }
-        return z;
+}
+
+int Search::SelectStartNode(const ConsensOverlapUnit & COUnit, int index, bool& seedReverse) {
+    SearchCore(COUnit, index, seedReverse);
+    int z = SelectLeftest(COUnit, seedReverse);
+    if (z < 0) {
+        cout << "ERROR!!!" << endl;
     }
-    SelectTopN(COUnit, rc);
-    return -1;
+    return z;
+}
+
+int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool seedReverse) {
+    SearchCore(COUnit, index, seedReverse);
+    SelectTopN(COUnit);
 }
 
 
