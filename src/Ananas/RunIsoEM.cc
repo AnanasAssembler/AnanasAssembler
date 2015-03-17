@@ -83,7 +83,7 @@ void CleanScaffold(Scaffold & scaff)
   j = 1;
   for (i=0; i<scaff.isize(); i++) {
     const Contig & c = scaff[i];
-    cout << "Contig " << i << " size " << c.isize() << endl;
+    //cout << "Contig " << i << " size " << c.isize() << endl;
     if (c.isize() == 0) {
       j = i+1;
       while (j < scaff.isize()) {
@@ -94,7 +94,7 @@ void CleanScaffold(Scaffold & scaff)
       }
       if (j >= scaff.isize())
 	break;
-      cout << "Copy from " << j << " to " << i << endl;
+      //cout << "Copy from " << j << " to " << i << endl;
       scaff[i] = scaff[j];
       scaff[j].clear();
     }
@@ -110,7 +110,7 @@ int main( int argc, char** argv )
     //commandArg<string> fastaCmmd("-f","read fasta file"); // Do we really need this???
     //commandArg<string> consCmmd("-g","input read consensus group file");
     commandArg<string> outCmmd("-o","output file");
-    commandArg<string> pairCmmd("-dir","pairing (fr, ff, or na)");
+    //commandArg<string> pairCmmd("-dir","pairing (fr, ff, or na)");
 
   
     commandLineParser P(argc,argv);
@@ -120,7 +120,7 @@ int main( int argc, char** argv )
     //P.registerArg(consCmmd);
     //P.registerArg(fastaCmmd);
     P.registerArg(outCmmd);
-    P.registerArg(pairCmmd);
+    //P.registerArg(pairCmmd);
   
     P.parse();
   
@@ -128,7 +128,7 @@ int main( int argc, char** argv )
     //string lapName = P.GetStringValueFor(lapCmmd);
     //string fastaName = P.GetStringValueFor(fastaCmmd);
     string outName = P.GetStringValueFor(outCmmd);
-    string pairing = P.GetStringValueFor(pairCmmd);
+    //string pairing = P.GetStringValueFor(pairCmmd);
     //string consName = P.GetStringValueFor(consCmmd); 
  
     Assembled assembly;

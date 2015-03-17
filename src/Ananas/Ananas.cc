@@ -1,3 +1,4 @@
+
 #ifndef FORCE_DEBUG
 #define NDEBUG
 #endif
@@ -10,7 +11,6 @@
 int Run(const string & exec, const string & cmmd, bool bIgnoreFailure = false)
 {
     string c = exec + cmmd;
-
     cout << GetTimeStatic();
     cout << " Executing: " << c << endl;
     int ret = system(c.c_str());
@@ -120,7 +120,7 @@ int main( int argc, char** argv )
 
     commandArg<string> fileCmmd("-i","input fasta file");
     commandArg<string> outCmmd("-o","output directory", "ananas_out");
-    commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
+    commandArg<double> minCmmd("-m","minimum overlap identity", 0.98);
     commandArg<double> minGroupCmmd("-mg","minimum identity for grouping", 0.99);
     commandArg<int> cpuCmmd("-n","number of CPU cores", 1);
     commandArg<int> cpuCmmd2("-n2","number of CPU cores for isoform enumeration", 1);
@@ -312,7 +312,7 @@ int main( int argc, char** argv )
 
     cmmd = "LayoutGuided -i " + pairSzFile;
     cmmd += " -l " + outName + "/allOverlaps.out";
-    cmmd += " -o " + outName + "/contigs_altsplic.layout";
+    cmmd += " -o " + outName + "/contigs_altsplic_raw.layout";
     //  cmmd += " -f " + outName + "/contigs_altsplic.fasta";
     cmmd += " -s " + outName + "/scaffolds.layout";
     cmmd += " -g " + groupFile;
@@ -335,10 +335,21 @@ int main( int argc, char** argv )
         }
         cout << "LayoutGuided is done!!!" << endl;
         // Note: this is extremely STUPID and dangerous!!!
-        cmmd = "cat " + outName + "/contigs_altsplic.layout.* > " + outName + "/contigs_altsplic.layout";
+        cmmd = "cat " + outName + "/contigs_altsplic_raw.layout.* > " + outName + "/contigs_altsplic_raw.layout";
         cout << "Concatenating layout files: " << cmmd << endl;
         int ret = system(cmmd.c_str());    
     }
+
+    //////////////////////////////////////////////////////////
+    // RunIsoEM         /////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
+  
+    cmmd = "RunIsoEM " ;
+    cmmd += " -i " + outName + "/contigs_altsplic_raw.layout";
+    cmmd += " -o " + outName + "/contigs_altsplic.layout";
+    Run(exec_dir, cmmd);
+
 
     //////////////////////////////////////////////////////////
     // GenAssemblyFasta /////////////////////////////////////
