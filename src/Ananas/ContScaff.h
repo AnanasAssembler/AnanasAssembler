@@ -138,6 +138,12 @@ class Scaffold
   int isize() const {return m_contigs.isize();}
   const Contig & operator [] (int i) const {return m_contigs[i];}
   Contig & operator [] (int i) {return m_contigs[i];}
+  
+  void resize(int n) {
+    m_contigs.resize(n);
+    m_offset.resize(n);
+  }
+
 
   void push_back(const Contig & s, int off, int ori) {
     m_offset.push_back(off);
