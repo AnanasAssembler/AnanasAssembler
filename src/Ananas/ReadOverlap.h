@@ -23,12 +23,10 @@ public:
     int     getOverlapIndex() const       { return m_overlapIndex;  }  
     int     getContactPos() const         { return m_contactPos;    }  
 
-    int getDirection() const { 
-      return (m_direction)?1:-1;
-    }
-    int getOrient() const { 
-      return (m_orient)?1:-1;
-    }
+    int getDirection() const       { return (m_direction)?1:-1; }
+    int getOrient() const          { return (m_orient)?1:-1;    }
+    bool getOrientBool() const     { return m_orient;           }
+    bool getDirectionBool() const  { return m_direction;        } 
 
     bool operator < (const ReadOverlap & rO) const; 
 
@@ -40,15 +38,34 @@ private:
 };
 //======================================================
 
+//======================================================
+
+class ReadOverlapWithIndex: public ReadOverlap 
+{
+public:
+    ReadOverlapWithIndex():ReadOverlap(), m_readIndex(-1) {};
+
+    ReadOverlapWithIndex(int rI, int oI, int cP, int d, int o) {
+      set(rI, oI, cP, d, o);
+    }
+
+    void set(int rI, int oI, int cP, int d, int o); 
+
+    int getReadIndex() const       { return m_readIndex;  }  
+
+private: 
+    int     m_readIndex;  /// The index of the read 
+};
+//======================================================
 
 //======================================================
 class ReadInfo
 {
 public:
     ReadInfo(): m_rightOverlaps(), m_leftOverlaps(), m_overlapIds(), m_numRightOL(0), m_numLeftOL(0) {
-        m_rightOverlaps.reserve(1000);
-        m_leftOverlaps.reserve(1000);
-        m_overlapIds.reserve(2000);
+        m_rightOverlaps.reserve(200);
+        m_leftOverlaps.reserve(200);
+        m_overlapIds.reserve(400);
     }
 
     const svec<ReadOverlap>& getOverlaps(int isRight) const { 
@@ -111,7 +128,13 @@ public:
     const ReadInfo& operator[](int i) const                  { return m_overlaps[i];                      }
     const svec<ReadOverlap>& getRightOverlaps(int idx) const { return m_overlaps[idx].getOverlaps(1);     }
     const svec<ReadOverlap>& getLeftOverlaps(int idx)  const { return m_overlaps[idx].getOverlaps(-1);    }
- 
+
+    void addOverlap(ReadOverlapWithIndex ol) { 
+        m_overlaps[ol.getReadIndex()].addOverlap(ol.getOverlapIndex(), ol.getContactPos(), 
+                                                 ol.getDirectionBool(), ol.getOrientBool());
+    }
+
+
     void addOverlap(int readIndex, int overlapIndex,
                     int contactPos, int direction, int orient) {
         m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);

@@ -36,7 +36,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
             sprintf(tmp, "%d", i);
             string init = "init_";
             init += tmp;
-            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, 10, i));
+            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, numOfIters*10, i));
             th.Feed(i, init);
         }
         while (!th.AllDone()) {
@@ -44,7 +44,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
         }
     }
 
-    subreads.addMissingReciprocals(m_overlaps);
+    subreads.addMissingReciprocals(m_overlaps);  
     m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps
 
     cout << "\r===================== " << "100.0% " << flush; 

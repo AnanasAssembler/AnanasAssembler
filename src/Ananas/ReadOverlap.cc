@@ -189,6 +189,18 @@ string ReadOverlap::toString() const {
        << (getOrient()==1?"+":"-");
     return ss.str();
 }
+//======================================================
+
+
+
+//======================================================
+void ReadOverlapWithIndex::set(int rI, int oI, int cP, int d, int o) {
+    ReadOverlap::set(oI, cP, d, o);
+    m_readIndex = rI;
+}
+
+//======================================================
+
 
 
 //======================================================

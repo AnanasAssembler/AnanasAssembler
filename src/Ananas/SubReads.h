@@ -96,8 +96,10 @@ public:
  
   /** Return a vector of SubRead entry indexes for a given 
      read of those Subreads that share a significant subsequence 
-     mode 0: only overlaps that extend the read, mode 1: all overlaps */
-  int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const;  
+     mode 0: only overlaps that extend the read, mode 1: all overlaps 
+     limit specifies the number of overlaps to limit the search to (limit=0 means set the limit to read size) 
+   */
+  int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int limit) const;  
 
   /** Add in any missing reciprocal overlaps in the end (if heuristics meant they were missed) */
   void addMissingReciprocals(AllReadOverlaps& allOverlaps) const; 
@@ -214,7 +216,7 @@ void SubReads<ReadType>::sortSubs(bool consensMode) {
 }
 
 template<class ReadType>
-int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode) const { 
+int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int limit) const { 
   map<unsigned long, bool> readsUsed_curr;                  // Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;                         // Add the read index to the used list so that overlaps with itself won't be computed
   DNAVector extSeq, origSeq1, origSeq2;                     // Extension and read sequence (1 for checkInit step and 2 for the alignment)
@@ -256,8 +258,8 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
         }
        
         allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
-
-        if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=readSize && allOverlaps[readIndex].getNumLeftLaps()>=readSize) { 
+        if(limit==0) { limit = readSize/2; }
+        if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=limit && allOverlaps[readIndex].getNumLeftLaps()>=limit) { 
           return allOverlaps[readIndex].getNumLaps(); 
         }  //Limiting overlaps for very high coverage reads 
 
@@ -273,20 +275,28 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
 template<class ReadType>
 void SubReads<ReadType>::addMissingReciprocals(AllReadOverlaps& allOverlaps) const {
   allOverlaps.sortOverlapIndexes(); // To be able to perform binary look ups
-  int instCount = 0; 
+  svec<ReadOverlapWithIndex> overlapsToAdd;
+  overlapsToAdd.reserve(allOverlaps.getSize()*20); //Rough estimate for reserving memory
+  int total = 0;
   for (int readIdx=0; readIdx<allOverlaps.getSize(); readIdx++) {
     int numLaps = allOverlaps[readIdx].getNumLaps();
+    total+=numLaps;
     for(int j=0; j<numLaps; j++) {
       const ReadOverlap& lap = allOverlaps[readIdx].getLap(j);
       int overlapIdx = lap.getOverlapIndex();
       if(!allOverlaps[overlapIdx].hasLap(readIdx)) {
-        allOverlaps.addOverlap(overlapIdx, readIdx, lap.getContactPos()+(m_reads[overlapIdx].isize()-m_reads[readIdx].isize()), 
-                               lap.getDirection()*(-1)*lap.getOrient(), lap.getOrient());
-        instCount++;
+        overlapsToAdd.push_back(ReadOverlapWithIndex(overlapIdx, readIdx, lap.getContactPos()+(m_reads[overlapIdx].isize()-m_reads[readIdx].isize()), 
+                               lap.getDirection()*(-1)*lap.getOrient(), lap.getOrient()));
       }
     }
   }
-  cout << "Added " << instCount << " reciprocal overlap instances." << endl;
+
+  for(int i=0; i<overlapsToAdd.isize(); i++) { 
+    allOverlaps.addOverlap(overlapsToAdd[i]);
+  }
+
+  cout << endl << "Added " << overlapsToAdd.isize() << " reciprocal overlap instances." << endl;
+  cout << "Total number of overlaps "  <<total<<endl;
 }
 
 template<class ReadType>
