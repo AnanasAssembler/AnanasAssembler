@@ -232,14 +232,72 @@ int main( int argc, char** argv )
 
         cout << "\rProcessing scaffold " << t[l] << " Number of reads= " << s.NumReads() << flush;
         search.SetUsedAll(COUnit);
+
+	
+	svec<int> mult;
+	int total = 0;
+	int allReads = 0;
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];
             for (j=0; j<c.isize(); j++) {
                 const ReadPlacement & r = c[j]; 
                 int id = r.Read();
-                search.SetUsed(id, false);
+  	        int n = COUnit.getConsensCount(id);
+                mult.push_back(n);
+		total += n;
+		allReads++;
+	    }
+	}
+
+	Sort(mult);
+	cout << endl;
+	cout << "Total reads: " << allReads << endl; 
+	cout << "Min: " << mult[0] << endl;
+	cout << "Max: " << mult[mult.isize()-1] << endl;
+	cout << "Med: " << mult[mult.isize()/2] << endl;
+	int count = 0;
+
+	int minInCons = 1;
+
+	for (i=0; i<mult.isize(); i++) {
+	  count += mult[i];
+	  if (count > total/20) {
+	    cout << "N5: " << mult[i] << endl;
+	    minInCons = mult[i];
+	    break;
+	  }
+	}
+	for (; i<mult.isize(); i++) {
+	  count += mult[i];
+	  if (count > total/10) {
+	    cout << "N10: " << mult[i] << endl;
+	    minInCons = mult[i];
+	    break;
+	  }
+	}
+	for (; i<mult.isize(); i++) {
+	  count += mult[i];
+	  if (count > total/4) {
+	    cout << "N25: " << mult[i] << endl;
+	    minInCons = mult[i];
+	    break;
+	  }
+	}
+	
+	int usedReads = 0;
+        for (i=0; i<s.isize(); i++) {
+            const Contig & c = s[i];
+            for (j=0; j<c.isize(); j++) {
+                const ReadPlacement & r = c[j]; 
+                int id = r.Read();
+  	        int n = COUnit.getConsensCount(id);
+		if (n >= minInCons) {
+		  search.SetUsed(id, false);
+		  usedReads++;
+		}
             }
         }
+	cout << "Used reads: " << usedReads << endl;
         search.SetExhaustive(true);
         if (s.isize() == 1)
             search.SetExhaustive(false);
