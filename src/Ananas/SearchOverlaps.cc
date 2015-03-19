@@ -35,6 +35,7 @@ bool Hypothesis::ContainsSubset(const Hypothesis & h)
 
 bool Hypothesis::IsNew(const Hypothesis & h, const ConsensOverlapUnit & COUnit) 
 {
+
   svec<int> query;
   h.GetNodes(query, COUnit);
   int n = query.isize();
@@ -665,7 +666,7 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
     return false; 
 }
 
-int Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse)
+void Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse)
 {
 
   //cout << "call DoSearch w/ " << index << " left " <<  COUnit.GetNumDirLaps(index, -1) << " ";
@@ -781,7 +782,7 @@ int Search::SelectStartNode(const ConsensOverlapUnit & COUnit, int index, bool& 
     return z;
 }
 
-int Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool seedReverse) {
+void Search::DoSearch(const ConsensOverlapUnit & COUnit, int index, bool seedReverse) {
     SearchCore(COUnit, index, seedReverse);
     SelectTopN(COUnit);
 }

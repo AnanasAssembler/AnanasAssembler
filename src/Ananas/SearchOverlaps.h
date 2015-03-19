@@ -689,10 +689,10 @@ public:
 
 protected:
   int SelectStartNode(const ConsensOverlapUnit & COUnit, int index, bool& seedReverse); 
-  int DoSearch(const ConsensOverlapUnit & COUnit, int index, bool seedReverse); 
+  void DoSearch(const ConsensOverlapUnit & COUnit, int index, bool seedReverse); 
 
    //Helper function
-  int SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse);
+  void SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse);
 
   int CountPairs(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);
   int CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, const ConsensOverlapUnit & COUnit, bool bPrint = false);

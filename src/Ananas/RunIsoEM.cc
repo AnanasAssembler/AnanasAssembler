@@ -43,7 +43,7 @@ bool DoRemove(const Contig & major, const Contig & minor)
   double diff = (double)n/(double)minor.isize();
   
   //cout << "Ratio: " << diff/cov << " " << diff << " " << cov << endl;
-  if (diff/cov < 0.5) {
+  if (diff/cov < 0.1) {
     //cout << "Remove " << endl;
     return true;
   } else {
@@ -92,11 +92,10 @@ void CleanScaffold(Scaffold & scaff)
 	else
 	  break;
       }
-      if (j >= scaff.isize())
-	break;
-      //cout << "Copy from " << j << " to " << i << endl;
-      scaff[i] = scaff[j];
-      scaff[j].clear();
+      if (j < scaff.isize()) {       
+	scaff[i] = scaff[j];
+	scaff[j].clear();
+      }
     }
   }
   scaff.resize(i);
@@ -142,7 +141,7 @@ int main( int argc, char** argv )
 
     
     int i, j, k;
-  
+    
     for (i=0; i<assembly.isize(); i++) {
       Scaffold & scaff = assembly[i];
       cout << "Scaffold " << i << endl;
