@@ -267,11 +267,13 @@ int main( int argc, char** argv )
 	    break;
 	  }
 	}
+
+	//--------------------------------
+	// For statistics only
 	for (; i<mult.isize(); i++) {
 	  count += mult[i];
 	  if (count > total/10) {
 	    cout << "N10: " << mult[i] << endl;
-	    minInCons = mult[i];
 	    break;
 	  }
 	}
@@ -279,12 +281,17 @@ int main( int argc, char** argv )
 	  count += mult[i];
 	  if (count > total/4) {
 	    cout << "N25: " << mult[i] << endl;
-	    minInCons = mult[i];
 	    break;
 	  }
 	}
+	//--------------------------------
 	
 	int usedReads = 0;
+
+	//=======================================
+	if (minInCons > 1)
+	  cout << "Reducing data set." << endl;
+	//=======================================
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];
             for (j=0; j<c.isize(); j++) {
