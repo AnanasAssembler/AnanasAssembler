@@ -78,7 +78,7 @@ int main(int argc,char** argv)
     Output2FILE::Stream()     = pFile;
     FILELog::ReportingLevel() = logINFO; 
 #if defined(FORCE_DEBUG)
-    FILELog::ReportingLevel() = logDEBUG4; 
+//    FILELog::ReportingLevel() = logDEBUG4; 
 #endif
     
 #if defined(OPEN_MP)

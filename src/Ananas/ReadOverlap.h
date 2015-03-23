@@ -78,11 +78,22 @@ public:
     }
 
     void addOverlap(const ReadOverlap & oL) {
-        if(oL.getDirection()==-1) { m_leftOverlaps.push_back(oL);  m_numLeftOL++;     }
-        else                      { m_rightOverlaps.push_back(oL); m_numRightOL++;    }
+        if(oL.getDirection()==-1) { addOverlapLeft(oL);      }
+        else                      { addOverlapRight(oL);     }
+    }
+
+    void addOverlapLeft(const ReadOverlap & oL) {
+        m_leftOverlaps.push_back(oL);  
+        m_numLeftOL++;  
         m_overlapIds.push_back(oL.getOverlapIndex());
     }
     
+    void addOverlapRight(const ReadOverlap & oL) {
+        m_rightOverlaps.push_back(oL); 
+        m_numRightOL++; 
+        m_overlapIds.push_back(oL.getOverlapIndex());
+    }
+
     void sortLaps(); 
     void sortOverlapIndexes(); 
 
@@ -137,14 +148,27 @@ public:
 
     void addOverlap(int readIndex, int overlapIndex,
                     int contactPos, int direction, int orient) {
-        m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
+        ReadOverlap rO = ReadOverlap(overlapIndex, contactPos, direction, orient);
+        if(rO.getDirection()==-1) { 
+            m_overlaps[readIndex].addOverlapLeft(rO);
+        } else { 
+            m_overlaps[readIndex].addOverlapRight(rO);
+        }
+        //m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
     }
 
     void addOverlapSync(int readIndex, int overlapIndex,
                     int contactPos, int direction, int orient) {
-        m_mutex.Lock();
-        m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
-        m_mutex.Unlock();
+        ReadOverlap rO = ReadOverlap(overlapIndex, contactPos, direction, orient);
+        if(rO.getDirection()==-1) { 
+            m_mutex.Lock();
+            m_overlaps[readIndex].addOverlapLeft(rO);
+            m_mutex.Unlock();
+        } else { 
+            m_mutex.Lock();
+            m_overlaps[readIndex].addOverlapRight(rO);
+            m_mutex.Unlock();
+        }
     }
 
     void resize(int sz)  { m_overlaps.resize(sz);     }
