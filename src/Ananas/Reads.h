@@ -107,6 +107,11 @@ public:
   int getNumOfReads() const                             { return (m_reads.size())!=0? m_reads.size(): m_sizeInfo.size(); } 
   int getSize(int idx) const                            { return ((hasSeq(idx))? m_reads[idx].size(): m_sizeInfo[idx]);  }
 
+  const DNAVector& getReadByIndex(int idx, int ori) const {
+    if(ori==1) { return getReadByIndex(idx);   } 
+    else       { return getReadRCByIndex(idx); }  
+  }
+
   int getPairId(int idx) const { return((m_pairInfo.isize()>idx)? m_pairInfo[idx]: -1); }
 
   void write(const string& outFile) const; 
@@ -219,6 +224,11 @@ public:
       return m_consReads[idx].getSeqRC();     
     }
   } 
+
+  const DNAVector& getReadByIndex(int idx, int ori) const {
+    if(ori==1) { return getReadByIndex(idx);   } 
+    else       { return getReadRCByIndex(idx); }  
+  }
 
   void addConsRead(const svec<int>& rawIdxs);
   void reserveMem(int numOfElements)                          { m_consReads.reserve(numOfElements);     }

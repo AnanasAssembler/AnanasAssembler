@@ -44,7 +44,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
         }
     }
 
-    subreads.addMissingReciprocals(m_overlaps);  
+//    subreads.addMissingReciprocals(m_overlaps);  
     m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps
 
     cout << "\r===================== " << "100.0% " << flush; 

@@ -88,6 +88,7 @@ public:
   //The consensMode argument has been added to override parameters for building consensus reads with no reverse strand
   void constructSubs(const ReadType& reads, int offsetStep, bool consensMode); 
   void sortSubs(bool consensMode); 
+  bool filterLowComp(const SubRead& sr);  //Determine if a subread is of very low complexity (repeat character)
 
   string getSeq(const SubRead& sr, int startIdx, int endIdx) const; 
   string getSeq(const SubRead& sr, int len) const; 
@@ -106,6 +107,9 @@ public:
 
   // Update the overlap parameters to allow for more overlaps to be detected
   void increaseTolerance(float identTolRatio, float overlapTolRatio);
+ 
+  int compareBases(const SubRead& s1, const SubRead& s2, int limit=100000000) const;
+  int compareBases(const SubRead& s1, const DNAVector& d2, int limit=100000000) const;
 
 private:
   struct CmpSubReadCO { //SubRead comparison struct for consensus finding
@@ -114,7 +118,7 @@ private:
       if(s1.getOffset()!=s2.getOffset()) {
         return (s1.getOffset()<s2.getOffset()); 
       } else {
-        return m_subreads.getSeq(s1) < m_subreads.getSeq(s2); 
+        return (m_subreads.compareBases(s1, s2)==-1);
       } 
     }
     const SubReads& m_subreads;
@@ -123,17 +127,17 @@ private:
   struct CmpSubReadOL { //SubRead comparison struct for overlap finding
     CmpSubReadOL(const SubReads& s) : m_subreads(s) {}
     bool operator() (const SubRead& s1, const SubRead& s2) const { 
-      return m_subreads.getSeq(s1, m_subreads.getSeedSize()) < m_subreads.getSeq(s2, m_subreads.getSeedSize()); 
+      return (m_subreads.compareBases(s1, s2, m_subreads.getSeedSize())==-1);
     }
     bool operator() (const SubRead& s1, const DNAVector& d2) const { 
-      return m_subreads.getSeq(s1, m_subreads.getSeedSize()) < d2.Substring(0, m_subreads.getSeedSize()); 
+      return (m_subreads.compareBases(s1, d2, m_subreads.getSeedSize())==-1);
     }
     const SubReads& m_subreads;
   };
 
   void getSeq(const SubRead& sr, string& outSeq) const    { outSeq = getSeq(sr); }
   void getDNA(const SubRead& sr, DNAVector& outDNA) const { outDNA.SetFromBases(getSeq(sr)); }
-  bool checkInitMatch(const DNAVector& origSeq, const DNAVector& extSeq) const; 
+  bool checkInitMatch(const SubRead& origSeqSR, const SubRead& extSeqSR) const; 
   float checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq, int& isForward) const; 
   // Flag any exisitng overlaps from previous iterations as used reads.
   void flagOverlapReads(const AllReadOverlaps& allOverlaps, map<unsigned long, bool>& readsUsed, unsigned long readIndex) const;  
@@ -178,9 +182,13 @@ string SubReads<ReadType>::getSeq(unsigned long index) const {
 template<class ReadType>
 void SubReads<ReadType>::constructSubs(const ReadType& reads, int offsetStep, bool consensMode) {
   m_subReads.clear();
+  double numSubreads = (double) reads.getNumOfReads()*reads.getSize(0)/m_params.getSubreadStep()+1;
+  m_subReads.reserve(numSubreads); // If reads have varying sizes, this is just an estimate
   for(int i=0; i<reads.getNumOfReads(); i++) {
     for(int j=0; j<reads[i].isize(); j+=offsetStep) {
-      m_subReads.push_back(SubRead(i, j, 1)); //i:index j:offset 
+      SubRead sr(i, j, 1); //i:index j:offset 
+      if(filterLowComp(sr) && !consensMode) { continue; }
+      m_subReads.push_back(sr); //i:index j:offset 
       if(!isSingleStrand() && !consensMode) {
         m_subReads.push_back(SubRead(i, j, -1)); //i:index j:offset 
       }
@@ -192,6 +200,32 @@ void SubReads<ReadType>::constructSubs(const ReadType& reads, int offsetStep, bo
   FILE_LOG(logDEBUG) <<"Total number of subreads: " << m_subReads.size();
   cout <<"Total number of subreads: " << m_subReads.size() << endl;
 } 
+
+template<class ReadType>
+bool SubReads<ReadType>::filterLowComp(const SubRead& sr) {
+  int idx     = sr.getIndex();
+  int offset  = sr.getOffset();
+  int end     = offset + m_params.getSeedSize();
+  char prevC  = ' '; // Previous rep character
+  char currC  = ' '; // Current character
+  int repCnt  = 0;   // keep track of size of longest repeat contig
+  int nCnt    = 0;   // Keep track of nonesense characters
+  for(int i=offset; i<end; i++) {
+    char currC =  m_reads[idx][i];
+    if(currC=='n' || currC=='N') { nCnt++; }
+    if(prevC==currC) {
+      repCnt++;
+    } else {
+      repCnt = 0;
+      prevC  = currC;
+    }
+  }
+  if((float)repCnt/m_params.getSeedSize()>0.90 || nCnt>0.2*m_params.getSeedSize()) { 
+    return true;
+  } else {
+    return false;
+  }
+}
 
 template<class ReadType>
 void SubReads<ReadType>::sortSubs(bool consensMode) {
@@ -219,21 +253,23 @@ template<class ReadType>
 int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int limit) const { 
   map<unsigned long, bool> readsUsed_curr;                  // Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;                         // Add the read index to the used list so that overlaps with itself won't be computed
-  DNAVector extSeq, origSeq1, origSeq2;                     // Extension and read sequence (1 for checkInit step and 2 for the alignment)
+  DNAVector extSeq, origSeq2;                               // Extension and read sequence (1 for checkInit step and 2 for the alignment)
   flagOverlapReads(allOverlaps, readsUsed_curr, readIndex); // Flag any exisitng overlaps from previous iterations as used reads.
   int readSize = m_reads[readIndex].isize();
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
-    origSeq1.SetToSubOf(m_reads[readIndex], i);
-    if(origSeq1.isize()>i && (origSeq1[i]=='N' || origSeq1[i]=='n'))   { continue; } //Rough way of disregarding nonesense characters (TODO look into)
-    svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeq1, CmpSubReadOL(*this));
+   
+    SubRead origSeqSR(readIndex, i, 1); 
+    int origSeqSize = m_reads.getSize(readIndex)-i;
+    char origSeqiB  = m_reads.getReadByIndex(readIndex)[i];
+
+    svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeqSR, CmpSubReadOL(*this));
     for (;fIt!=m_subReads.end(); fIt++) {
       if(min((*fIt).getOffset(), i) > 2*getSubreadStep())              { continue; } //These should have been found already
       if(readsUsed_curr.find((*fIt).getIndex())!=readsUsed_curr.end()) { continue; } //Check if read has already been used
       FILE_LOG(logDEBUG4)  << "Investigating subread: "<< (*fIt).getIndex() 
                            << ", " << (*fIt).getOffset() << ", " << ((*fIt).getStrand()==1?"+":"-");
-      extSeq.SetFromBases(getSeq(*fIt));
-      if(!checkInitMatch(origSeq1, extSeq)) { break; }
+      if(!checkInitMatch(*fIt, origSeqSR)) { break; }
       int adjustForAlign = min((*fIt).getOffset(), i); //To find alignments from beginning
       FILE_LOG(logDEBUG4)  << "Adjusting for alignment by: " << adjustForAlign << " bases";
       origSeq2.SetToSubOf(m_reads[readIndex], i-adjustForAlign);
@@ -256,10 +292,15 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
         if(overlapDir==0 && mode==0) { //Containment overlap which this mode should exclude
           continue;
         }
-       
-        allOverlaps.addOverlap(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
-        if(limit==0) { limit = readSize/2; }
-        if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=limit && allOverlaps[readIndex].getNumLeftLaps()>=limit) { 
+
+        // Synchronized version of overlap adding that locks so no iterference occurs with other threads
+        allOverlaps.addOverlapSync(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
+        allOverlaps.addOverlapSync((*fIt).getIndex(), readIndex, contactPos+(m_reads[(*fIt).getIndex()].isize()-readSize), overlapDir*(-1)*((*fIt).getStrand()), (*fIt).getStrand()); 
+        
+        if(limit==0) { limit = readSize; }
+        //if(limit==0) { limit = readSize/2; }
+        //if(mode==0 && allOverlaps[readIndex].getNumRightLaps()>=limit && allOverlaps[readIndex].getNumLeftLaps()>=limit) { 
+        if(mode==0 && allOverlaps[readIndex].getNumLaps()>=limit) { 
           return allOverlaps[readIndex].getNumLaps(); 
         }  //Limiting overlaps for very high coverage reads 
 
@@ -300,9 +341,11 @@ void SubReads<ReadType>::addMissingReciprocals(AllReadOverlaps& allOverlaps) con
 }
 
 template<class ReadType>
-bool SubReads<ReadType>::checkInitMatch(const DNAVector& origSeq, const DNAVector& extSeq) const {
-  if(origSeq.isize()<getSeedSize() || extSeq.isize()<getSeedSize()) { return false; }  // Pre-check 
-  bool isMatch = (origSeq.Substring(0, getSeedSize()) == extSeq.Substring(0,getSeedSize())); 
+bool SubReads<ReadType>::checkInitMatch(const SubRead& origSeqSR, const SubRead& extSeqSR) const {
+  int origSize = m_reads.getSize(origSeqSR.getIndex());
+  int extSize  = m_reads.getSize(extSeqSR.getIndex());
+  if(origSize<getSeedSize() || extSize<getSeedSize()) { return false; }  // Pre-check 
+  bool isMatch = (compareBases(origSeqSR, extSeqSR, getSeedSize())==0);
   FILE_LOG(logDEBUG4) << "Check seed match: " << (isMatch?"Found":"Not Found");  
   return isMatch;
 }
@@ -362,6 +405,48 @@ template<class ReadType>
 void SubReads<ReadType>::increaseTolerance(float identTolRatio, float overlapTolRatio) {
   m_params.setMinIdentity(m_params.getMinIdentity()*(1-identTolRatio));
   m_params.setMinOverlap(m_params.getMinOverlap()*(1-overlapTolRatio));
+}
+
+template<class ReadType>
+int SubReads<ReadType>::compareBases(const SubRead& s1, const SubRead& s2, int limit) const { 
+  int idx1    = s1.getIndex();
+  int offset1 = s1.getOffset();
+  int strand1 = s1.getStrand();
+  int idx2    = s2.getIndex();
+  int offset2 = s2.getOffset();
+  int strand2 = s2.getStrand();
+
+  limit = min(limit, min(m_reads.getSize(idx1)-offset1, m_reads.getSize(idx2)-offset2));
+
+  const DNAVector& d1 = m_reads.getReadByIndex(idx1, strand1);
+  const DNAVector& d2 = m_reads.getReadByIndex(idx2, strand2);
+
+  for(int i=0; i<limit; i++) {
+    if(d1[offset1+i]<d2[offset2+i]) {
+      return -1; //Smaller
+    } else if(d1[offset1+i]>d2[offset2+i]) {
+      return 1;  //Larger
+    }
+  }
+  return 0; // Same
+}
+
+template<class ReadType>
+int SubReads<ReadType>::compareBases(const SubRead& s1, const DNAVector& d2, int limit) const { 
+  int idx1    = s1.getIndex();
+  int offset1 = s1.getOffset();
+  int strand1 = s1.getStrand();
+
+  limit = min(limit, min(m_reads.getSize(idx1)-offset1, d2.size()));
+  const DNAVector& d1 = m_reads.getReadByIndex(idx1, strand1);
+  for(int i=0; i<limit; i++) {
+    if(d1[offset1+i]<d2[i]) {
+      return -1; //Smaller
+    } else if(d1[offset1+i]>d2[i]) {
+      return 1;  //Larger
+    }
+  }
+  return 0; // Same
 }
  //======================================================
 #endif //_SUB_READS_H_
