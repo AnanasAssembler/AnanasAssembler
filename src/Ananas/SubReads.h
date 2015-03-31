@@ -95,6 +95,8 @@ public:
   string getSeq(const SubRead& sr) const; 
   string getSeq(unsigned long index) const;  //Get Subread sequence chars via the index in subreads
  
+  void getDNA(const SubRead& sr, int startIdx, int endIdx, DNAVector& outDNA)  const; 
+
   /** Return a vector of SubRead entry indexes for a given 
      read of those Subreads that share a significant subsequence 
      mode 0: only overlaps that extend the read, mode 1: all overlaps 
@@ -136,7 +138,6 @@ private:
   };
 
   void getSeq(const SubRead& sr, string& outSeq) const    { outSeq = getSeq(sr); }
-  void getDNA(const SubRead& sr, DNAVector& outDNA) const { outDNA.SetFromBases(getSeq(sr)); }
   bool checkInitMatch(const SubRead& origSeqSR, const SubRead& extSeqSR) const; 
   float checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq, int& isForward) const; 
   // Flag any exisitng overlaps from previous iterations as used reads.
@@ -149,6 +150,19 @@ private:
 
 //======================================================
 //======================================================
+
+template<class ReadType>
+void SubReads<ReadType>::getDNA(const SubRead& sr, int startIdx, int endIdx, DNAVector& outDNA) const {  
+  int readSize = m_reads[sr.getIndex()].size();
+  if(endIdx>=readSize) { endIdx = readSize-1; }
+  int len = endIdx-startIdx+1;
+  if(sr.getStrand()==1) {
+    outDNA.SetToSubOf(m_reads.getReadByIndex(sr.getIndex()), startIdx, len); 
+  } else {
+    outDNA.SetToSubOf(m_reads.getReadRCByIndex(sr.getIndex()), startIdx, len);
+  }
+
+}
 
 template<class ReadType>
 string SubReads<ReadType>::getSeq(const SubRead& sr, int startIdx, int endIdx) const { 
@@ -273,7 +287,7 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
       int adjustForAlign = min((*fIt).getOffset(), i); //To find alignments from beginning
       FILE_LOG(logDEBUG4)  << "Adjusting for alignment by: " << adjustForAlign << " bases";
       origSeq2.SetToSubOf(m_reads[readIndex], i-adjustForAlign);
-      extSeq.SetFromBases(getSeq(*fIt, (*fIt).getOffset()-adjustForAlign, m_reads[(*fIt).getIndex()].size()-1));
+      getDNA(*fIt, (*fIt).getOffset()-adjustForAlign, m_reads[(*fIt).getIndex()].size()-1, extSeq);
       if(min(extSeq.size(), origSeq2.size())<getMinOverlap()) { continue; } //Skip the rest if extension or read < than min overlap
       int overlapDir;
       float matchScore = checkOverlap(origSeq2, extSeq, overlapDir);
