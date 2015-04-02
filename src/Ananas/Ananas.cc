@@ -133,6 +133,7 @@ int main( int argc, char** argv )
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     //commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
+    commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);
@@ -151,6 +152,7 @@ int main( int argc, char** argv )
     P.registerArg(cpuCmmd);
     P.registerArg(cpuCmmd2);
     P.registerArg(cpuLapCmmd);
+    P.registerArg(overlapIterCmmd);
     //P.registerArg(filtCmmd);
     P.registerArg(readGroupFileCmmd);
     P.registerArg(prefixCmmd);
@@ -171,6 +173,7 @@ int main( int argc, char** argv )
     int step = P.GetIntValueFor(stepCmmd);
     int bandwidth = P.GetIntValueFor(bandCmmd);
     int minoverlap = P.GetIntValueFor(mlCmmd);
+    int    overlapIter     = P.GetIntValueFor(overlapIterCmmd); 
     //bool bGroup = P.GetBoolValueFor(filtCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string prefix = P.GetStringValueFor(prefixCmmd);
@@ -239,7 +242,8 @@ int main( int argc, char** argv )
       cmmd = "findOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " + readGroupFile + " -C " + groupFile + " -o " + lapFile;
+             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
+             + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -overlapIter " + Number(overlapIter);
 
   if   (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;

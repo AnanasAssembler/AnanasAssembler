@@ -28,6 +28,7 @@ int main(int argc,char** argv)
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
+    commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");
 
@@ -50,6 +51,7 @@ int main(int argc,char** argv)
     P.registerArg(kCmmd);
     P.registerArg(lCmmd);
     P.registerArg(threadCmmd);
+    P.registerArg(overlapIterCmmd);
     P.registerArg(readGroupIdentThreshCmmd);
     P.registerArg(readGroupFileCmmd);
     P.parse();
@@ -71,6 +73,7 @@ int main(int argc,char** argv)
     string applicationFile = P.GetStringValueFor(lCmmd);
     int    numOfCores      = P.GetIntValueFor(threadCmmd);
     int    numOfThreads    = P.GetIntValueFor(threadCmmd);
+    int    overlapIter     = P.GetIntValueFor(overlapIterCmmd); 
     double readGroupThresh = P.GetDoubleValueFor(readGroupIdentThreshCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     
@@ -89,7 +92,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.findOverlaps(numOfThreads, 0, 2, readGroupThresh, readGroupFile);
+    COUnit.findOverlaps(numOfThreads, 0, overlapIter, readGroupThresh, readGroupFile);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);
