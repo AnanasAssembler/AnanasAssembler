@@ -217,13 +217,13 @@ void SubReads<ReadType>::constructSubs(const ReadType& reads, int offsetStep, bo
 
 template<class ReadType>
 bool SubReads<ReadType>::filterLowComp(const SubRead& sr) {
-  int idx     = sr.getIndex();
-  int offset  = sr.getOffset();
-  int end     = offset + m_params.getSeedSize();
+  int  idx    = sr.getIndex();
+  int  offset = sr.getOffset();
+  int  end    = offset + m_params.getSeedSize();
   char prevC  = ' '; // Previous rep character
   char currC  = ' '; // Current character
-  int repCnt  = 0;   // keep track of size of longest repeat contig
-  int nCnt    = 0;   // Keep track of nonesense characters
+  int  repCnt = 0;   // keep track of size of longest repeat contig
+  int  nCnt   = 0;   // Keep track of nonesense characters
   for(int i=offset; i<end; i++) {
     char currC =  m_reads[idx][i];
     if(currC=='n' || currC=='N') { nCnt++; }
@@ -234,7 +234,7 @@ bool SubReads<ReadType>::filterLowComp(const SubRead& sr) {
       prevC  = currC;
     }
   }
-  if((float)repCnt/m_params.getSeedSize()>0.90 || nCnt>0.2*m_params.getSeedSize()) { 
+  if((float)repCnt/m_params.getSeedSize()>0.90 || nCnt>0.4*m_params.getSeedSize()) { 
     return true;
   } else {
     return false;
