@@ -4,6 +4,7 @@
 
 #include "src/Ananas/ContScaffIO.h"
 #include "base/FileParser.h"
+#include "base/StringUtil.h"
 
 
 void ContigScaffoldIO::Read(Assembled & assembled, const string &file)
@@ -116,8 +117,8 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
             for (j=0; j<c.isize(); j++) {
                 const ReadPlacement & r = c[j];	
                 fprintf(pOut, "%d\t%d\t%d - %d\t%d\t%d\n", r.Read(), r.Ori(), r.Start(), r.Stop(), r.Pair(), r.PairOrient());
-	
             }
+
             fprintf(pOut, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", nameC.c_str(), c.NumReads());
             fprintf(pOut, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", nameC.c_str(), c.NumPairs());
             fprintf(pOut, "</CONTIG>\t%s\n", nameC.c_str());
@@ -130,3 +131,25 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
     fclose(pOut);
 }
   
+void ContigScaffoldIO::WriteScaffoldReads(const Assembled & assembled,  const ConsensOverlapUnit& COUnit, const string &outDir) {
+    int i, j, k, l;
+    for (l=0; l<assembled.isize(); l++) {
+        const Scaffold & s = assembled[l];
+        if (s.isize() == 0)
+            continue;
+        FILE * pOutCurr = fopen((outDir+Stringify(l)+".reads").c_str(), "w");
+        if (pOutCurr == NULL) {
+            cout << "ERROR: Could not open file " << outDir+Stringify(l)+".reads" << " for writing." << endl;
+        }
+        for (i=0; i<s.isize(); i++) {
+            const Contig & c = s[i];
+            for (j=0; j<c.isize(); j++) {
+                int readIdx = c[j].Read();	
+                const DNAVector& dna = COUnit.getConsReadDNA(readIdx);
+                fprintf(pOutCurr, "%s\n%s\n", dna.Name().c_str(), dna.AsString().c_str());
+            }
+        }
+        fclose(pOutCurr);
+    }
+    cout<<"Total number of scaffold produced: " << l << endl;
+}

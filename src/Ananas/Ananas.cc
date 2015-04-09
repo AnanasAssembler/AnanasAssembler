@@ -359,6 +359,9 @@ int main( int argc, char** argv )
     // GenAssemblyFasta /////////////////////////////////////
     ////////////////////////////////////////////////////////
 
+    string partitionsOutName = outName + "partitions";
+    Run("mkdir ", partitionsOutName, true);
+    partitionsOutName += "/";
   
     cmmd = "GenAssemblyFasta " ;
     cmmd += " -r " + readsFileName;
@@ -367,6 +370,7 @@ int main( int argc, char** argv )
     cmmd += " -o " + outName + "/final.fa";
     cmmd += " -minContig " + Number(minContig);
     cmmd += " -prefix " + prefix;
+    cmmd += " -readsOutDir " + partitionsOutName;
     Run(exec_dir, cmmd);
 
     cout << GetTimeStatic() << " All DONE! " << endl;

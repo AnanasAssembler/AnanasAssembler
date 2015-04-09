@@ -371,8 +371,6 @@ int main( int argc, char** argv )
 
     ConsensOverlapUnit laps(fastaName, consName, "");
 
-    //ConsensOverlapUnit laps(fastaName, consName, lapName);
-
     Scaffolder scaffolder;
     scaffolder.SetPairing(pairing);
     scaffolder.RemoveIdentical(assembly, laps);

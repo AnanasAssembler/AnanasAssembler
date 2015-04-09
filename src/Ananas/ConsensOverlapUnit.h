@@ -39,13 +39,14 @@ public:
   }
 
 
-  int getNumOfConsReads() const             { return m_consReads.getNumOfReads(); } 
-  int getNumOfRawReads() const              { return m_rawReads.getNumOfReads();  } 
-  const ConsensReads & getConsReads() const { return m_consReads;                 } 
+  int getNumOfConsReads() const                      { return m_consReads.getNumOfReads();         } 
+  int getNumOfRawReads() const                       { return m_rawReads.getNumOfReads();          } 
+  const ConsensReads & getConsReads() const          { return m_consReads;                         } 
+  const DNAVector& getConsReadDNA(int readIdx) const { return m_consReads.getReadByIndex(readIdx); } 
 
-  int getConsensCount(int readIdx) const    { return m_consReads.getNumOfReadsInCons(readIdx); }
-  int GetNumReads() const                   { return m_consReads.getNumOfReads();              }  
-  bool IsChimeric(int i) const              { return m_overlaps.isChimeric(i);                 }
+  int getConsensCount(int readIdx) const             { return m_consReads.getNumOfReadsInCons(readIdx); }
+  int GetNumReads() const                            { return m_consReads.getNumOfReads();              }  
+  bool IsChimeric(int i) const                       { return m_overlaps.isChimeric(i);                 }
 
   void Prune(const svec<int> & good);
 
