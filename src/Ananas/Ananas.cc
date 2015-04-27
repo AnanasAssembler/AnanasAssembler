@@ -136,6 +136,7 @@ int main( int argc, char** argv )
     commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
+    commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
@@ -156,6 +157,7 @@ int main( int argc, char** argv )
     //P.registerArg(filtCmmd);
     P.registerArg(readGroupFileCmmd);
     P.registerArg(prefixCmmd);
+    P.registerArg(redunCmmd);
   
     P.parse();
   
@@ -177,6 +179,7 @@ int main( int argc, char** argv )
     //bool bGroup = P.GetBoolValueFor(filtCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string prefix = P.GetStringValueFor(prefixCmmd);
+    bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
 
     PrintLogo();
     cout << "Welcome to package " << ananas_software << " " << ananas_version << endl;
@@ -372,6 +375,15 @@ int main( int argc, char** argv )
     cmmd += " -prefix " + prefix;
     cmmd += " -readsOutDir " + partitionsOutName;
     Run(exec_dir, cmmd);
+
+
+    if (bRemoveRedundant) {
+      cmmd = "RemoveRedundantSeqs " ;
+      cmmd += " -i " + outName + "/final.fa";
+      cmmd += " -o " + outName + "/final.fa";
+      Run(exec_dir, cmmd);
+    }
+
 
     cout << GetTimeStatic() << " All DONE! " << endl;
 
