@@ -47,10 +47,14 @@ int main( int argc, char** argv )
 	else 
 	  cout << p.AsString(j);
       }
+      cout << endl;
     }
 
-    for (j=0; j<dna[i].isize(); j++)
+    for (j=0; j<dna[i].isize(); j++) {
+      if (j > 0 && j % 80 == 0)
+	cout << endl;
       cout << (dna[i])[j];
+    }
     cout << endl;
   }
 
