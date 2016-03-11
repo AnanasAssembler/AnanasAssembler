@@ -1165,7 +1165,18 @@ void vecDNAVector::ReadQ(const string & fileName) // Reads a fastq file
   while (parser.ParseLine()) {
     if (parser.GetItemCount() == 0)
       continue;
-    string n = ">" + parser.Line();
+
+    string n;
+    if (parser.GetItemCount() == 1) {
+      n = ">" + parser.Line();
+    } else {
+      n = ">" + parser.AsString(0);
+      if (parser.AsString(1)[0] == '1')
+	n += "/1";      
+      if (parser.AsString(1)[0] == '2')
+	n += "/2";
+
+    }
     parser.ParseLine();
     const string & s = parser.Line();
     DNAVector d;
