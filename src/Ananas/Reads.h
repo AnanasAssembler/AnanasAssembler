@@ -204,10 +204,16 @@ public:
   const svec<int>& getConsMembers(int idx) const              { return m_consReads[idx].getReads();     }
   int getNumOfReadsInCons(int idx) const                      { return getConsMembers(idx).isize();     }
   int getNumOfReads() const                                   { return m_consReads.size();              } 
-  int getSize(int idx) const                                  { return m_consReads[idx].getSize();      }
   int whichGroup(int rawIdx) const                            { return m_groupInfo[rawIdx];             }  
   bool hasGroupInfo(int rawIdx) const                         { return (whichGroup(rawIdx) != -1);      }  
   bool hasGroupInfo(const svec<int>& idxs) const;
+  int getSize(int idx) const { 
+    if(m_consReads.size()>0) {
+      return m_consReads[idx].getSize();      
+    } else { 
+      return 0;
+    }
+  }
 
   const DNAVector& getReadByIndex(int idx) const {
     if(m_consReads[idx].isSingle()) {

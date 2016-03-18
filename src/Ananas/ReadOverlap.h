@@ -178,9 +178,12 @@ public:
         return m_overlaps[readIndex].hasLap(overlapIndex); 
     }
    
-    void write(const string& overlapFile, int mode) const; 
+    /**  0: binary 1: ascii 2: statisitics */
+    void write(const string& overlapFile, int mode) const;  
     void writeAsc(const string& readOverlapFile) const; 
     void writeBin(const string& readOverlapFile) const; 
+    /** Writes out the number of overlaps per read */
+    void writeStats(const string& statFile) const; 
     void load(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads, int mode); 
     void loadAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads); 
     void loadBin(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads); 

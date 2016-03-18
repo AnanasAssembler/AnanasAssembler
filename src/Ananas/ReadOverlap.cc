@@ -13,8 +13,9 @@
 
 //======================================================
 void AllReadOverlaps::write(const string& overlapFile, int mode) const {
-    if(mode==0) { writeBin(overlapFile); } 
-    else        { writeAsc(overlapFile); }
+    if(mode==0) { writeBin(overlapFile);   } 
+    if(mode==1) { writeAsc(overlapFile);   } 
+    if(mode==2) { writeStats(overlapFile); }
 }
 
 void AllReadOverlaps::writeAsc(const string& readOverlapFile) const {
@@ -58,6 +59,17 @@ string AllReadOverlaps::getOverlapString(int index, int dir) const {
     }
     return ss.str();
 }
+
+void AllReadOverlaps::writeStats(const string& statFile) const {
+    ofstream sout;
+    sout.open(statFile.c_str());
+    int totNumOfReads = m_overlaps.isize();
+    for(int i=0; i<totNumOfReads; i++) {
+        sout << m_overlaps[i].getNumLaps() << endl;
+    }
+    sout.close();
+}
+
 
 void AllReadOverlaps::load(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads, int mode) {
     if(mode==0) { loadBin(readOverlapFile, good, consReads); } 
