@@ -363,7 +363,9 @@ int main( int argc, char** argv )
     ////////////////////////////////////////////////////////
 
     string partitionsOutName = outName + "partitions";
+#if defined(FORCE_DEBUG)
     Run("mkdir ", partitionsOutName, true);
+#endif
     partitionsOutName += "/";
   
     cmmd = "GenAssemblyFasta " ;
