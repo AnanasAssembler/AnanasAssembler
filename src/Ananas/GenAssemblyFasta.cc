@@ -45,9 +45,9 @@ int main( int argc, char** argv )
     ContigScaffoldIO io;
     io.Read(assembly, contigFile);
 
-//#if defined(FORCE_DEBUG)
+#if defined(FORCE_DEBUG)
     io.WriteScaffoldReads(assembly, COUnit, partOutDir);
-//#endif
+#endif
   
     LayoutSink sink;
     sink.SetPrefix(prefix);
