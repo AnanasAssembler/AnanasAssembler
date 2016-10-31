@@ -11,5 +11,7 @@ cmake ..
 cd ..
 
 echo "Make file generated."
+echo "***************************************************************"
 echo "Run make from the build directory to build the project"
 echo "Alternatively run: make -C build from the main parent directory"
+echo "****************************************************************"
