@@ -14,7 +14,7 @@ int main( int argc, char** argv )
     commandArg<string> pairCmmd("-p","input read pair/size info file");
     commandArg<string> consCmmd("-c","input read consensus group file");
     commandArg<string> scaffCmmd("-s","scaffolds file");
-    commandArg<string> outCmmd("-o","output scaffold file with modified read counts", "modifiedReadCnts.layout");
+    commandArg<string> outCmmd("-o","output name ", "modifiedReadCnts");
     commandLineParser P(argc,argv);
     P.SetDescription("Modifies Read counts of given contigs/scaffold from consenus reads to raw reads. ");
     P.registerArg(pairCmmd);
@@ -27,7 +27,7 @@ int main( int argc, char** argv )
     string pairSzFileFile = P.GetStringValueFor(pairCmmd);
     string consFile       = P.GetStringValueFor(consCmmd);
     string scaffFile      = P.GetStringValueFor(scaffCmmd);
-    string outFile        = P.GetStringValueFor(outCmmd);
+    string outName        = P.GetStringValueFor(outCmmd);
  
     ConsensOverlapUnit COUnit(pairSzFileFile, consFile, "");
 
@@ -51,8 +51,10 @@ int main( int argc, char** argv )
             currScaff[i].SetNumReads(totalContigReads);
 	}
     }
-
-    io.Write(assembly, outFile);
+    string layoutFile  = outName+".layout";
+    string summaryFile = outName+".summary";
+    io.Write(assembly, outName+".layout");
+    io.WriteReadCountSummary(assembly, outName+".summary");
 
     return 0;
 }

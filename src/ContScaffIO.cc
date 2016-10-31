@@ -153,3 +153,26 @@ void ContigScaffoldIO::WriteScaffoldReads(const Assembled & assembled,  const Co
     }
     cout<<"Total number of scaffold produced: " << l << endl;
 }
+
+void ContigScaffoldIO::WriteReadCountSummary(const Assembled & assembled, const string &file)
+{
+    FILE * pOut = fopen(file.c_str(), "w");
+    if (pOut == NULL) {
+        cout << "ERROR: Could not open file " << file << " for writing." << endl;
+    }
+
+    int i, l;
+    for (l=0; l<assembled.isize(); l++) {
+        const Scaffold & s = assembled[l];
+        if (s.isize() == 0)
+            continue;
+        string name = s.Name();
+        for (i=0; i<s.isize(); i++) {
+            const Contig & c = s[i];
+            string nameC = c.Name();
+            if (nameC == "") nameC = "<unknown>";
+            fprintf(pOut, "%s %d %d \n", nameC.c_str(), c.NumReads(), c.NumPairs());
+        }
+    }
+    fclose(pOut);
+}

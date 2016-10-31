@@ -8,15 +8,14 @@
 class ContigScaffoldIO
 {
 
- public:
-  ContigScaffoldIO() {}
+public:
+    ContigScaffoldIO() {}
 
-  void Read(Assembled & assembled, const string &file);
-  void Write(const Assembled & assembled, const string &file);
-  void WriteScaffoldReads(const Assembled & assembled,  
+    void Read(Assembled & assembled, const string &file);
+    void Write(const Assembled & assembled, const string &file);
+    void WriteScaffoldReads(const Assembled & assembled,  
                           const ConsensOverlapUnit& COUnit, const string &outDir); 
-  
-
+    void WriteReadCountSummary(const Assembled & assembled, const string &file);
 };
 
 
