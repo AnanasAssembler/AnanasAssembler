@@ -229,7 +229,7 @@ int main( int argc, char** argv )
       }*/
 
     ////////////////////////////////////////////////////////////////////
-    ///// findOverlaps ////////////////////////////////////////////////
+    ///// FindOverlaps ////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////
 
 
@@ -238,11 +238,11 @@ int main( int argc, char** argv )
     string groupFile  = outName + "/consensusReads.out";
 
     if (bUnpaired)
-      //cmmd = "findOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
-      //cmmd = "findOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
-      cmmd = "findOverlaps -S 25 -I " + NumberFloat(mI) + " -b " + Number(step);
+      //cmmd = "FindOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
+      //cmmd = "FindOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
+      cmmd = "FindOverlaps -S 25 -I " + NumberFloat(mI) + " -b " + Number(step);
     else
-      cmmd = "findOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
+      cmmd = "FindOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
              + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
