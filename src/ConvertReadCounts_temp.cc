@@ -42,13 +42,16 @@ int main( int argc, char** argv )
         for (int i=0; i<currScaff.isize(); i++) {
             Contig & currContig = currScaff[i];
 	    int totalContigReads = 0;
+	    int totalContigPairs = 0;
             for (int j=0; j<currContig.isize(); j++) {
                 const ReadPlacement & rPlace = currContig[j]; 
-                int id = rPlace.Read();
-  	        int n = COUnit.getConsensCount(id);
-		totalContigReads += n;
+                int id   = rPlace.Read();
+                int pair = rPlace.Pair();
+		totalContigReads += COUnit.getConsensCount(id);
+                if(pair>-1) { totalContigPairs += COUnit.getConsensCount(pair); }
 	    }
             currScaff[i].SetNumReads(totalContigReads);
+            currScaff[i].SetNumPairs(totalContigPairs/2);
 	}
     }
     string layoutFile  = outName+".layout";
