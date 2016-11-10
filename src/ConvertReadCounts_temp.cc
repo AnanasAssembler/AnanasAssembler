@@ -48,7 +48,7 @@ int main( int argc, char** argv )
                 int id   = rPlace.Read();
                 int pair = rPlace.Pair();
 		totalContigReads += COUnit.getConsensCount(id);
-                if(pair>-1) { totalContigPairs += COUnit.getConsensCount(pair); }
+                if(pair>-1) { totalContigPairs += COUnit.getConsensCount(id); }
 	    }
             currScaff[i].SetNumReads(totalContigReads);
             currScaff[i].SetNumPairs(totalContigPairs/2);
