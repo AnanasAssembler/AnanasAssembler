@@ -14,7 +14,7 @@ int main( int argc, char** argv )
     commandArg<string> pairCmmd("-p","input read pair/size info file");
     commandArg<string> consCmmd("-c","input read consensus group file");
     commandArg<string> scaffCmmd("-s","scaffolds file");
-    commandArg<string> outCmmd("-o","output name ", "modifiedReadCnts");
+    commandArg<string> outCmmd("-o","output name ");
     commandLineParser P(argc,argv);
     P.SetDescription("Modifies Read counts of given contigs/scaffold from consenus reads to raw reads. ");
     P.registerArg(pairCmmd);
