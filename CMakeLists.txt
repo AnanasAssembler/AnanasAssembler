@@ -27,6 +27,9 @@ set(SOURCE_FILES_SCAFFOLDER  cola/src/cola/AlignmentCola.cc cola/src/cola/Cola.c
 set(SOURCE_FILES_TESTCONSPAIRING  cola/src/cola/AlignmentCola.cc cola/src/cola/Cola.cc cola/src/cola/EditGraph.cc cola/src/cola/NSaligner.cc cola/src/cola/NSGAaligner.cc cola/src/cola/SWGAaligner.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/general/Alignment.cc ryggrad/src/general/DNAVector.cc ryggrad/src/util/mutil.cc  src/ConsensOverlapUnit.cc src/ContScaffIO.cc src/ReadOverlap.cc src/Reads.cc src/TestConsPairing.cc) 
 set(SOURCE_FILES_FINDOVERLAPS  cola/src/cola/AlignmentCola.cc cola/src/cola/Cola.cc cola/src/cola/EditGraph.cc cola/src/cola/NSaligner.cc cola/src/cola/NSGAaligner.cc cola/src/cola/SWGAaligner.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/general/Alignment.cc ryggrad/src/general/DNAVector.cc ryggrad/src/util/mutil.cc  src/ConsensOverlapUnit.cc src/ContScaffIO.cc src/ReadOverlap.cc src/Reads.cc src/FindOverlaps.cc) 
 
+
+set(SOURCE_FILES_ADDREADCOUNTS src/AddReadCounts.cc ryggrad/src/base/FileParser.cc ryggrad/src/util/mutil.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/StringUtil.cc) 
+
 add_executable(Ananas                  ${SOURCE_FILES_ANANAS})
 add_executable(BuildReadGroups         ${SOURCE_FILES_BUILDREADGROUPS})
 add_executable(ClusterContigs          ${SOURCE_FILES_CLUSTERCONTIGS})
@@ -43,3 +46,4 @@ add_executable(RunIsoEM                ${SOURCE_FILES_RUNISOEM})
 add_executable(Scaffolder              ${SOURCE_FILES_SCAFFOLDER})
 add_executable(TestConsPairing         ${SOURCE_FILES_TESTCONSPAIRING})
 add_executable(FindOverlaps            ${SOURCE_FILES_FINDOVERLAPS})
+add_executable(AddReadCounts           ${SOURCE_FILES_ADDREADCOUNTS})
