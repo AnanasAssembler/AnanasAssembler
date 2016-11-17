@@ -37,10 +37,17 @@ int main( int argc, char** argv )
     io.Read(assembly, scaffFile);
   
     // Main loop over scaffolds/contigs to update read counts
-    for (int l=0; l<assembly.isize(); l++) {
-        Scaffold & currScaff = assembly[l];
-        for (int i=0; i<currScaff.isize(); i++) {
-            Contig & currContig = currScaff[i];
+    char name[512];
+    for (int scaffCnt=0; scaffCnt<assembly.isize(); scaffCnt++) {
+        Scaffold & currScaff = assembly[scaffCnt];
+        for (int contCnt=0; contCnt<currScaff.isize(); contCnt++) {
+            Contig & currContig = currScaff[contCnt];
+            // This is a temporary hack to fix the problem with discrepancies between layout and fasta ids
+            sprintf(name, ">Contig_Sample1_000_%7d_%3d", scaffCnt, contCnt);
+            for (int i=0; i<(int)strlen(name); i++) {
+                if (name[i] == ' ')
+                name[i] = '0';
+            }
 	    int totalContigReads = 0;
 	    int totalContigPairs = 0;
             for (int j=0; j<currContig.isize(); j++) {
@@ -50,12 +57,11 @@ int main( int argc, char** argv )
 		totalContigReads += COUnit.getConsensCount(id);
                 if(pair>-1) { totalContigPairs += COUnit.getConsensCount(id); }
 	    }
-            currScaff[i].SetNumReads(totalContigReads);
-            currScaff[i].SetNumPairs(totalContigPairs/2);
+            currScaff[contCnt].SetNumReads(totalContigReads);
+            currScaff[contCnt].SetNumPairs(totalContigPairs/2);
+            currScaff[contCnt].SetName(name);
 	}
     }
-    string layoutFile  = outName+".layout";
-    string summaryFile = outName+".summary";
     io.Write(assembly, outName+".layout");
     io.WriteReadCountSummary(assembly, outName+".summary");
 
