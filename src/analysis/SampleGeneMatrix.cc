@@ -16,7 +16,9 @@ void SampleGeneMatrix::load(const string& fileName) {
         string sampleId = parser.AsString(0);
         int underscorePos1 = sampleId.find("_", 0);
         int underscorePos2 = sampleId.find("_", underscorePos1+1);
-        sampleId           = sampleId.substr(underscorePos1+1, underscorePos2-underscorePos1-1);
+        if(underscorePos1>0 && underscorePos2>0) {
+            sampleId           = sampleId.substr(underscorePos1+1, underscorePos2-underscorePos1-1);
+        }
    
         int readCnt    = parser.AsInt(1);
 
@@ -40,7 +42,7 @@ void SampleGeneMatrix::write(const string& fileName) {
     }
 
     int sampleCnt = 0;
-    fprintf(pOut, "\t");
+    fprintf(pOut, "GeneId\t");
     for(auto const& ent1 : m_sampleIds) {
         fprintf(pOut, "%s\t", ent1.first.c_str());
         sampleCnt++;
