@@ -10,7 +10,7 @@
 int main( int argc, char** argv )
 {
     commandArg<string> inputCmmd("-i","input file containing three columns, sampleId, read-count, geneId");
-    commandArg<string> outputCmmd("-o","output matrix file name", "sampleGeneReadCount.matrix");
+    commandArg<string> outputCmmd("-o","output matrix file name", "geneSampleReadCount.matrix");
     commandLineParser P(argc,argv);
     P.SetDescription("Create a matrix that maps sample Id to a gene count showing its total number of reads for that gene");
     P.registerArg(inputCmmd);
