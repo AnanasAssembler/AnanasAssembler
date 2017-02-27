@@ -43,3 +43,10 @@ add_executable(RunIsoEM                ${SOURCE_FILES_RUNISOEM})
 add_executable(Scaffolder              ${SOURCE_FILES_SCAFFOLDER})
 add_executable(TestConsPairing         ${SOURCE_FILES_TESTCONSPAIRING})
 add_executable(FindOverlaps            ${SOURCE_FILES_FINDOVERLAPS})
+
+# ananas analysis binaries
+set(SOURCE_FILES_ADDREADCOUNTS src/analysis/AddReadCounts.cc ryggrad/src/base/FileParser.cc ryggrad/src/util/mutil.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/StringUtil.cc) 
+set(SOURCE_FILES_GENERATESAMPLEGENEMATRIX src/analysis/GenerateSampleGeneMatrix.cc src/analysis/SampleGeneMatrix.cc ryggrad/src/base/FileParser.cc ryggrad/src/util/mutil.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/StringUtil.cc) 
+
+add_executable(AddReadCounts              ${SOURCE_FILES_ADDREADCOUNTS})
+add_executable(GenerateSampleGeneMatrix   ${SOURCE_FILES_GENERATESAMPLEGENEMATRIX})

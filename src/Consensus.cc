@@ -158,25 +158,19 @@ void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asm
   if (pFasta == NULL) {
     cout << "ERROR: Could not open file " << fastaFile << " for writing!!" << endl;
   }
-  char name[512];
   for(int scafCnt=0; scafCnt<asmb.isize(); scafCnt++) {
     Scaffold currScaff = asmb[scafCnt];
     for(int contCnt=0; contCnt<currScaff.isize(); contCnt++) {
       Contig currCont = currScaff[contCnt];
-      sprintf(name, ">Contig_%s_%3d_%7d_%3d", m_prefix.c_str(), m_index, scafCnt, contCnt);
-      for (int i=0; i<(int)strlen(name); i++) {
-        if (name[i] == ' ')
-          name[i] = '0';
-      }
       ConsensusBuilder cons;
       DNAVector dna;
       cons.Build(dna, currCont, COUnit);
       if (IsSame(dna)) {
-        cout << "Deep toasting sequence " << name << endl;
+        cout << "Deep toasting sequence " << currCont.Name() << endl;
         return;
       }
       if(dna.isize()<minLen) { continue; }
-      fprintf(pFasta, "%s\n", name);
+      fprintf(pFasta, "%s\n", currCont.Name().c_str());
       for (int i=0; i<dna.isize(); i++) {
         fprintf(pFasta, "%c", dna[i]);
       }
