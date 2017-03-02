@@ -57,6 +57,7 @@ class ConsensusBuilder
   ConsensusBuilder() {}
 
   void Build(DNAVector & d, const Contig& cont, const ConsensOverlapUnit & reads);
+  void BuildWithGaps(DNAVector & d, const Contig& cont, const ConsensOverlapUnit & reads);
 
 };
 
@@ -80,7 +81,7 @@ class LayoutSink
  
   void Dump(const Hypothesis & hyp, const ConsensOverlapUnit & reads, bool bPrev = false, int minLen = 0);
 
-  void fastaFromAssembly(const string& fastaFile, const Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen);
+  void fastaFromAssembly(const string& fastaFile, const Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen, bool bUseGaps);
 
   const string & LastContig() const {return m_lastContigName;}
 

@@ -137,6 +137,7 @@ int main( int argc, char** argv )
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
+    commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
@@ -158,6 +159,7 @@ int main( int argc, char** argv )
     P.registerArg(readGroupFileCmmd);
     P.registerArg(prefixCmmd);
     P.registerArg(redunCmmd);
+    P.registerArg(gapsCmmd);
   
     P.parse();
   
@@ -180,7 +182,11 @@ int main( int argc, char** argv )
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string prefix = P.GetStringValueFor(prefixCmmd);
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
+    bool bGaps = P.GetBoolValueFor(gapsCmmd);
 
+    if (bandwidth > 0)
+      bGaps = true;
+    
     PrintLogo();
     cout << "Welcome to package " << ananas_software << " " << ananas_version << endl;
     cout << endl;
@@ -376,6 +382,8 @@ int main( int argc, char** argv )
     cmmd += " -minContig " + Number(minContig);
     cmmd += " -prefix " + prefix;
     cmmd += " -readsOutDir " + partitionsOutName;
+    if (bGaps)
+      cmmd += " -gaps ";
     Run(exec_dir, cmmd);
 
 

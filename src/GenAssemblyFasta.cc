@@ -19,6 +19,7 @@ int main( int argc, char** argv )
     commandArg<string> outFastaCmmd("-o","output fasta file", "final.fa");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<string> partOutDirCmmd("-readsOutDir","Output directory for recording the reads in each scaffold", "partitions");
+    commandArg<bool>   gapsCmmd("-gaps","Uses gaps in alignments (use for anything other than Illumina data)", false);
 
     commandLineParser P(argc,argv);
     P.SetDescription("Generate Fasta file for the assembled sequences from a given contig file.");
@@ -29,6 +30,7 @@ int main( int argc, char** argv )
     P.registerArg(outFastaCmmd);
     P.registerArg(prefixCmmd);
     P.registerArg(partOutDirCmmd);
+    P.registerArg(gapsCmmd);
     P.parse();
   
     string contigFile  = P.GetStringValueFor(contigCmmd);
@@ -38,6 +40,7 @@ int main( int argc, char** argv )
     string outFile     = P.GetStringValueFor(outFastaCmmd);
     string prefix      = P.GetStringValueFor(prefixCmmd);
     string partOutDir  = P.GetStringValueFor(partOutDirCmmd);
+    bool bUseGaps      = P.GetBoolValueFor(gapsCmmd);
  
     ConsensOverlapUnit COUnit(readsFile, consFile);
 
@@ -51,6 +54,6 @@ int main( int argc, char** argv )
   
     LayoutSink sink;
     sink.SetPrefix(prefix);
-    sink.fastaFromAssembly(outFile, assembly, COUnit, minContig);
+    sink.fastaFromAssembly(outFile, assembly, COUnit, minContig, bUseGaps);
     return 0;
 }
