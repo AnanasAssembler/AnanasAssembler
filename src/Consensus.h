@@ -14,19 +14,25 @@ class Assembled;
 class Consensus
 {
 public:
-  Consensus() {m_data.resize(4);} // 4 characters : ACGT
+  Consensus() {
+    m_data.resize(4);
+  } // 4 characters : ACGT
 
   void resize(int n) {
     for (int i=0; i<m_data.isize(); i++) {
       m_data[i].resize(n, 0);
     }
+    m_first.resize(n, -1);
   }
 
   void Add(int i, char c) {
+    
     int l = NucIndex(c);
     if (l < m_data.isize() && l >= 0) {
       (m_data[l])[i] += 1;
     }
+    if (m_first[i] == -1)
+      m_first[i] = c;
   }
 
   int isize() const {return m_data[0].isize();}
@@ -45,9 +51,11 @@ public:
       return 'N';
     return NucLetter(index);
   }
- 
+  char GetFirst(int i) {return m_first[i];}
+  
 private:
   svec< svec<int> > m_data;
+  svec<char> m_first;
 };
 
 

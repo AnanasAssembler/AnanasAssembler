@@ -77,7 +77,7 @@ class KmerAssembly
 {
 public:
     KmerAssembly() {
-        m_size = 24;
+        m_size = 128;
     }
 
     void Clear() {
@@ -186,7 +186,9 @@ public:
                 result += NucLetter(bestBase);
                 lastPos = comp[best].Pos();
                 //cout << result << endl;
-            }
+            } else {
+	      //cout << "Missing..." << endl;
+	    }
             start = best;
         } while (best != -1);
         out.SetFromBases(result);
@@ -225,6 +227,7 @@ private:
 //-----------------------------------------------------------
 void ConsensusBuilder::BuildWithGaps(DNAVector & out, const Contig& cont, const ConsensOverlapUnit & COUnit)
 {
+  /*
   const ConsensReads & consReads = COUnit.getConsReads();
 
   
@@ -241,7 +244,37 @@ void ConsensusBuilder::BuildWithGaps(DNAVector & out, const Contig& cont, const 
     kmers.Add(d, cont[i].Start());
     
   }    
-  kmers.Build(out);
+  kmers.Build(out);*/
+
+
+  const ConsensReads & consReads = COUnit.getConsReads();
+
+  int len = 0;
+  for (int i=0; i<cont.isize(); i++) {
+    if (cont[i].Stop() > len) {
+      len = cont[i].Stop();
+    }
+  }
+
+  Consensus cons;
+  cons.resize(len);
+  
+  int n = 0;
+  for (int i=0; i<cont.isize(); i++) {
+    int r = cont[i].Read();
+    DNAVector d = consReads[r];
+    if (cont[i].Ori() == -1)
+      d.ReverseComplement();
+    if (cont[i].Start() + d.isize() > n)
+      n = cont[i].Start() + d.isize();
+    for (int x=0; x<d.isize(); x++) {
+      cons.Add(cont[i].Start() + x, d[x]);
+    }
+  }    
+  out.resize(len);
+  for (int i=0; i<len; i++) 
+    out[i] = cons.GetFirst(i);
+  
 }
 
 void ConsensusBuilder::Build(DNAVector & out, const Contig& cont, const ConsensOverlapUnit & COUnit)
