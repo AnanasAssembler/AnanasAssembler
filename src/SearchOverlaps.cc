@@ -458,6 +458,8 @@ int Search::CountUnPairs(int & to, int & from, const Hypothesis & hyp, const Con
 {
     bPrint = false;
 
+    //return hyp.Size();
+    
     if (bPrint) 
         cout << "Start CountUnPairs." << endl;
 
@@ -476,9 +478,13 @@ int Search::CountUnPairs(int & to, int & from, const Hypothesis & hyp, const Con
         if (h.Stop() > max)
             max = h.Stop();    
     }
+
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    return max;
+    
  
     m_cov_seq.clear();
-    m_cov_seq.resize(max, 0);
+    m_cov_seq.resize(max+1, 0);
  
     int total = 0;
     for (i=0; i<hyp.Size(); i++) {
