@@ -102,7 +102,6 @@ private:
 
 int main( int argc, char** argv )
 {
-
     commandArg<string> fileCmmd("-i","input read pair/size info file");
     commandArg<string> lapCmmd("-l","input read overlap file");
     commandArg<string> consCmmd("-g","input read consensus group file");
@@ -305,9 +304,11 @@ int main( int argc, char** argv )
             }
         }
 	cout << "Used reads: " << usedReads << endl;
-        search.SetExhaustive(true);
-        if (s.isize() == 1)
-            search.SetExhaustive(false);
+        // Setting the Layout guided stage to none-exhaustive search of overlaps 
+        // Note that this used to be an exhaustive search and we might choose to make it optional in the future
+        search.SetExhaustive(false);
+        //if (s.isize() == 1)
+        //    search.SetExhaustive(false);
 
         search.DoSearchAll(COUnit, s.NumReads());
     }
