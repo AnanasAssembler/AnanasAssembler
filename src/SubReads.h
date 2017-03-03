@@ -71,7 +71,8 @@ public:
     constructSubs(m_reads, m_params.getSubreadStep(), consensMode); 
   }
 
-  const ReadType& getReads() { return m_reads; }
+  const ReadType& getReads() const     { return m_reads;              }
+  const int getReadSize(int idx) const { return m_reads[idx].isize(); }
 
   bool  isSingleStrand() const          { return m_params.isSingleStrand();    }
   int   getSubreadStep() const          { return m_params.getSubreadStep();    }  
@@ -270,7 +271,6 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
   DNAVector extSeq, origSeq2;                               // Extension and read sequence (1 for checkInit step and 2 for the alignment)
   flagOverlapReads(allOverlaps, readsUsed_curr, readIndex); // Flag any exisitng overlaps from previous iterations as used reads.
   int readSize = m_reads[readIndex].isize();
-  if(limitNumOfOverlaps==0) { limitNumOfOverlaps = readSize*2; }
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
    
