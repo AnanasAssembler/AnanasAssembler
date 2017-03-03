@@ -250,8 +250,10 @@ int main( int argc, char** argv )
     else
       cmmd = "FindOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
-    cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap) + " -s " 
-             + ss + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
+    cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap);
+    if (ss != "")
+      cmmd += " -s ";
+    cmmd += " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
              + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -overlapIter " + Number(overlapIter);
 
   if   (Exists(lapFile)) {

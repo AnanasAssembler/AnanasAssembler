@@ -760,7 +760,8 @@ void Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedR
             if(i>limit) {
                 continue; 
             }
-            const ReadOverlap & l = COUnit.GetDirLap(n.Read(), i, ori);	
+            const ReadOverlap & l = COUnit.GetDirLap(n.Read(), i, ori);
+	    //cout << "Lap " << l.getOverlapIndex() << " from " << n.Read() << " ori " << l.getOrient() << endl;
             SearchNode to_push(l.getOverlapIndex(), curr, ori*l.getOrient(), l.getContactPos(), pos + l.getContactPos());
             to_push.SetNodeCount(nodeCount+1); 
 
