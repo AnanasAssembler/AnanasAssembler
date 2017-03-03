@@ -28,6 +28,7 @@ int main(int argc,char** argv)
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
+    // TODO overlapIter has been disabled until further investigation
     commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");

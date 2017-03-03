@@ -28,21 +28,23 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
     ThreadQueueVec threadQueue(totSize); // Use for queueing instances threads should handle
     ThreadHandler th;
 
-    for(int iter=0; iter<numOfIters; iter++) {
-        threadQueue.reset();
-        subreads.increaseTolerance(iter*0.1, iter*0.4);
+//    for(int iter=0; iter<numOfIters; iter++) {
+//        threadQueue.reset();
+//        subreads.increaseTolerance(iter*0.1, iter*0.4);
         for (int i=0; i<numOfThreads; i++) {
             char tmp[256];
             sprintf(tmp, "%d", i);
             string init = "init_";
             init += tmp;
-            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, numOfIters*10, i));
+            //th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, numOfIters*10, i));
+            // TODO have set the limiting threshold for number of overlaps to 0 so that it is set to readsize*2 in the overlap finder 
+            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, 0, i));
             th.Feed(i, init);
         }
         while (!th.AllDone()) {
             usleep(10000);
         }
-    }
+//    }
 
 //    subreads.addMissingReciprocals(m_overlaps);  
     m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps
