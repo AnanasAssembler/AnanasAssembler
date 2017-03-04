@@ -563,7 +563,7 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
         }
         sort(m_ids.begin(), m_ids.end());
     }
-
+    int lowest = 0;
     for (i=0; i<ss.Size(); i++) {
         HypothesisNode node;
         node = st[i];
@@ -573,6 +573,9 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
         node.SetCoords(off, off + dSize);
         hyp.Add(node);
 
+	if (node.Start() < lowest)
+	  lowest = node.Start();
+	
         if (bAddIn && i+1 < ss.Size()) {
             int offLimit  = st[i+1].Offset();
             int numOfLaps = COUnit.GetNumLaps(node.Read());
@@ -612,6 +615,8 @@ void Search::MakeHypothesis(Hypothesis & hyp, const SearchStack & ss, const Cons
         }
     }
     hyp.Sort();
+    for (i=0; i<hyp.Size(); i++)
+      hyp[i].AddOffset(-lowest);
 }
 
 void Search::Commit(const Hypothesis & hyp)

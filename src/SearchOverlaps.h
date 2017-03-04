@@ -337,6 +337,11 @@ public:
   
   int Start() const {return m_start;}
   int Stop() const {return m_stop;}
+  void AddOffset(int n) {
+    m_start += n;
+    m_stop += n;
+  }
+  
   
   int Pair() const {return m_paired;}
   void SetPaired(int i) {m_paired = i;}
