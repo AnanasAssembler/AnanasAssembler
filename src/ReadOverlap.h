@@ -186,6 +186,8 @@ public:
     void writeStats(const string& statFile) const; 
     void load(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads, int mode); 
     void loadAsc(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads); 
+    void loadBin(const string& readOverlapFile); 
+    void loadBin(const string& readOverlapFile, const svec<int> & good); 
     void loadBin(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads); 
 
     bool isChimeric(int i) const { return m_chimera[i]; }

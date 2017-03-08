@@ -11,6 +11,7 @@ include_directories(./)
 
 # ananas binaries
 set(SOURCE_FILES_ANANAS ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/util/mutil.cc ryggrad/src/util/SysTime.cc src/Ananas.cc) 
+set(SOURCE_FILES_BIN2ASCIIOVERLAPS ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/util/mutil.cc src/Bin2AsciiOverlaps.cc src/ReadOverlap.cc) 
 set(SOURCE_FILES_BUILDREADGROUPS ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/general/DNAVector.cc ryggrad/src/util/mutil.cc ryggrad/src/util/SysTime.cc src/BuildReadGroups.cc) 
 set(SOURCE_FILES_CLUSTERCONTIGS  cola/src/cola/AlignmentCola.cc cola/src/cola/Cola.cc cola/src/cola/EditGraph.cc cola/src/cola/NSaligner.cc cola/src/cola/NSGAaligner.cc cola/src/cola/SWGAaligner.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/general/Alignment.cc ryggrad/src/general/DNAVector.cc ryggrad/src/util/mutil.cc src/ClusterContigs.cc src/ContigClusterUnit.cc src/ReadOverlap.cc src/Reads.cc) 
 set(SOURCE_FILES_CONVERTREADCOUNTSTEMP  cola/src/cola/AlignmentCola.cc cola/src/cola/Cola.cc cola/src/cola/EditGraph.cc cola/src/cola/NSaligner.cc cola/src/cola/NSGAaligner.cc cola/src/cola/SWGAaligner.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/general/Alignment.cc ryggrad/src/general/DNAVector.cc ryggrad/src/util/mutil.cc  src/ConsensOverlapUnit.cc src/ContScaffIO.cc src/ConvertReadCounts_temp.cc src/ReadOverlap.cc src/Reads.cc) 
@@ -28,6 +29,7 @@ set(SOURCE_FILES_TESTCONSPAIRING  cola/src/cola/AlignmentCola.cc cola/src/cola/C
 set(SOURCE_FILES_FINDOVERLAPS  cola/src/cola/AlignmentCola.cc cola/src/cola/Cola.cc cola/src/cola/EditGraph.cc cola/src/cola/NSaligner.cc cola/src/cola/NSGAaligner.cc cola/src/cola/SWGAaligner.cc ryggrad/src/base/ErrorHandling.cc ryggrad/src/base/FileParser.cc ryggrad/src/base/StringUtil.cc ryggrad/src/base/ThreadHandler.cc ryggrad/src/general/Alignment.cc ryggrad/src/general/DNAVector.cc ryggrad/src/util/mutil.cc  src/ConsensOverlapUnit.cc src/ContScaffIO.cc src/ReadOverlap.cc src/Reads.cc src/FindOverlaps.cc) 
 
 add_executable(Ananas                  ${SOURCE_FILES_ANANAS})
+add_executable(Bin2AsciiOverlaps       ${SOURCE_FILES_BIN2ASCIIOVERLAPS})
 add_executable(BuildReadGroups         ${SOURCE_FILES_BUILDREADGROUPS})
 add_executable(ClusterContigs          ${SOURCE_FILES_CLUSTERCONTIGS})
 add_executable(ConvertReadCountsTemp   ${SOURCE_FILES_CONVERTREADCOUNTSTEMP})

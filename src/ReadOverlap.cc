@@ -106,6 +106,16 @@ void AllReadOverlaps::loadAsc(const string& readOverlapFile, const svec<int> & g
 }
 
 void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & good, const ConsensReads& consReads) {
+    loadBin(readOverlapFile, good);
+    postReadActions(consReads); 
+}
+
+void AllReadOverlaps::loadBin(const string& readOverlapFile) {
+    svec<int>  good;
+    loadBin(readOverlapFile, good);
+}
+
+void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & good) {
     if(readOverlapFile=="") { return; }
     CMReadFileStream fs;
     fs.Open(readOverlapFile.c_str());
@@ -128,7 +138,6 @@ void AllReadOverlaps::loadBin(const string& readOverlapFile, const svec<int> & g
         addOverlap(readIdx, overlapIdx, contactPos, dir, orient);
     }
     fs.Close();
-    postReadActions(consReads); 
 }
 
 void AllReadOverlaps::addOverlapFromString(const string& strIn){
