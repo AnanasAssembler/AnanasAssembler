@@ -132,8 +132,6 @@ int main( int argc, char** argv )
     commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
-    //commandArg<bool> filtCmmd("-group","group identical reads (recommended for large data sets)", false);
-    commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
@@ -154,7 +152,6 @@ int main( int argc, char** argv )
     P.registerArg(cpuCmmd);
     P.registerArg(cpuCmmd2);
     P.registerArg(cpuLapCmmd);
-    P.registerArg(overlapIterCmmd);
     //P.registerArg(filtCmmd);
     P.registerArg(readGroupFileCmmd);
     P.registerArg(prefixCmmd);
@@ -177,8 +174,6 @@ int main( int argc, char** argv )
     int step = P.GetIntValueFor(stepCmmd);
     int bandwidth = P.GetIntValueFor(bandCmmd);
     int minoverlap = P.GetIntValueFor(mlCmmd);
-    int    overlapIter     = P.GetIntValueFor(overlapIterCmmd); 
-    //bool bGroup = P.GetBoolValueFor(filtCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string prefix = P.GetStringValueFor(prefixCmmd);
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
@@ -227,13 +222,6 @@ int main( int argc, char** argv )
     outName += "/";
     string cmmd;
 
-    /*if (bGroup) {
-      cmmd = "SimplicityFilter "
-      Run(exec_dir, cmmd);
-      cmmd = "BuildReadGroups -i "
-      Run(exec_dir, cmmd);
-      }*/
-
     ////////////////////////////////////////////////////////////////////
     ///// FindOverlaps ////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////
@@ -254,7 +242,7 @@ int main( int argc, char** argv )
     if (ss != "")
       cmmd += " -s ";
     cmmd += " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
-             + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -overlapIter " + Number(overlapIter);
+             + readGroupFile + " -C " + groupFile + " -o " + lapFile;
 
   if   (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;
