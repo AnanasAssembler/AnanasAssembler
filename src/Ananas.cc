@@ -90,6 +90,13 @@ string Number(int i)
     string f = tmp;
     return f;
 }
+
+string Number(bool boolVal)
+{
+    if(boolVal) { return "1"; }
+    else        { return "0"; }
+}
+
 string NumberFloat(double d)
 {
     char tmp[256];
@@ -129,7 +136,7 @@ int main( int argc, char** argv )
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
-    commandArg<string> ssCmmd("-strand","strand specificity (0=no 1=yes)", "0");
+    commandArg<bool> ssCmmd("-strand","strand specificity (0=no 1=yes)", false);
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
@@ -160,24 +167,24 @@ int main( int argc, char** argv )
   
     P.parse();
   
-    string readsFileName = P.GetStringValueFor(fileCmmd);
-    string outName = P.GetStringValueFor(outCmmd);
-    string dir = P.GetStringValueFor(dirCmmd);
-    string ss = P.GetStringValueFor(ssCmmd);
-    int minContig = P.GetIntValueFor(contigSizeCmmd);
-    int libSize = P.GetIntValueFor(libSizeCmmd);
-    double mI = P.GetDoubleValueFor(minCmmd);
-    double minGroupI = P.GetDoubleValueFor(minGroupCmmd);
-    int cpu = P.GetIntValueFor(cpuCmmd);
-    int cpu2 = P.GetIntValueFor(cpuCmmd2);
-    int cpuLap = P.GetIntValueFor(cpuLapCmmd);
-    int step = P.GetIntValueFor(stepCmmd);
-    int bandwidth = P.GetIntValueFor(bandCmmd);
-    int minoverlap = P.GetIntValueFor(mlCmmd);
-    string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
-    string prefix = P.GetStringValueFor(prefixCmmd);
+    string readsFileName  = P.GetStringValueFor(fileCmmd);
+    string outName        = P.GetStringValueFor(outCmmd);
+    string dir            = P.GetStringValueFor(dirCmmd);
+    bool ss               = P.GetBoolValueFor(ssCmmd);
+    int minContig         = P.GetIntValueFor(contigSizeCmmd);
+    int libSize           = P.GetIntValueFor(libSizeCmmd);
+    double mI             = P.GetDoubleValueFor(minCmmd);
+    double minGroupI      = P.GetDoubleValueFor(minGroupCmmd);
+    int cpu               = P.GetIntValueFor(cpuCmmd);
+    int cpu2              = P.GetIntValueFor(cpuCmmd2);
+    int cpuLap            = P.GetIntValueFor(cpuLapCmmd);
+    int step              = P.GetIntValueFor(stepCmmd);
+    int bandwidth         = P.GetIntValueFor(bandCmmd);
+    int minoverlap        = P.GetIntValueFor(mlCmmd);
+    string readGroupFile  = P.GetStringValueFor(readGroupFileCmmd);
+    string prefix         = P.GetStringValueFor(prefixCmmd);
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
-    bool bGaps = P.GetBoolValueFor(gapsCmmd);
+    bool bGaps            = P.GetBoolValueFor(gapsCmmd);
 
     if (bandwidth > 0)
       bGaps = true;
@@ -238,11 +245,9 @@ int main( int argc, char** argv )
     else
       cmmd = "FindOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
-    cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap);
-    if (ss != "")
-      cmmd += " -s ";
-    cmmd += " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
-             + readGroupFile + " -C " + groupFile + " -o " + lapFile;
+    cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap)
+            + " -s " + Number(ss) + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
+            + readGroupFile + " -C " + groupFile + " -o " + lapFile;
 
   if   (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;

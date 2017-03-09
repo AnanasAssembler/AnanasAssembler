@@ -28,25 +28,19 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
     ThreadQueueVec threadQueue(totSize); // Use for queueing instances threads should handle
     ThreadHandler th;
 
-//    for(int iter=0; iter<numOfIters; iter++) {
-//        threadQueue.reset();
-//        subreads.increaseTolerance(iter*0.1, iter*0.4);
         for (int i=0; i<numOfThreads; i++) {
             char tmp[256];
             sprintf(tmp, "%d", i);
             string init = "init_";
             init += tmp;
-            //th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, numOfIters*10, i));
-            // TODO have set the limiting threshold for number of overlaps to 0 so that it is set to readsize*2 in the overlap finder 
+            // set the limiting threshold for number of overlaps to 0 so that it is set to readsize*2 in the overlap finder 
             th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, 0, i));
             th.Feed(i, init);
         }
         while (!th.AllDone()) {
             usleep(10000);
         }
-//    }
 
-//    subreads.addMissingReciprocals(m_overlaps);  
     m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps
 
     cout << "\r===================== " << "100.0% " << flush; 
@@ -64,7 +58,7 @@ void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
     cout << "Finding Near Ident Groupings..." << endl;
     int progCount = 0;
     int totSize   = subreads.getSize();
-    int inc = totSize/1000;
+    int inc = totSize/10000;
     if (inc == 0)
         inc = 1; //Let's not crash if we have too few reads 
     for(int i=0; i<totSize-1; i++) { 
