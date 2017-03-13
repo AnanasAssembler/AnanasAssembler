@@ -304,15 +304,15 @@ int main( int argc, char** argv )
             }
         }
 	cout << "Used reads: " << usedReads << endl;
-/*
+
         // Setting the Layout guided stage to none-exhaustive search of overlaps 
         // Note that this used to be an exhaustive search and we might choose to make it optional in the future
         search.SetExhaustive(false);
-*/
+/*
         search.SetExhaustive(true);
         if (s.isize() == 1)
             search.SetExhaustive(false);
-
+*/
         search.DoSearchAll(COUnit, s.NumReads());
     }
  
