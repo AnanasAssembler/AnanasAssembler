@@ -13,8 +13,8 @@ public:
 
     void Read(Assembled & assembled, const string &file);
     void Write(const Assembled & assembled, const string &file);
-    void WriteScaffoldReads(const Assembled & assembled,  
-                          const ConsensOverlapUnit& COUnit, const string &outDir); 
+    void WriteScaffoldReads(const Assembled & assembled, const ConsensOverlapUnit& COUnit, const string &outDir); 
+    void WriteAssembledRawReads(const Assembled & assembled,  const ConsensOverlapUnit& COUnit, const string &outFile); 
     void WriteReadCountSummary(const Assembled & assembled, const string &file);
 };
 

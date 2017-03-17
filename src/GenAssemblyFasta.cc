@@ -17,6 +17,7 @@ int main( int argc, char** argv )
     commandArg<string> consCmmd("-c","input read consensus group file");
     commandArg<int> minContigCmmd("-minContig","minimum length of a single-contig scaffold to report", 200);
     commandArg<string> outFastaCmmd("-o","output fasta file", "final.fa");
+    commandArg<string> outReadsCmmd("-O","output list of used raw read names, provide file name if you require this information", "");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<string> partOutDirCmmd("-readsOutDir","Output directory for recording the reads in each scaffold", "partitions");
     commandArg<bool>   gapsCmmd("-gaps","Uses gaps in alignments (use for anything other than Illumina data)", false);
@@ -28,6 +29,7 @@ int main( int argc, char** argv )
     P.registerArg(consCmmd);
     P.registerArg(minContigCmmd);
     P.registerArg(outFastaCmmd);
+    P.registerArg(outReadsCmmd);
     P.registerArg(prefixCmmd);
     P.registerArg(partOutDirCmmd);
     P.registerArg(gapsCmmd);
@@ -38,6 +40,7 @@ int main( int argc, char** argv )
     string consFile    = P.GetStringValueFor(consCmmd);
     int minContig      = P.GetIntValueFor(minContigCmmd);
     string outFile     = P.GetStringValueFor(outFastaCmmd);
+    string outReadFile = P.GetStringValueFor(outReadsCmmd);
     string prefix      = P.GetStringValueFor(prefixCmmd);
     string partOutDir  = P.GetStringValueFor(partOutDirCmmd);
     bool bUseGaps      = P.GetBoolValueFor(gapsCmmd);
@@ -47,6 +50,10 @@ int main( int argc, char** argv )
     Assembled assembly;
     ContigScaffoldIO io;
     io.Read(assembly, contigFile);
+   
+    if(outReadFile != "") {
+      io.WriteAssembledRawReads(assembly, COUnit, outReadFile);
+    }
 
 #if defined(FORCE_DEBUG)
     io.WriteScaffoldReads(assembly, COUnit, partOutDir);

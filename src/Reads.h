@@ -101,6 +101,7 @@ public:
 
   const DNAVector& operator[](int i) const              { return m_reads[i];            }
   const vecDNAVector& getReads() const                  { return m_reads;               }
+  const string& getReadNameByIndex(int idx) const       { return m_reads.Name(idx);     } 
   const DNAVector& getReadByIndex(int idx) const        { return m_reads[idx];          } 
   const DNAVector& getReadRCByIndex(int idx) const      { return m_readsRC[idx];        } 
   bool hasSeq(int idx) const                            { return (m_reads.isize()>idx); }

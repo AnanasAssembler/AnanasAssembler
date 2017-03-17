@@ -130,7 +130,32 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
 
     fclose(pOut);
 }
-  
+
+void ContigScaffoldIO::WriteAssembledRawReads(const Assembled & assembled,  const ConsensOverlapUnit& COUnit, const string &outFile) {
+    int i, j, k, l;
+    FILE * pOutCurr = fopen(outFile.c_str(), "w");
+    if (pOutCurr == NULL) {
+        cout << "ERROR: Could not open file " << outFile << " for writing." << endl;
+    }
+    for (l=0; l<assembled.isize(); l++) {
+        const Scaffold & s = assembled[l];
+        if (s.isize() == 0)
+            continue;
+        for (i=0; i<s.isize(); i++) {
+            const Contig & c = s[i];
+            for (j=0; j<c.isize(); j++) {
+                int readIdx = c[j].Read();	
+                const svec<int>&  rawReadIdxs = COUnit.getConsReads().getConsMembers(readIdx);
+                for(int rr=0; rr<rawReadIdxs.isize(); rr++) {
+                    fprintf(pOutCurr, "%s\n", COUnit.getRawReadName(rawReadIdxs[rr]).c_str());
+                }
+            }
+        }
+    }
+    fclose(pOutCurr);
+}
+
+ 
 void ContigScaffoldIO::WriteScaffoldReads(const Assembled & assembled,  const ConsensOverlapUnit& COUnit, const string &outDir) {
     int i, j, k, l;
     for (l=0; l<assembled.isize(); l++) {
@@ -140,6 +165,7 @@ void ContigScaffoldIO::WriteScaffoldReads(const Assembled & assembled,  const Co
         FILE * pOutCurr = fopen((outDir+Stringify(l)+".reads").c_str(), "w");
         if (pOutCurr == NULL) {
             cout << "ERROR: Could not open file " << outDir+Stringify(l)+".reads" << " for writing." << endl;
+            break;
         }
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];
