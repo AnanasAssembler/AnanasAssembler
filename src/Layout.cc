@@ -114,10 +114,9 @@ int main( int argc, char** argv )
         search.SetExhaustive(bEx);
         search.SetDir(dir);
         search.SetOutput(layoutName);
+        search.SetLibSize(libSize);
         search.DoSearchAll(COUnit, COUnit.GetNumReads());
     } else {
-
- 
         int i;
     
         GlobalUsageHandler glob;

@@ -111,9 +111,6 @@ public:
    */
   int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int limitNumOfOverlaps) const;  
 
-  /** Add in any missing reciprocal overlaps in the end (if heuristics meant they were missed) */
-  void addMissingReciprocals(AllReadOverlaps& allOverlaps) const; 
-
   // Update the overlap parameters to allow for more overlaps to be detected
   void increaseTolerance(float identTolRatio, float overlapTolRatio);
  
@@ -148,9 +145,13 @@ private:
 
   void getSeq(const SubRead& sr, string& outSeq) const    { outSeq = getSeq(sr); }
   bool checkInitMatch(const SubRead& origSeqSR, const SubRead& extSeqSR) const; 
-  float checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq, int& isForward) const; 
+  float checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq) const; 
   // Flag any exisitng overlaps from previous iterations as used reads.
   void flagOverlapReads(const AllReadOverlaps& allOverlaps, map<unsigned long, bool>& readsUsed, unsigned long readIndex) const;  
+
+  template<class IterType>
+  bool handleIterInstance(IterType iter, map<unsigned long, bool>& readsUsed_curr, const SubRead& origSeqSR,
+                                            unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int readIterPos) const; 
 
   svec<SubRead>        m_subReads;   /// vector of subReads 
   const ReadType&      m_reads;      /// Reference to the list of reads from which subReads where constructed
@@ -277,87 +278,60 @@ template<class ReadType>
 int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int limitNumOfOverlaps) const { 
   map<unsigned long, bool> readsUsed_curr;                  // Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;                         // Add the read index to the used list so that overlaps with itself won't be computed
-  DNAVector extSeq, origSeq2;                               // Extension and read sequence (1 for checkInit step and 2 for the alignment)
-  //flagOverlapReads(allOverlaps, readsUsed_curr, readIndex); // Flag any exisitng overlaps from previous iterations as used reads.
   int readSize = m_reads[readIndex].isize();
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
-    FILE_LOG(logDEBUG4)  << "Iterating position in read: "<< i;
-   
+    FILE_LOG(logDEBUG4)  << "Iterating position in string: "<< i;
     SubRead origSeqSR(readIndex, i, 1); 
-    int origSeqSize = m_reads.getSize(readIndex)-i;
-    char origSeqiB  = m_reads.getReadByIndex(readIndex)[i];
-
     svec<SubRead>::const_iterator fIt = lower_bound(m_subReads.begin(), m_subReads.end(), origSeqSR, CmpSubReadOL(*this));
-    for (;fIt!=m_subReads.end(); fIt++) {
-      if(readsUsed_curr.find((*fIt).getIndex())!=readsUsed_curr.end()) { continue; } //Check if read has already been used
-      FILE_LOG(logDEBUG4)  << "Investigating subread: "<< (*fIt).getIndex() 
-                           << ", " << (*fIt).getOffset() << ", " << ((*fIt).getStrand()==1?"+":"-");
-      if(!checkInitMatch(*fIt, origSeqSR)) { break; }
-      int adjustForAlign = min((*fIt).getOffset(), i); //To find alignments from beginning
-      FILE_LOG(logDEBUG4)  << "Adjusting for alignment by: " << adjustForAlign << " bases";
-      origSeq2.SetToSubOf(m_reads[readIndex], i-adjustForAlign);
-      getDNA(*fIt, (*fIt).getOffset()-adjustForAlign, m_reads[(*fIt).getIndex()].size()-1, extSeq);
-      if(min(extSeq.size(), origSeq2.size())<getMinOverlap()) { continue; } //Skip the rest if extension or read < than min overlap
-      int overlapDir;
-      float matchScore = checkOverlap(origSeq2, extSeq, overlapDir);
-      if(matchScore>=0) {
-        int contactPos;
-        if(overlapDir==1) { 
-          contactPos = i - (*fIt).getOffset(); 
-        } else {
-          contactPos = (readSize-i) - (m_reads[(*fIt).getIndex()].size()-(*fIt).getOffset()); 
-        } 
-        if(contactPos<0 ){ // overlapDir=0 doesnt extend overlap to any side
-          if(mode==1) {
-            contactPos = abs(contactPos);
-          } else { continue; }
-        }  
-        if(overlapDir==0 && mode==0) { //Containment overlap which this mode should exclude
-          continue;
-        }
-
-        // Synchronized version of overlap adding that locks so no iterference occurs with other threads
-        allOverlaps.addOverlapSync(readIndex, (*fIt).getIndex(), contactPos, overlapDir, (*fIt).getStrand());
-        allOverlaps.addOverlapSync((*fIt).getIndex(), readIndex, contactPos+(m_reads[(*fIt).getIndex()].isize()-readSize), overlapDir*(-1)*((*fIt).getStrand()), (*fIt).getStrand()); 
-        
-        if(mode==0 && allOverlaps[readIndex].getNumLaps()>=limitNumOfOverlaps) { 
-          return allOverlaps[readIndex].getNumLaps(); 
-        }  //Limiting overlaps for very high coverage reads 
-
-        FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*fIt).getIndex() << "\t" << contactPos
-                             << "\t" << matchScore << "\t" << overlapDir << "\t" << (*fIt).getStrand();
-        readsUsed_curr[(*fIt).getIndex()] = true;
-      }
+    FILE_LOG(logDEBUG4)  << "Searching for suffix - found lower-bound: " << (*fIt).toString() << endl;
+    svec<SubRead>::const_reverse_iterator rIt(fIt);
+    bool keepLooking = true;
+    for (;keepLooking && fIt!=m_subReads.end(); fIt++) {
+      keepLooking = handleIterInstance<svec<SubRead>::const_iterator>(fIt, readsUsed_curr, origSeqSR, readIndex, allOverlaps, mode, i);
     }
+    keepLooking = true;
+    for (;keepLooking && rIt!=m_subReads.rend(); rIt++) {
+      keepLooking = handleIterInstance<svec<SubRead>::const_reverse_iterator>(rIt, readsUsed_curr, origSeqSR, readIndex, allOverlaps, mode, i);
+    }
+ 
+    if(mode==0 && allOverlaps[readIndex].getNumLaps()>=limitNumOfOverlaps) { 
+      return allOverlaps[readIndex].getNumLaps(); 
+    }  //Limiting overlaps for very high coverage reads 
   }
   return allOverlaps[readIndex].getNumLaps();
 }
 
 template<class ReadType>
-void SubReads<ReadType>::addMissingReciprocals(AllReadOverlaps& allOverlaps) const {
-  allOverlaps.sortOverlapIndexes(); // To be able to perform binary look ups
-  svec<ReadOverlapWithIndex> overlapsToAdd;
-  overlapsToAdd.reserve(allOverlaps.getSize()*20); //Rough estimate for reserving memory
-  int total = 0;
-  for (int readIdx=0; readIdx<allOverlaps.getSize(); readIdx++) {
-    int numLaps = allOverlaps[readIdx].getNumLaps();
-    total+=numLaps;
-    for(int j=0; j<numLaps; j++) {
-      const ReadOverlap& lap = allOverlaps[readIdx].getLap(j);
-      int overlapIdx = lap.getOverlapIndex();
-      if(!allOverlaps[overlapIdx].hasLap(readIdx)) {
-        overlapsToAdd.push_back(ReadOverlapWithIndex(overlapIdx, readIdx, lap.getContactPos()+(m_reads[overlapIdx].isize()-m_reads[readIdx].isize()), 
-                               lap.getDirection()*(-1)*lap.getOrient(), lap.getOrient()));
-      }
+template<class IterType>
+bool SubReads<ReadType>::handleIterInstance(IterType iter, map<unsigned long, bool>& readsUsed_curr, const SubRead& origSeqSR,
+                                            unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int readIterPos) const {
+  if(readsUsed_curr.find((*iter).getIndex())!=readsUsed_curr.end()) { return true; } //Check if read has already been used
+  FILE_LOG(logDEBUG4)  << "Investigating subread: "<< (*iter).getIndex() 
+                       << ", " << (*iter).getOffset() << ", " << ((*iter).getStrand()==1?"+":"-");
+  if(!checkInitMatch(*iter, origSeqSR)) { return false; }
+  int adjustForAlign = min((*iter).getOffset(), readIterPos); //To find alignments from beginning
+  FILE_LOG(logDEBUG4)  << "Adjusting for alignment by: " << adjustForAlign << " bases";
+  DNAVector extSeq, origSeq2;                               // Extension and read sequence (1 for checkInit step and 2 for the alignment)
+  origSeq2.SetToSubOf(m_reads[readIndex], readIterPos-adjustForAlign);
+  getDNA(*iter, (*iter).getOffset()-adjustForAlign, m_reads[(*iter).getIndex()].size()-1, extSeq);
+  if(min(extSeq.size(), origSeq2.size())<getMinOverlap()) { return true; } //Skip the rest if extension or read < than min overlap
+  float matchScore = checkOverlap(origSeq2, extSeq);
+  if(matchScore>=0) {
+    int contactPos = readIterPos - (*iter).getOffset(); 
+
+   // Synchronized version of overlap adding that locks so no iterference occurs with other threads
+    int overlapDir = 1;
+    if(contactPos<0) { 
+      overlapDir = -1; 
+      contactPos = abs(contactPos);
     }
+    FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*iter).getIndex() << "\t" << contactPos
+                         << "\t" << matchScore << "\t" << 1 << "\t" << (*iter).getStrand();
+    allOverlaps.addOverlapSync(readIndex, (*iter).getIndex(), contactPos, overlapDir, (*iter).getStrand());
+    if(contactPos==0) { allOverlaps.addOverlapSync(readIndex, (*iter).getIndex(), contactPos, -overlapDir, (*iter).getStrand());} 
+    readsUsed_curr[(*iter).getIndex()] = true;
   }
-
-  for(int i=0; i<overlapsToAdd.isize(); i++) { 
-    allOverlaps.addOverlap(overlapsToAdd[i]);
-  }
-
-  cout << endl << "Added " << overlapsToAdd.isize() << " reciprocal overlap instances." << endl;
-  cout << "Total number of overlaps "  <<total<<endl;
+  return true;
 }
 
 template<class ReadType>
@@ -371,7 +345,7 @@ bool SubReads<ReadType>::checkInitMatch(const SubRead& origSeqSR, const SubRead&
 }
 
 template<class ReadType>
-float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq, int& matchDirection) const {
+float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector& extSeq) const {
   FILE_LOG(logDEBUG3) << "Checking Overlap: ";
   float matchScore        = 0;
   if (getAlignBand() == 0)
@@ -396,13 +370,6 @@ float SubReads<ReadType>::checkOverlap(const DNAVector& origSeq, const DNAVector
   FILE_LOG(logDEBUG4) << "Score: " << matchScore << endl;
 
   if(matchScore>=getMinIdentity()) {
-    if(extSeq.size()>=origSeq.size()  && origSeqAlignedBases >=getMinEndCover()*origSeq.size()) {
-      matchDirection = 1; //Right side overlap
-    } else if(extSeqAlignedBases >=getMinEndCover()*extSeq.size()) {
-      matchDirection = -1; //Left-side overlap
-    } else {
-      matchDirection = 0; //Contained sequence
-    }
     return matchScore;
   } else { 
     FILE_LOG(logDEBUG2) << "Significant overlap through alignment was not found." 
@@ -481,8 +448,8 @@ int SubReads<ReadType>::compareSubReads(const SubRead& s1, const SubRead& s2, in
 
   int size1 = m_reads.getSize(s1.getIndex()) - s1.getOffset();
   int size2 = m_reads.getSize(s2.getIndex()) - s2.getOffset();
-  if(size1 > size2)      { return -1; }
-  else if(size1 < size2) { return 1;  }
+  if(size1 > size2)      { return 1; }
+  else if(size1 < size2) { return -1;  }
   else                   { return 0;  } 
 }
 
@@ -493,8 +460,8 @@ int SubReads<ReadType>::compareSubReads(const SubRead& s1, const DNAVector& d2, 
 
   int size1 = m_reads.getSize(s1.getIndex()) - s1.getOffset();
   int size2 = d2.size();
-  if(size1 > size2)      { return -1; }
-  else if(size1 < size2) { return 1;  }
+  if(size1 > size2)      { return 1; }
+  else if(size1 < size2) { return -1;  }
   else                   { return 0;  } 
 }
   

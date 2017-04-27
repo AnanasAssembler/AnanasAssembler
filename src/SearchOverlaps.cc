@@ -679,12 +679,9 @@ bool Search::HasExtensions(const ConsensOverlapUnit & COUnit, int id) const
 
 void Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedReverse)
 {
-
   //cout << "call DoSearch w/ " << index << " left " <<  COUnit.GetNumDirLaps(index, -1) << " ";
   //cout << " right " <<  COUnit.GetNumDirLaps(index, 1) << endl;
    
-
-
     m_lastNoPairs = -1;
     if (m_exhaust)
         m_usage.Clear();
@@ -755,18 +752,15 @@ void Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedR
     
         int overlapCnt = COUnit.GetNumDirLaps(n.Read(), ori); 
         int limit      = COUnit.GetNumDirLaps(n.Read(), ori); //Limit the number of overlaps to consider
-//        float randRatioLimit = 0.5;
         if(m_exhaust) {
           limit = min(COUnit.getConsReadSize(n.Read()), overlapCnt);
         }
         for (i=index; i < overlapCnt; i++) {
-            n.IncCounter();
-//            if(i>limit || rand()>randRatioLimit) {
             if(i>limit) {
                 continue; 
             }
+            n.IncCounter();
             const ReadOverlap & l = COUnit.GetDirLap(n.Read(), i, ori);
-	    //cout << "Lap " << l.getOverlapIndex() << " from " << n.Read() << " ori " << l.getOrient() << endl;
             SearchNode to_push(l.getOverlapIndex(), curr, ori*l.getOrient(), l.getContactPos(), pos + l.getContactPos());
             to_push.SetNodeCount(nodeCount+1); 
 
