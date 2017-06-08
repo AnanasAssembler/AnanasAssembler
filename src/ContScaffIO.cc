@@ -107,8 +107,11 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
         }
         count++;
         fprintf(pOut, "<SCAFFOLD>\t%s\n", name.c_str());
+        bool contigExists = false;
         for (i=0; i<s.isize(); i++) {
             const Contig & c = s[i];
+            if(c.Discard()) { continue; } //Don't output contig if it has been flagged as discarded
+            contigExists = true;
             string nameC = c.Name();
             if (nameC == "")
                 nameC = "<unknown>";
@@ -123,8 +126,10 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
             fprintf(pOut, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", nameC.c_str(), c.NumPairs());
             fprintf(pOut, "</CONTIG>\t%s\n", nameC.c_str());
         }
-        fprintf(pOut, "<SCAFFOLD_READCOUNT> %s %d </SCAFFOLD_READCOUNT>\n", name.c_str(), s.NumUniqReads());
-        fprintf(pOut, "<SCAFFOLD_PAIRCOUNT> %s %d </SCAFFOLD_PAIRCOUNT>\n", name.c_str(), s.NumUniqPairs());
+        if(contigExists) { //Only print scaffold read/pair counts if at lease one valid contig has been found for it
+            fprintf(pOut, "<SCAFFOLD_READCOUNT> %s %d </SCAFFOLD_READCOUNT>\n", name.c_str(), s.NumUniqReads());
+            fprintf(pOut, "<SCAFFOLD_PAIRCOUNT> %s %d </SCAFFOLD_PAIRCOUNT>\n", name.c_str(), s.NumUniqPairs());
+        }
         fprintf(pOut, "</SCAFFOLD>\t%s\n", name.c_str());
     }
 

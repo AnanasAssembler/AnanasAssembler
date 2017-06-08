@@ -17,8 +17,8 @@ int main( int argc, char** argv )
     commandArg<string> consCmmd("-c","input read consensus group file");
     commandArg<int> minContigCmmd("-minContig","minimum length of a single-contig scaffold to report", 200);
     commandArg<string> outFastaCmmd("-o","output fasta file", "final.fa");
+    commandArg<string> outLayoutCmmd("-l","output layout file corresponding to the final fasta", "final.layout");
     commandArg<string> outReadsCmmd("-O","output list of used raw read names, provide file name if you require this information", "");
-    commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<string> partOutDirCmmd("-readsOutDir","Output directory for recording the reads in each scaffold", "partitions");
     commandArg<bool>   gapsCmmd("-gaps","Uses gaps in alignments (use for anything other than Illumina data)", false);
 
@@ -29,21 +29,21 @@ int main( int argc, char** argv )
     P.registerArg(consCmmd);
     P.registerArg(minContigCmmd);
     P.registerArg(outFastaCmmd);
+    P.registerArg(outLayoutCmmd);
     P.registerArg(outReadsCmmd);
-    P.registerArg(prefixCmmd);
     P.registerArg(partOutDirCmmd);
     P.registerArg(gapsCmmd);
     P.parse();
   
-    string contigFile  = P.GetStringValueFor(contigCmmd);
-    string readsFile   = P.GetStringValueFor(readsCmmd);
-    string consFile    = P.GetStringValueFor(consCmmd);
-    int minContig      = P.GetIntValueFor(minContigCmmd);
-    string outFile     = P.GetStringValueFor(outFastaCmmd);
-    string outReadFile = P.GetStringValueFor(outReadsCmmd);
-    string prefix      = P.GetStringValueFor(prefixCmmd);
-    string partOutDir  = P.GetStringValueFor(partOutDirCmmd);
-    bool bUseGaps      = P.GetBoolValueFor(gapsCmmd);
+    string contigFile    = P.GetStringValueFor(contigCmmd);
+    string readsFile     = P.GetStringValueFor(readsCmmd);
+    string consFile      = P.GetStringValueFor(consCmmd);
+    int minContig        = P.GetIntValueFor(minContigCmmd);
+    string outFastaFile  = P.GetStringValueFor(outFastaCmmd);
+    string outLayoutFile = P.GetStringValueFor(outLayoutCmmd);
+    string outReadFile   = P.GetStringValueFor(outReadsCmmd);
+    string partOutDir    = P.GetStringValueFor(partOutDirCmmd);
+    bool bUseGaps        = P.GetBoolValueFor(gapsCmmd);
  
     ConsensOverlapUnit COUnit(readsFile, consFile);
 
@@ -60,7 +60,9 @@ int main( int argc, char** argv )
 #endif
   
     LayoutSink sink;
-    sink.SetPrefix(prefix);
-    sink.fastaFromAssembly(outFile, assembly, COUnit, minContig, bUseGaps);
+    sink.fastaFromAssembly(outFastaFile, assembly, COUnit, minContig, bUseGaps);
+    //The fasta generation step flags contigs that don't meet requirements for final sequence generation.
+    //As a result the layout that will be written out as the next stage doesn't contain those discarded contigs.
+    io.Write(assembly, outLayoutFile);
     return 0;
 }

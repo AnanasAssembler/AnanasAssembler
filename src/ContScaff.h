@@ -64,6 +64,7 @@ class Contig
     m_ori = 1;
     m_numOfReads = 0;
     m_numOfPaired = 0;
+    m_discard = false;
   }
   ~Contig() {}
  
@@ -81,11 +82,15 @@ class Contig
   int NumPairs() const { return m_numOfPaired/2; }
   void SetNumPairs(int pairCnt) { m_numOfPaired = pairCnt*2; }
 
+  bool Discard() const { return m_discard; }
+  void SetDiscard(bool dis) { m_discard = dis; }
+
   void clear() {
     m_placements.clear();
     m_name = "";
     m_numOfReads = 0;
     m_numOfPaired = 0;
+    m_discard = false;
   }
 
   void Reverse() {
@@ -124,9 +129,10 @@ class Contig
 
   svec<ReadPlacement> m_placements;
   string m_name;
-  int m_ori;
-  int m_numOfReads;
-  int m_numOfPaired;
+  int    m_ori;
+  int    m_numOfReads;
+  int    m_numOfPaired;
+  bool   m_discard;   /// Flag for allowing to discard/ignore the contig in different contexts
 };
 
 class Scaffold

@@ -374,8 +374,8 @@ int main( int argc, char** argv )
     cmmd += " -i " + outName + "/contigs_altsplic.layout";
     cmmd += " -c " + outName + "/consensusReads.out";
     cmmd += " -o " + outName + "/final.fa";
+    cmmd += " -l " + outName + "/final.layout";
     cmmd += " -minContig " + Number(minContig);
-    cmmd += " -prefix " + prefix;
     cmmd += " -readsOutDir " + partitionsOutName;
     if (bGaps)
       cmmd += " -gaps ";

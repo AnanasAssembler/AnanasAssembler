@@ -374,7 +374,8 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   if (bPrev)
     m_minor++;
 
-  int currNumPairedReads = 0;
+  int currNumReads_contig       = 0;
+  int currNumPairedReads_contig = 0;
 
   int i;
   char name[512];
@@ -412,27 +413,28 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Read():hyp[i].Pair(),  
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Ori():hyp[i].Pair());
     m_currReads[r] = true;
+    currNumReads_contig += COUnit.getConsensCount(r);
     if (hyp[i].Pair() >= 0) {
       m_currPairedReads[r] = true;
-      currNumPairedReads++;
+      currNumPairedReads_contig += COUnit.getConsensCount(r);
     }
   }
-  fprintf(m_pLayout, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", name, hyp.Size());
-  fprintf(m_pLayout, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", name, currNumPairedReads/2);
+  fprintf(m_pLayout, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", name, currNumReads_contig);
+  fprintf(m_pLayout, "<CONTIG_PAIRCOUNT> %s %d </CONTIG_PAIRCOUNT>\n", name, currNumPairedReads_contig/2);
   fprintf(m_pLayout, "</CONTIG> %s\n", name);
   fflush(m_pLayout);
 }
 
-void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen, bool bUseGaps)
+void LayoutSink::fastaFromAssembly(const string& fastaFile, Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen, bool bUseGaps)
 {
   FILE* pFasta = fopen(fastaFile.c_str(), "w");
   if (pFasta == NULL) {
     cout << "ERROR: Could not open file " << fastaFile << " for writing!!" << endl;
   }
   for(int scafCnt=0; scafCnt<asmb.isize(); scafCnt++) {
-    Scaffold currScaff = asmb[scafCnt];
+    Scaffold& currScaff = asmb[scafCnt];
     for(int contCnt=0; contCnt<currScaff.isize(); contCnt++) {
-      Contig currCont = currScaff[contCnt];
+      Contig& currCont = currScaff[contCnt];
       ConsensusBuilder cons;
       DNAVector dna;
       if (bUseGaps)
@@ -441,9 +443,13 @@ void LayoutSink::fastaFromAssembly(const string& fastaFile, const Assembled& asm
 	cons.Build(dna, currCont, COUnit);
       if (IsSame(dna)) {
         cout << "Deep toasting sequence " << currCont.Name() << endl;
-        return;
+        currCont.SetDiscard(true);
+        continue;
       }
-      if(dna.isize()<minLen) { continue; }
+      if(dna.isize()<minLen) { 
+        currCont.SetDiscard(true);
+        continue; 
+      }
       fprintf(pFasta, "%s\n", currCont.Name().c_str());
       for (int i=0; i<dna.isize(); i++) {
         fprintf(pFasta, "%c", dna[i]);
