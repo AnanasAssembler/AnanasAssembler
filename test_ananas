@@ -1,9 +1,9 @@
 rm -r  ananas_test/test_rep
 rm -r  ananas_test/test_splic
 
-./bin/Ananas -i ananas_test/reads_rep.fasta -dir fr -o ananas_test/test_rep
+./bin/Ananas -i ananas_test/reads_rep.fasta -dir fr -o ananas_test/test_rep -outReadNames readNames.out
 
-./bin/Ananas -i ananas_test/reads_splic.fasta -dir fr -o ananas_test/test_splic
+./bin/Ananas -i ananas_test/reads_splic.fasta -dir fr -o ananas_test/test_splic -outReadNames readNames.out
 
 echo
 echo

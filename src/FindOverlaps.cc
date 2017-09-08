@@ -32,6 +32,7 @@ int main(int argc,char** argv)
     commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");
+    commandArg<string> readNamesOutCmmd("-outReadNames","Print grouped read names associating them to their index", "");
 
     commandLineParser P(argc,argv);
     P.SetDescription("Overlap finder for assembly");
@@ -55,6 +56,7 @@ int main(int argc,char** argv)
     P.registerArg(overlapIterCmmd);
     P.registerArg(readGroupIdentThreshCmmd);
     P.registerArg(readGroupFileCmmd);
+    P.registerArg(readNamesOutCmmd);
     P.parse();
 
     string inputFile       = P.GetStringValueFor(aCmmd);
@@ -77,12 +79,13 @@ int main(int argc,char** argv)
     int    overlapIter     = P.GetIntValueFor(overlapIterCmmd); 
     double readGroupThresh = P.GetDoubleValueFor(readGroupIdentThreshCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
+    string readNamesFile   = P.GetStringValueFor(readNamesOutCmmd);
     
     FILE* pFile               = fopen(applicationFile.c_str(), "w");
     Output2FILE::Stream()     = pFile;
     FILELog::ReportingLevel() = logINFO; 
 #if defined(FORCE_DEBUG)
-//    FILELog::ReportingLevel() = logDEBUG4; 
+    FILELog::ReportingLevel() = logDEBUG3; 
 #endif
     
 #if defined(OPEN_MP)
@@ -97,11 +100,16 @@ int main(int argc,char** argv)
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);
+    if(readNamesFile != "") {
+        COUnit.writeConsensReadNames(readNamesFile);
+    }
+
 #if defined(FORCE_DEBUG)
     COUnit.writeOverlaps(overlapFile+".Ascii", 1); //Ascii version
     COUnit.writeConsensReadNames(consensFile+".Names"); 
     COUnit.writeConsensReads(consensFile+".Sequences");
 #endif
+
     return 0;
 }
 

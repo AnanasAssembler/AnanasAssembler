@@ -140,6 +140,7 @@ int main( int argc, char** argv )
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     commandArg<string> readGroupFileCmmd("-readGroupFile","read groupin information file if available","");
+    commandArg<string> readNamesOutCmmd("-outReadNames","Print grouped read names associating them to their index", "");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
     commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
@@ -161,6 +162,7 @@ int main( int argc, char** argv )
     P.registerArg(cpuLapCmmd);
     //P.registerArg(filtCmmd);
     P.registerArg(readGroupFileCmmd);
+    P.registerArg(readNamesOutCmmd);
     P.registerArg(prefixCmmd);
     P.registerArg(redunCmmd);
     P.registerArg(gapsCmmd);
@@ -182,6 +184,7 @@ int main( int argc, char** argv )
     int bandwidth         = P.GetIntValueFor(bandCmmd);
     int minoverlap        = P.GetIntValueFor(mlCmmd);
     string readGroupFile  = P.GetStringValueFor(readGroupFileCmmd);
+    string readNamesFile  = P.GetStringValueFor(readNamesOutCmmd);
     string prefix         = P.GetStringValueFor(prefixCmmd);
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
     bool bGaps            = P.GetBoolValueFor(gapsCmmd);
@@ -237,19 +240,18 @@ int main( int argc, char** argv )
     string pairSzFile = outName + "/pairSz.tmp";
     string lapFile    = outName + "/allOverlaps.out";
     string groupFile  = outName + "/consensusReads.out";
+    string rNameFile  = outName + "/" + readNamesFile;
 
     if (bUnpaired)
-      //cmmd = "FindOverlaps -I 0.98 -b 30 -B 2 -O 75 -s 1 -i " + readsFileName;
-      //cmmd = "FindOverlaps -I 0.98 -b 30 -B 0 -O 75 -s 0 -i " + readsFileName;
       cmmd = "FindOverlaps -S 25 -I " + NumberFloat(mI) + " -b " + Number(step);
     else
       cmmd = "FindOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap)
             + " -s " + Number(ss) + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
-            + readGroupFile + " -C " + groupFile + " -o " + lapFile;
+            + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -outReadNames " + rNameFile;
 
-  if   (Exists(lapFile)) {
+    if (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;
       cout << "Remove " << lapFile << " to re-compute read overlaps." << endl;
     } else {
