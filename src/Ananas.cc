@@ -135,6 +135,7 @@ int main( int argc, char** argv )
     commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 1);
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
+    commandArg<int> moCmmd("-maxOverlap","Threshold on the maximum number of overlaps per read, default is twice the read size", 0);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
     commandArg<bool> ssCmmd("-strand","strand specificity (0=no 1=yes)", false);
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
@@ -156,6 +157,7 @@ int main( int argc, char** argv )
     P.registerArg(libSizeCmmd);
     P.registerArg(contigSizeCmmd);
     P.registerArg(mlCmmd);
+    P.registerArg(moCmmd);
     P.registerArg(stepCmmd);
     P.registerArg(cpuCmmd);
     P.registerArg(cpuCmmd2);
@@ -183,6 +185,7 @@ int main( int argc, char** argv )
     int step              = P.GetIntValueFor(stepCmmd);
     int bandwidth         = P.GetIntValueFor(bandCmmd);
     int minoverlap        = P.GetIntValueFor(mlCmmd);
+    int maxOverlapCnt     = P.GetIntValueFor(moCmmd);
     string readGroupFile  = P.GetStringValueFor(readGroupFileCmmd);
     string readNamesFile  = P.GetStringValueFor(readNamesOutCmmd);
     string prefix         = P.GetStringValueFor(prefixCmmd);
@@ -249,7 +252,7 @@ int main( int argc, char** argv )
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap)
             + " -s " + Number(ss) + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
-            + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -outReadNames " + rNameFile;
+            + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -outReadNames " + rNameFile + " -maxOverlap " + Number(maxOverlapCnt);
 
     if (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;

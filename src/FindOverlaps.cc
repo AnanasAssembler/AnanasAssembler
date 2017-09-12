@@ -23,6 +23,7 @@ int main(int argc,char** argv)
     commandArg<double> fCmmd("-I","Minimum acceptable identity for overlapping sequences", 0.99);
     commandArg<double> gCmmd("-c","Minimum Coverage of the read ends for an acceptable extension", 0.98);
     commandArg<int>    hCmmd("-O","Minimum overlap of an acceptable extension", 25);
+    commandArg<int>    h1Cmmd("-maxOverlap","Threshold on the maximum number of overlaps per read, default is twice the read size", 0);
     commandArg<int>    iCmmd("-B","Bandwidth for local alignments", 3);
     commandArg<int>    jCmmd("-l","Minimum length of assembled scaffold", 400);
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
@@ -48,6 +49,7 @@ int main(int argc,char** argv)
     P.registerArg(fCmmd);
     P.registerArg(gCmmd);
     P.registerArg(hCmmd);
+    P.registerArg(h1Cmmd);
     P.registerArg(iCmmd);
     P.registerArg(jCmmd);
     P.registerArg(kCmmd);
@@ -70,6 +72,7 @@ int main(int argc,char** argv)
     double minIdent        = P.GetDoubleValueFor(fCmmd);
     double minCoverage     = P.GetDoubleValueFor(gCmmd);
     int    minOverlap      = P.GetIntValueFor(hCmmd);
+    int    maxOverlapCnt   = P.GetIntValueFor(h1Cmmd);
     int    alignBand       = P.GetIntValueFor(iCmmd);
     int    minBasePerScaf  = P.GetIntValueFor(jCmmd);
     string auxFile         = P.GetStringValueFor(kCmmd);
@@ -96,7 +99,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.findOverlaps(numOfThreads, 0, overlapIter, readGroupThresh, readGroupFile);
+    COUnit.findOverlaps(numOfThreads, 0, overlapIter, readGroupThresh, maxOverlapCnt, readGroupFile);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);

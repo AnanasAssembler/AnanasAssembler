@@ -107,7 +107,7 @@ public:
   /** Return a vector of SubRead entry indexes for a given 
      read of those Subreads that share a significant subsequence 
      mode 0: only overlaps that extend the read, mode 1: all overlaps 
-     limitNumOfOverlaps specifies the number of overlaps to limit the search to (limitNumOfOverlaps=0 means set the limit to read size*2) 
+     limitNumOfOverlaps specifies the number of overlaps to limit the search to (limitNumOfOverlaps=0 means set the limit to read_size*2) 
    */
   int findOverlaps(unsigned long readIndex, AllReadOverlaps& allOverlaps, int mode, int limitNumOfOverlaps) const;  
 
@@ -279,6 +279,8 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
   map<unsigned long, bool> readsUsed_curr;                  // Flagset for reads that have been searched for a given extension
   readsUsed_curr[readIndex] = true;                         // Add the read index to the used list so that overlaps with itself won't be computed
   int readSize = m_reads[readIndex].isize();
+  if(limitNumOfOverlaps <= 0) { limitNumOfOverlaps = 2 * readSize; }
+
   for(int i=0; i<=readSize-getMinOverlap(); i++) {
     FILE_LOG(logDEBUG4)  << "Iterating position in string: "<< i;
     SubRead origSeqSR(readIndex, i, 1); 
@@ -298,6 +300,7 @@ int SubReads<ReadType>::findOverlaps(unsigned long readIndex, AllReadOverlaps& a
       return allOverlaps[readIndex].getNumLaps(); 
     }  //Limiting overlaps for very high coverage reads 
   }
+
   return allOverlaps[readIndex].getNumLaps();
 }
 

@@ -10,7 +10,7 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters, double identThresh, string groupedReadInfo) {
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters, double identThresh, int maxOverlapPerRead, string groupedReadInfo) {
     if(groupedReadInfo=="") {
         createConsensReads(identThresh); 
     } else {
@@ -34,7 +34,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
             string init = "init_";
             init += tmp;
             // set the limiting threshold for number of overlaps to 0 so that it is set to readsize*2 in the overlap finder 
-            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, 0, i));
+            th.AddThread(new FindOverlapsSingleThread< SubReads<ConsensReads> >(threadQueue, subreads, m_overlaps, mode, maxOverlapPerRead, i));
             th.Feed(i, init);
         }
         while (!th.AllDone()) {
