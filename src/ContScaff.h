@@ -188,27 +188,11 @@ class Scaffold
     return n;
   }
 
-  int NumUniqReads() const {
-    map<int, bool> reads;
-    for (int i=0; i<m_contigs.isize(); i++) {
-      for(int j=0; j<m_contigs[i].isize(); j++) {
-        reads[m_contigs[i][j].Read()] = true;  
-      }
-    }
-    return reads.size();
-  }
+  int NumUniqReads() const          { return m_numUniqReads;    }
+  void SetNumUniqReads(int readCnt) { m_numUniqReads = readCnt; }
 
-  int NumUniqPairs() const {
-    map<int, bool> pairedReads;
-    for (int i=0; i<m_contigs.isize(); i++) {
-      for(int j=0; j<m_contigs[i].isize(); j++) {
-        if(m_contigs[i][j].Pair()>=0) {
-          pairedReads[m_contigs[i][j].Read()] = true;  
-        }
-      }
-    }
-    return pairedReads.size();
-  }
+  int NumUniqPairs() const          { return m_numUniqPairs;     }
+  void SetNumUniqPairs(int pairCnt) { m_numUniqPairs = pairCnt;  }
 
   int NumReads() const {
     int n = 0;
@@ -233,6 +217,8 @@ class Scaffold
   svec<Contig> m_contigs;
   svec<int> m_offset;
   string m_name;
+  int  m_numUniqReads;
+  int  m_numUniqPairs;
 };
 
 

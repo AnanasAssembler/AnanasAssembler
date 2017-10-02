@@ -39,14 +39,15 @@ public:
   }
 
 
-  int getNumOfConsReads() const                       { return m_consReads.getNumOfReads();            } 
-  int getNumOfRawReads() const                        { return m_rawReads.getNumOfReads();             } 
-  const ConsensReads & getConsReads() const           { return m_consReads;                            } 
-  const DNAVector& getConsReadDNA(int readIdx) const  { return m_consReads.getReadByIndex(readIdx);    } 
-  const DNAVector& getRawReadDNA(int readIdx) const   { return m_rawReads.getReadByIndex(readIdx);     } 
-  const string& getRawReadName(int readIdx) const     { return m_rawReads.getReadNameByIndex(readIdx); } 
+  int getNumOfConsReads() const                       { return m_consReads.getNumOfReads();             } 
+  int getNumOfRawReads() const                        { return m_rawReads.getNumOfReads();              } 
+  const ConsensReads & getConsReads() const           { return m_consReads;                             } 
+  const DNAVector& getConsReadDNA(int readIdx) const  { return m_consReads.getReadByIndex(readIdx);     } 
+  const DNAVector& getRawReadDNA(int readIdx) const   { return m_rawReads.getReadByIndex(readIdx);      } 
+  const string& getRawReadName(int readIdx) const     { return m_rawReads.getReadNameByIndex(readIdx);  } 
 
   int getConsensCount(int readIdx) const             { return m_consReads.getNumOfReadsInCons(readIdx); }
+  const svec<int>& getConsMembers(int readIdx) const { return m_consReads.getConsMembers(readIdx);      }
   int GetNumReads() const                            { return m_consReads.getNumOfReads();              }  
   bool IsChimeric(int i) const                       { return m_overlaps.isChimeric(i);                 }
 

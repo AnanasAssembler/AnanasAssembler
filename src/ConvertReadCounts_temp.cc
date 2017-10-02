@@ -35,18 +35,22 @@ int main( int argc, char** argv )
     ContigScaffoldIO io;
 
     io.Read(assembly, scaffFile);
+    
+    // To keep track of unique reads in scaffolds
+    map<int, bool> currReads;
+    map<int, bool> currPairs;
   
     // Main loop over scaffolds/contigs to update read counts
-    char name[512];
+    char contigName[512];
     for (int scaffCnt=0; scaffCnt<assembly.isize(); scaffCnt++) {
         Scaffold & currScaff = assembly[scaffCnt];
         for (int contCnt=0; contCnt<currScaff.isize(); contCnt++) {
             Contig & currContig = currScaff[contCnt];
             // This is a temporary hack to fix the problem with discrepancies between layout and fasta ids
-            sprintf(name, ">Contig_Sample1_000_%7d_%3d", scaffCnt, contCnt);
-            for (int i=0; i<(int)strlen(name); i++) {
-                if (name[i] == ' ')
-                name[i] = '0';
+            sprintf(contigName, ">Contig_Sample1_000_%7d_%3d", scaffCnt, contCnt);
+            for (int i=0; i<(int)strlen(contigName); i++) {
+                if (contigName[i] == ' ')
+                contigName[i] = '0';
             }
 	    int totalContigReads = 0;
 	    int totalContigPairs = 0;
@@ -55,12 +59,25 @@ int main( int argc, char** argv )
                 int id   = rPlace.Read();
                 int pair = rPlace.Pair();
 		totalContigReads += COUnit.getConsensCount(id);
-                if(pair>-1) { totalContigPairs += COUnit.getConsensCount(id); }
+                const svec<int>& consMemIds = COUnit.getConsMembers(id);
+                for(int cmId:consMemIds) { //Add all the raw reads
+                    currReads[cmId] = true;
+                }
+                if(pair>-1) { 
+                    totalContigPairs += COUnit.getConsensCount(id); 
+                    for(int cmId:consMemIds) { //Add all the raw read pairs
+                        currPairs[cmId] = true;
+                    }
+                }
 	    }
             currScaff[contCnt].SetNumReads(totalContigReads);
             currScaff[contCnt].SetNumPairs(totalContigPairs/2);
-            currScaff[contCnt].SetName(name);
+            currScaff[contCnt].SetName(contigName);
 	}
+        currScaff.SetNumUniqReads(currReads.size());
+        currScaff.SetNumUniqPairs(currPairs.size()/2);
+        currReads.clear();
+        currPairs.clear();
     }
     io.Write(assembly, outName+".layout");
     io.WriteReadCountSummary(assembly, outName+".summary");

@@ -100,8 +100,8 @@ class LayoutSink
   FILE * m_pLayout;
   int m_counter;
   int m_minor;
-  map<int, bool> m_currReads;
-  map<int, bool> m_currPairedReads;
+  map<int, bool> m_currReads;        ///Keep count of uique raw reads
+  map<int, bool> m_currPairedReads;  ///Keep count of unique raw pairs
   string m_lastContigName;
   string m_lastScaffName;
   DNAVector m_lastCons;

@@ -387,7 +387,6 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   m_lastContigName = name;
   
   const ConsensReads & rr = COUnit.getConsReads();
-  char scaffName[1024];
   if(!bPrev) {
     if(m_counter>0) { 
       fprintf(m_pLayout, "<SCAFFOLD_READCOUNT> %s %d </SCAFFOLD_READCOUNT>\n", m_lastScaffName.c_str(), (int)m_currReads.size());
@@ -396,7 +395,7 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
       m_currReads.clear();
       fprintf(m_pLayout, "</SCAFFOLD> %s\n\n", m_lastScaffName.c_str());
     }
-    char tmp[1024];
+    char scaffName[1024];
     sprintf(scaffName, ">Scaffold_%5d", m_counter);
     for (unsigned int x = 0; x<strlen(scaffName); x++) {
       if (scaffName[x] == ' ')
@@ -407,16 +406,22 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   }
   fprintf(m_pLayout, "<CONTIG> %s %d \n", name, hyp.Pairs());
   for (i=0; i<hyp.Size(); i++) {
-    int r = hyp[i].Read();
-    int numPartner = COUnit.getNumOfPartners(r);
-    fprintf(m_pLayout, "%d\t%d\t%d - %d\t%d\t%d\n", r, hyp[i].Ori(), hyp[i].Start(), hyp[i].Stop(), 
+    int rIdx = hyp[i].Read();
+    int numPartner = COUnit.getNumOfPartners(rIdx);
+    fprintf(m_pLayout, "%d\t%d\t%d - %d\t%d\t%d\n", rIdx, hyp[i].Ori(), hyp[i].Start(), hyp[i].Stop(), 
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Read():hyp[i].Pair(),  
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Ori():hyp[i].Pair());
-    m_currReads[r] = true;
-    currNumReads_contig += COUnit.getConsensCount(r);
+
+    const svec<int>& consMemIds = COUnit.getConsMembers(rIdx);
+    for(int cmId:consMemIds) { //Add all the raw reads
+      m_currReads[cmId] = true;
+    }
+    currNumReads_contig += COUnit.getConsensCount(rIdx);
     if (hyp[i].Pair() >= 0) {
-      m_currPairedReads[r] = true;
-      currNumPairedReads_contig += COUnit.getConsensCount(r);
+      for(int cmId:consMemIds) { //Add all the raw read pairs
+        m_currPairedReads[cmId] = true;
+      }
+      currNumPairedReads_contig += COUnit.getConsensCount(rIdx);
     }
   }
   fprintf(m_pLayout, "<CONTIG_READCOUNT> %s %d </CONTIG_READCOUNT>\n", name, currNumReads_contig);
