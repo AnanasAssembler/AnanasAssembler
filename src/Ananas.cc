@@ -145,6 +145,7 @@ int main( int argc, char** argv )
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
     commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
+    commandArg<bool> noIsoCmmd("-noIso","No isoforms (skips exhaustive search)", false);
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
@@ -168,6 +169,7 @@ int main( int argc, char** argv )
     P.registerArg(prefixCmmd);
     P.registerArg(redunCmmd);
     P.registerArg(gapsCmmd);
+    P.registerArg(noIsoCmmd);
   
     P.parse();
   
@@ -191,6 +193,7 @@ int main( int argc, char** argv )
     string prefix         = P.GetStringValueFor(prefixCmmd);
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
     bool bGaps            = P.GetBoolValueFor(gapsCmmd);
+    bool bNoIso           = P.GetBoolValueFor(noIsoCmmd);
 
     if (bandwidth > 0)
       bGaps = true;
@@ -308,61 +311,68 @@ int main( int argc, char** argv )
     ///// Scaffolder /////////////////////////////////////////
     //////////////////////////////////////////////////////////
 
-    cmmd = "Scaffolder -f " + pairSzFile;
-    cmmd += " -l " + outName + "/allOverlaps.out";
-    cmmd += " -o " + outName + "/scaffolds.layout";
-    cmmd += " -i " + outName + "/contigs.layout";
-    cmmd += " -g " + groupFile;
-    cmmd += " -dir " + dir;
-
-    Run(exec_dir, cmmd);
-
-
-
-    ///////////////////////////////////////////////////////////
-    //// LayoutGuided ////////////////////////////////////////
-    /////////////////////////////////////////////////////////
-
-    cmmd = "LayoutGuided -i " + pairSzFile;
-    cmmd += " -l " + outName + "/allOverlaps.out";
-    cmmd += " -o " + outName + "/contigs_altsplic_raw.layout";
-    //  cmmd += " -f " + outName + "/contigs_altsplic.fasta";
-    cmmd += " -s " + outName + "/scaffolds.layout";
-    cmmd += " -g " + groupFile;
-    cmmd += " -dir " + dir;
-    cmmd += " -libSize " + Number(libSize);
-    cmmd += " -prefix " + prefix;
-
-    if (cpu2 == 1) {
-        Run(exec_dir, cmmd);
+    if (bNoIso) {
+      cmmd = "cp ";
+      cmmd += outName + "/contigs.layout ";
+      cmmd += outName + "/contigs_altsplic.layout";
+      system(cmmd.c_str());
     } else {
+      cmmd = "Scaffolder -f " + pairSzFile;
+      cmmd += " -l " + outName + "/allOverlaps.out";
+      cmmd += " -o " + outName + "/scaffolds.layout";
+      cmmd += " -i " + outName + "/contigs.layout";
+      cmmd += " -g " + groupFile;
+      cmmd += " -dir " + dir;
+      
+      Run(exec_dir, cmmd);
+
+
+
+      ///////////////////////////////////////////////////////////
+      //// LayoutGuided ////////////////////////////////////////
+      /////////////////////////////////////////////////////////
+      
+      cmmd = "LayoutGuided -i " + pairSzFile;
+      cmmd += " -l " + outName + "/allOverlaps.out";
+      cmmd += " -o " + outName + "/contigs_altsplic_raw.layout";
+      //  cmmd += " -f " + outName + "/contigs_altsplic.fasta";
+      cmmd += " -s " + outName + "/scaffolds.layout";
+      cmmd += " -g " + groupFile;
+      cmmd += " -dir " + dir;
+      cmmd += " -libSize " + Number(libSize);
+      cmmd += " -prefix " + prefix;
+      
+      if (cpu2 == 1) {
+        Run(exec_dir, cmmd);
+      } else {
         ThreadHandler th;
         for (i=0; i<cpu2; i++) {
-            th.AddThread(new LayoutThread(exec_dir, cmmd, i, cpu2), "");
+	  th.AddThread(new LayoutThread(exec_dir, cmmd, i, cpu2), "");
         }
         for (i=0; i<cpu2; i++) {
-            th.Feed(i, "run");
+	  th.Feed(i, "run");
         }
         while (!th.AllDone()) {
-            usleep(10000);
+	  usleep(10000);
         }
         cout << "LayoutGuided is done!!!" << endl;
         // Note: this is extremely STUPID and dangerous!!!
         cmmd = "cat " + outName + "/contigs_altsplic_raw.layout.* > " + outName + "/contigs_altsplic_raw.layout";
         cout << "Concatenating layout files: " << cmmd << endl;
         int ret = system(cmmd.c_str());    
-    }
+      }
 
-    //////////////////////////////////////////////////////////
-    // RunIsoEM         /////////////////////////////////////
-    ////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////
+      // RunIsoEM         /////////////////////////////////////
+      ////////////////////////////////////////////////////////
 
   
-    cmmd = "RunIsoEM " ;
-    cmmd += " -i " + outName + "/contigs_altsplic_raw.layout";
-    cmmd += " -o " + outName + "/contigs_altsplic.layout";
-    Run(exec_dir, cmmd);
-
+      cmmd = "RunIsoEM " ;
+      cmmd += " -i " + outName + "/contigs_altsplic_raw.layout";
+      cmmd += " -o " + outName + "/contigs_altsplic.layout";
+      Run(exec_dir, cmmd);
+    } 
+    
 
     //////////////////////////////////////////////////////////
     // GenAssemblyFasta /////////////////////////////////////
