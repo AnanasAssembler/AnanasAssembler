@@ -67,6 +67,17 @@ void ContigScaffoldIO::Read(Assembled & assembled, const string &file)
             continue;
         }
 
+        if (parser.AsString(0) == "<SCAFFOLD_READCOUNT>") {
+            scaffold.SetNumUniqReads(parser.AsInt(2));
+            continue;
+        }
+
+        if (parser.AsString(0) == "<SCAFFOLD_PAIRCOUNT>") {
+            scaffold.SetNumUniqPairs(parser.AsInt(2));
+            continue;
+        }
+
+
         if(parser.GetItemCount()>6) {
             int read = parser.AsInt(0);
             int ori = parser.AsInt(1);
