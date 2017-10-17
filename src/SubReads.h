@@ -321,15 +321,15 @@ bool SubReads<ReadType>::handleIterInstance(IterType iter, map<unsigned long, bo
   float matchScore = checkOverlap(origSeq2, extSeq);
   if(matchScore>=0) {
     int contactPos = readIterPos - (*iter).getOffset(); 
-
-   // Synchronized version of overlap adding that locks so no iterference occurs with other threads
     int overlapDir = 1;
     if(contactPos<0) { 
       overlapDir = -1; 
-      contactPos = abs(contactPos);
+      contactPos = (m_reads[readIndex].isize() - contactPos) - m_reads[(*iter).getIndex()].isize(); 
+      if(contactPos<0) { return false; } //discard non-extending containment 
     }
     FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*iter).getIndex() << "\t" << contactPos
                          << "\t" << matchScore << "\t" << 1 << "\t" << (*iter).getStrand();
+   // Synchronized version of overlap adding that locks so no iterference occurs with other threads
     allOverlaps.addOverlapSync(readIndex, (*iter).getIndex(), contactPos, overlapDir, (*iter).getStrand());
     if(contactPos==0) { allOverlaps.addOverlapSync(readIndex, (*iter).getIndex(), contactPos, -overlapDir, (*iter).getStrand());} 
     readsUsed_curr[(*iter).getIndex()] = true;

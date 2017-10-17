@@ -132,7 +132,7 @@ int main( int argc, char** argv )
     commandArg<int> cpuCmmd("-n","number of CPU cores", 1);
     commandArg<int> cpuCmmd2("-n2","number of CPU cores for isoform enumeration", 1);
     commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
-    commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 1);
+    commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 2);
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
     commandArg<int> moCmmd("-maxOverlap","Threshold on the maximum number of overlaps per read, default is twice the read size", 0);
@@ -254,7 +254,7 @@ int main( int argc, char** argv )
       cmmd = "FindOverlaps -I " + NumberFloat(mI) + " -b " + Number(step);
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap)
-            + " -s " + Number(ss) + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpu) + " -g " 
+            + " -s " + Number(ss) + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpuLap) + " -g " 
             + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -outReadNames " + rNameFile + " -maxOverlap " + Number(maxOverlapCnt);
 
     if (Exists(lapFile)) {
