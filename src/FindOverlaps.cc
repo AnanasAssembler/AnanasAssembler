@@ -29,8 +29,6 @@ int main(int argc,char** argv)
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
-    // TODO overlapIter has been disabled until further investigation
-    commandArg<int>    overlapIterCmmd("-overlapIter", "Number of iterations with increasing liniency for overlap computation", 2);
     commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");
     commandArg<string> readNamesOutCmmd("-outReadNames","Print grouped read names associating them to their index", "");
@@ -55,7 +53,6 @@ int main(int argc,char** argv)
     P.registerArg(kCmmd);
     P.registerArg(lCmmd);
     P.registerArg(threadCmmd);
-    P.registerArg(overlapIterCmmd);
     P.registerArg(readGroupIdentThreshCmmd);
     P.registerArg(readGroupFileCmmd);
     P.registerArg(readNamesOutCmmd);
@@ -77,9 +74,7 @@ int main(int argc,char** argv)
     int    minBasePerScaf  = P.GetIntValueFor(jCmmd);
     string auxFile         = P.GetStringValueFor(kCmmd);
     string applicationFile = P.GetStringValueFor(lCmmd);
-    int    numOfCores      = P.GetIntValueFor(threadCmmd);
     int    numOfThreads    = P.GetIntValueFor(threadCmmd);
-    int    overlapIter     = P.GetIntValueFor(overlapIterCmmd); 
     double readGroupThresh = P.GetDoubleValueFor(readGroupIdentThreshCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string readNamesFile   = P.GetStringValueFor(readNamesOutCmmd);
@@ -99,7 +94,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.findOverlaps(numOfThreads, 0, overlapIter, readGroupThresh, maxOverlapCnt, readGroupFile);
+    COUnit.findOverlaps(numOfThreads, 0, readGroupThresh, maxOverlapCnt, readGroupFile);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);

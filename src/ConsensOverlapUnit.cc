@@ -10,7 +10,7 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters, double identThresh, int maxOverlapPerRead, string groupedReadInfo) {
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, double identThresh, int maxOverlapPerRead, string groupedReadInfo) {
     if(groupedReadInfo=="") {
         createConsensReads(identThresh); 
     } else {
@@ -48,10 +48,6 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, int numOfIters
 }
 
 void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
-    //int stepSize = 1/(1-(minMatchScore_p-0.01));
-    //AssemblyParams params(m_params);
-    //params.setSubreadStep(stepSize);
-    //SubReads<RawReads>  subreads(m_rawReads, params, true); // Object handling the subreads 
     SubReads<RawReads>  subreads(m_rawReads, m_params, true); // Object handling the subreads 
     ReadGroups nIdentGroupInfo(m_rawReads.getNumOfReads());   // Make sure enough memory is declared 
     FILE_LOG(logDEBUG1) << "Finding Consensus Reads based on Near Ident Groupings";
@@ -61,22 +57,24 @@ void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {
     int inc = totSize/10000;
     if (inc == 0)
         inc = 1; //Let's not crash if we have too few reads 
-    for(int i=0; i<totSize-1; i++) { 
-        SubRead a = subreads.getByIndex(i); 
-        SubRead b = subreads.getByIndex(i+1);
-        if(!nIdentGroupInfo.isGrouped(a.getIndex(), b.getIndex()) 
-           && a.getOffset() == b.getOffset()) {
-            DNAVector aD, bD;
-            aD.SetFromBases(subreads.getSeq(a, 0, m_rawReads.getSize(a.getIndex())-1));
-            bD.SetFromBases(subreads.getSeq(b, 0, m_rawReads.getSize(b.getIndex())-1));
-            float matchScore = aD.FindIdent(bD);  // Direct match identity without alignment 
-            if (matchScore>=minMatchScore_p) { 
-                nIdentGroupInfo.group(a.getIndex(), b.getIndex()); 
-            }
-        } 
-        progCount++;
-        if (progCount % inc == 0) 
-            cout << "\r===================== " << 100.0*progCount/totSize << "% " << flush; 
+    if(minMatchScore_p  > 0 && minMatchScore_p <= 1) {
+      for(int i=0; i<totSize-1; i++) { 
+          SubRead a = subreads.getByIndex(i); 
+          SubRead b = subreads.getByIndex(i+1);
+          if(!nIdentGroupInfo.isGrouped(a.getIndex(), b.getIndex()) 
+             && a.getOffset() == b.getOffset()) {
+              DNAVector aD, bD;
+              aD.SetFromBases(subreads.getSeq(a, 0, m_rawReads.getSize(a.getIndex())-1));
+              bD.SetFromBases(subreads.getSeq(b, 0, m_rawReads.getSize(b.getIndex())-1));
+              float matchScore = aD.FindIdent(bD);  // Direct match identity without alignment 
+              if (matchScore>=minMatchScore_p) { 
+                  nIdentGroupInfo.group(a.getIndex(), b.getIndex()); 
+              }
+          } 
+          progCount++;
+          if (progCount % inc == 0) 
+              cout << "\r===================== " << 100.0*progCount/totSize << "% " << flush; 
+      }
     }
     nIdentGroupInfo.assignSingleGroups();
 
