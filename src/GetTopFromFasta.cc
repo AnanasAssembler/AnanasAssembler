@@ -1,7 +1,7 @@
 #include <string>
 #include "ryggrad/src/base/CommandLineParser.h"
 #include "ryggrad/src/base/FileParser.h"
-#include "DNAVector.h"
+#include "ryggrad/src/general/DNAVector.h"
 
 
 int main( int argc, char** argv )
