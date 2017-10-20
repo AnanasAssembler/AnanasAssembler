@@ -325,7 +325,10 @@ bool SubReads<ReadType>::handleIterInstance(IterType iter, map<unsigned long, bo
     if(contactPos<0) { 
       overlapDir = -1; 
       contactPos = (m_reads[readIndex].isize() - contactPos) - m_reads[(*iter).getIndex()].isize(); 
-      if(contactPos<0) { return false; } //discard non-extending containment 
+      if(contactPos<0) { 
+        FILE_LOG(logDEBUG1)  << "Contained Read: " << m_reads[(*iter).getIndex()].getName();
+        return false; 
+      } //discard non-extending containment 
     }
     FILE_LOG(logDEBUG3)  << "Adding overlap: " << readIndex << "\t" << (*iter).getIndex() << "\t" << contactPos
                          << "\t" << matchScore << "\t" << 1 << "\t" << (*iter).getStrand();

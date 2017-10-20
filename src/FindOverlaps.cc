@@ -28,6 +28,7 @@ int main(int argc,char** argv)
     commandArg<int>    jCmmd("-l","Minimum length of assembled scaffold", 400);
     commandArg<string> kCmmd("-a","Auxillary information output file", "aux.out");
     commandArg<string> lCmmd("-L","Application logging file","application.log");
+    commandArg<int>    logLevelCmmd("-ll","Application logging level - defaults to 0, choose 1 to 4 for debugging", 0);
     commandArg<int>    threadCmmd("-T","Number of Cores to run with", 2);
     commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");
@@ -52,6 +53,7 @@ int main(int argc,char** argv)
     P.registerArg(jCmmd);
     P.registerArg(kCmmd);
     P.registerArg(lCmmd);
+    P.registerArg(logLevelCmmd);
     P.registerArg(threadCmmd);
     P.registerArg(readGroupIdentThreshCmmd);
     P.registerArg(readGroupFileCmmd);
@@ -74,6 +76,7 @@ int main(int argc,char** argv)
     int    minBasePerScaf  = P.GetIntValueFor(jCmmd);
     string auxFile         = P.GetStringValueFor(kCmmd);
     string applicationFile = P.GetStringValueFor(lCmmd);
+    int    logLevel        = P.GetIntValueFor(logLevelCmmd);
     int    numOfThreads    = P.GetIntValueFor(threadCmmd);
     double readGroupThresh = P.GetDoubleValueFor(readGroupIdentThreshCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
@@ -81,7 +84,25 @@ int main(int argc,char** argv)
     
     FILE* pFile               = fopen(applicationFile.c_str(), "w");
     Output2FILE::Stream()     = pFile;
-    FILELog::ReportingLevel() = logINFO; 
+    switch(logLevel){
+      case 0:
+        FILELog::ReportingLevel() = logINFO; 
+        break;
+      case 1:
+        FILELog::ReportingLevel() = logDEBUG1; 
+        break;
+      case 2:
+        FILELog::ReportingLevel() = logDEBUG2; 
+        break;
+      case 3:
+        FILELog::ReportingLevel() = logDEBUG3; 
+        break;
+      case 4:
+        FILELog::ReportingLevel() = logDEBUG4; 
+        break;
+      default:
+        FILELog::ReportingLevel() = logINFO; 
+    }
 #if defined(FORCE_DEBUG)
     FILELog::ReportingLevel() = logDEBUG3; 
 #endif

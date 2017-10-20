@@ -146,6 +146,7 @@ int main( int argc, char** argv )
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
     commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
     commandArg<bool> noIsoCmmd("-noIso","No isoforms (skips exhaustive search)", false);
+    commandArg<int>  logLevelCmmd("-ll","Application logging level - defaults to 0, choose 1 to 4 for debugging", 0);
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
@@ -170,6 +171,7 @@ int main( int argc, char** argv )
     P.registerArg(redunCmmd);
     P.registerArg(gapsCmmd);
     P.registerArg(noIsoCmmd);
+    P.registerArg(logLevelCmmd);
   
     P.parse();
   
@@ -194,6 +196,7 @@ int main( int argc, char** argv )
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
     bool bGaps            = P.GetBoolValueFor(gapsCmmd);
     bool bNoIso           = P.GetBoolValueFor(noIsoCmmd);
+    int logLevel          = P.GetIntValueFor(logLevelCmmd);
 
     if (bandwidth > 0)
       bGaps = true;
@@ -246,6 +249,7 @@ int main( int argc, char** argv )
     string pairSzFile = outName + "/pairSz.tmp";
     string lapFile    = outName + "/allOverlaps.out";
     string groupFile  = outName + "/consensusReads.out";
+    string logFile    = outName + "/application.log";
     string rNameFile  = outName + "/" + readNamesFile;
 
     if (bUnpaired)
@@ -255,7 +259,8 @@ int main( int argc, char** argv )
 
     cmmd += " -d " + NumberFloat(minGroupI) + " -B " + Number(bandwidth) +  " -O " + Number(minoverlap)
             + " -s " + Number(ss) + " -i " + readsFileName + " -t " + pairSzFile + " -T " + Number(cpuLap) + " -g " 
-            + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -outReadNames " + rNameFile + " -maxOverlap " + Number(maxOverlapCnt);
+            + readGroupFile + " -C " + groupFile + " -o " + lapFile + " -outReadNames " + rNameFile 
+            + " -maxOverlap " + Number(maxOverlapCnt) + " -L " + logFile + " -ll " + Number(logLevel);
 
     if (Exists(lapFile)) {
       cout << "Overlaps exist, skipping." << endl;
