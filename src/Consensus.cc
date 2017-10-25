@@ -430,7 +430,8 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
   fflush(m_pLayout);
 }
 
-void LayoutSink::fastaFromAssembly(const string& fastaFile, Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen, bool bUseGaps)
+void LayoutSink::fastaFromAssembly(const string& fastaFile, Assembled& asmb, const ConsensOverlapUnit & COUnit,
+                                   int minLen, bool bUseGaps, bool onlyTop)
 {
   FILE* pFasta = fopen(fastaFile.c_str(), "w");
   if (pFasta == NULL) {
@@ -447,11 +448,11 @@ void LayoutSink::fastaFromAssembly(const string& fastaFile, Assembled& asmb, con
       else
 	cons.Build(dna, currCont, COUnit);
       if (IsSame(dna)) {
-        cout << "Deep toasting sequence " << currCont.Name() << endl;
+        //cout << "Deep toasting sequence " << currCont.Name() << endl;
         currCont.SetDiscard(true);
         continue;
       }
-      if(dna.isize()<minLen) { 
+      if(dna.isize()<minLen || (contCnt>0 && onlyTop) ) { // Applying min contig length and only accepting top from fasta rule
         currCont.SetDiscard(true);
         continue; 
       }

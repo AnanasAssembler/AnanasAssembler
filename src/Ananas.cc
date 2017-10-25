@@ -144,6 +144,7 @@ int main( int argc, char** argv )
     commandArg<string> readNamesOutCmmd("-outReadNames","Print grouped read names associating them to their index", "");
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
+    commandArg<bool>   topOnlyCmmd("-top","Keep only the top contig from any scaffold", false);
     commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
     commandArg<bool> noIsoCmmd("-noIso","No isoforms (skips exhaustive search)", false);
     commandArg<int>  logLevelCmmd("-ll","Application logging level - defaults to 0, choose 1 to 4 for debugging", 0);
@@ -169,6 +170,7 @@ int main( int argc, char** argv )
     P.registerArg(readNamesOutCmmd);
     P.registerArg(prefixCmmd);
     P.registerArg(redunCmmd);
+    P.registerArg(topOnlyCmmd);
     P.registerArg(gapsCmmd);
     P.registerArg(noIsoCmmd);
     P.registerArg(logLevelCmmd);
@@ -194,6 +196,7 @@ int main( int argc, char** argv )
     string readNamesFile  = P.GetStringValueFor(readNamesOutCmmd);
     string prefix         = P.GetStringValueFor(prefixCmmd);
     bool bRemoveRedundant = P.GetBoolValueFor(redunCmmd);
+    bool topOnly          = P.GetBoolValueFor(topOnlyCmmd);
     bool bGaps            = P.GetBoolValueFor(gapsCmmd);
     bool bNoIso           = P.GetBoolValueFor(noIsoCmmd);
     int logLevel          = P.GetIntValueFor(logLevelCmmd);
@@ -396,6 +399,7 @@ int main( int argc, char** argv )
     cmmd += " -o " + outName + "/final.fa";
     cmmd += " -l " + outName + "/final.layout";
     cmmd += " -minContig " + Number(minContig);
+    cmmd += " -top "  + Number(topOnly);
     cmmd += " -readsOutDir " + partitionsOutName;
     if (bGaps)
       cmmd += " -gaps ";

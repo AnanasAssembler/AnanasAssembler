@@ -89,7 +89,7 @@ class LayoutSink
  
   void Dump(const Hypothesis & hyp, const ConsensOverlapUnit & reads, bool bPrev = false, int minLen = 0);
 
-  void fastaFromAssembly(const string& fastaFile, Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen, bool bUseGaps);
+  void fastaFromAssembly(const string& fastaFile, Assembled& asmb, const ConsensOverlapUnit & COUnit, int minLen, bool bUseGaps, bool onlyTop);
 
   const string & LastContig() const {return m_lastContigName;}
 

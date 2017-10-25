@@ -21,6 +21,7 @@ int main( int argc, char** argv )
     commandArg<string> outReadsCmmd("-O","output list of used raw read names, provide file name if you require this information", "");
     commandArg<string> partOutDirCmmd("-readsOutDir","Output directory for recording the reads in each scaffold", "partitions");
     commandArg<bool>   gapsCmmd("-gaps","Uses gaps in alignments (use for anything other than Illumina data)", false);
+    commandArg<bool>   topOnlyCmmd("-top","Keep only the top contig from any scaffold", false);
 
     commandLineParser P(argc,argv);
     P.SetDescription("Generate Fasta file for the assembled sequences from a given contig file.");
@@ -33,6 +34,7 @@ int main( int argc, char** argv )
     P.registerArg(outReadsCmmd);
     P.registerArg(partOutDirCmmd);
     P.registerArg(gapsCmmd);
+    P.registerArg(topOnlyCmmd);
     P.parse();
   
     string contigFile    = P.GetStringValueFor(contigCmmd);
@@ -44,6 +46,7 @@ int main( int argc, char** argv )
     string outReadFile   = P.GetStringValueFor(outReadsCmmd);
     string partOutDir    = P.GetStringValueFor(partOutDirCmmd);
     bool bUseGaps        = P.GetBoolValueFor(gapsCmmd);
+    bool topOnly         = P.GetBoolValueFor(topOnlyCmmd);
  
     ConsensOverlapUnit COUnit(readsFile, consFile);
 
@@ -60,7 +63,7 @@ int main( int argc, char** argv )
 #endif
   
     LayoutSink sink;
-    sink.fastaFromAssembly(outFastaFile, assembly, COUnit, minContig, bUseGaps);
+    sink.fastaFromAssembly(outFastaFile, assembly, COUnit, minContig, bUseGaps, topOnly);
     //The fasta generation step flags contigs that don't meet requirements for final sequence generation.
     //As a result the layout that will be written out as the next stage doesn't contain those discarded contigs.
     io.Write(assembly, outLayoutFile);
