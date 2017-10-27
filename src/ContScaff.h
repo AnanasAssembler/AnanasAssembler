@@ -80,7 +80,9 @@ class Contig
   void SetNumReads(int readCnt) { m_numOfReads = readCnt; }
 
   int NumPairs() const { return m_numOfPaired/2; }
+  float Score() const  { return ((float) m_numOfPaired)/m_numOfReads; }
   void SetNumPairs(int pairCnt) { m_numOfPaired = pairCnt*2; }
+  
 
   bool Discard() const { return m_discard; }
   void SetDiscard(bool dis) { m_discard = dis; }

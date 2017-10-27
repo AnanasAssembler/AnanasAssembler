@@ -393,8 +393,9 @@ public:
     return Length() < h.Length();
   }
 
-  void SetPairs(int i) {m_pairs = i;}
-  int Pairs() const {return m_pairs;}
+  void SetPairs(int i)     { m_pairs = i;    }
+  int Pairs() const        { return m_pairs; }
+  float PairsRatio() const { return float(Pairs())/ceil(m_main.isize()/2.0); }
   int Length() const { 
     if(Size()==0) { return 0; } 
     else          { return m_main[Size()-1].Stop(); } 

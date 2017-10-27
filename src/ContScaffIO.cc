@@ -126,7 +126,7 @@ void ContigScaffoldIO::Write(const Assembled & assembled, const string &file)
             string nameC = c.Name();
             if (nameC == "")
                 nameC = "<unknown>";
-            fprintf(pOut, "<CONTIG>\t%s\t%d\t%d\n", nameC.c_str(), s.Offset(i), c.Ori());
+            fprintf(pOut, "<CONTIG>\t%s\t%.2f\t%d\n", nameC.c_str(), c.Score(), c.Ori());
       
             for (j=0; j<c.isize(); j++) {
                 const ReadPlacement & r = c[j];	
