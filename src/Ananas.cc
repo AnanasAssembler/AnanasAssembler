@@ -136,7 +136,7 @@ int main( int argc, char** argv )
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
     commandArg<int> moCmmd("-maxOverlap","Threshold on the maximum number of overlaps per read, default is twice the read size", 0);
-    commandArg<int> stepCmmd("-s","step size (for alignments)", 30);
+    commandArg<int> stepCmmd("-s","step size (for alignments)", 5);
     commandArg<bool> ssCmmd("-strand","strand specificity (0=no 1=yes)", false);
     commandArg<int> contigSizeCmmd("-minContigLen","minimum length of a single-contig scaffold to report", 200);
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
