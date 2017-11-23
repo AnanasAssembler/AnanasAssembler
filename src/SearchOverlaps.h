@@ -625,6 +625,7 @@ class Search
 public:
   Search() {
     m_exhaust = false;
+    m_pairRestrict = false;
     m_discount = 30;
     m_pGlob = NULL;
     m_report = 0;
@@ -672,6 +673,9 @@ public:
     m_exhaust = b;
   }
 
+  void SetPairRestrict(bool pr) {
+    m_pairRestrict = pr;
+  }
   void SetUsedAll(const ConsensOverlapUnit & COUnit) {
     m_globalUsed.hard_clear(); //Using clear doesn't always work correctly for next search round
     m_globalUsed.resize(COUnit.GetNumReads(), 1);
@@ -753,6 +757,7 @@ private:
 
   LayoutSink m_sink;
   bool m_exhaust;
+  bool m_pairRestrict;
   int m_discount;
   Hypothesis m_workHyp;
   

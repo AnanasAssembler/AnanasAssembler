@@ -155,8 +155,10 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit)
             SetPairs(raw[i], COUnit);
             int numOfPairs = CountPairs(to, from, raw[i], COUnit, true);
             raw[i].SetPairs(numOfPairs);
-            raw[i].TrimRight(to);
-            raw[i].TrimLeft(from);
+            if(m_pairRestrict) {
+                raw[i].TrimRight(to);
+                raw[i].TrimLeft(from);
+            }
             SetPairs(raw[i], COUnit);
             //raw[i].RemoveUnpaired();
       
@@ -173,8 +175,10 @@ void Search::SelectTopN(const ConsensOverlapUnit & COUnit)
         SetPairs(m_workHyp, COUnit);
         int numOfPairs = CountPairs(to, from, m_workHyp, COUnit, true);
         m_workHyp.SetPairs(numOfPairs);
-        m_workHyp.TrimRight(to);
-        m_workHyp.TrimLeft(from);
+        if(m_pairRestrict) {
+            m_workHyp.TrimRight(to);
+            m_workHyp.TrimLeft(from);
+        }
         SetPairs(m_workHyp, COUnit);
         //m_workHyp.RemoveUnpaired();
         m_sink.Dump(m_workHyp, COUnit);
@@ -727,7 +731,7 @@ void Search::SearchCore(const ConsensOverlapUnit & COUnit, int index, bool seedR
                 diffNodeCount = 0;
                 //break; //MGG: This should make the search greedy!!!
 
-                if (limit < n.Pos()) {	  
+                if (limit < n.Pos() && m_pairRestrict) {	  
                     // Do or do not not backoff all the way!!
                     backoff = limit;
                 } else {

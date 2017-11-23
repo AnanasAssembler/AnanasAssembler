@@ -18,11 +18,12 @@ public:
                  int startRead,
                  const string & dir,
                  int libSize,
-                 bool bEx)
+                 bool bEx, bool pRest)
     {
         m_startRead = startRead;
         m_pReads = pReads;
         m_search.SetExhaustive(bEx);
+        m_search.SetPairRestrict(pRest);
         m_search.SetOutput(layoutName);
         m_search.SetGlobalUsage(pGlob);
         m_search.SetIndex(index);
@@ -67,8 +68,8 @@ int main( int argc, char** argv )
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     commandArg<string> dirCmmd("-dir","direction of pairs (fr or ff)");
     commandArg<int> cpuCmmd("-n","number of CPUs/cores to use", 1);
-    commandArg<double> minCmmd("-m","minimum overlap identity", 0.99);
     commandArg<bool> exCmmd("-e","Exhaustive search (report top-n)", false);
+    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", false);
     commandArg<bool> fCmmd("-force","Force using the thread handler", false);
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);
@@ -80,8 +81,8 @@ int main( int argc, char** argv )
     P.registerArg(libSizeCmmd);
     P.registerArg(dirCmmd);
     P.registerArg(cpuCmmd);
-    P.registerArg(minCmmd);
     P.registerArg(exCmmd);
+    P.registerArg(pRestCmmd);
     P.registerArg(fCmmd);
     P.registerArg(prefixCmmd);
   
@@ -92,8 +93,8 @@ int main( int argc, char** argv )
     string consName = P.GetStringValueFor(consCmmd);
     string layoutName = P.GetStringValueFor(layoutCmmd);
     int libSize = P.GetIntValueFor(libSizeCmmd);
-    double mI = P.GetDoubleValueFor(minCmmd);
     bool bEx = P.GetBoolValueFor(exCmmd);
+    bool pRest = P.GetBoolValueFor(pRestCmmd);
     bool bForce = P.GetBoolValueFor(fCmmd);
     int cpu = P.GetIntValueFor(cpuCmmd);
     int n = cpu;
@@ -112,6 +113,7 @@ int main( int argc, char** argv )
     if (n == 1 && !bForce) {
         Search search;
         search.SetExhaustive(bEx);
+        search.SetPairRestrict(pRest);
         search.SetDir(dir);
         search.SetOutput(layoutName);
         search.SetLibSize(libSize);
@@ -140,7 +142,7 @@ int main( int argc, char** argv )
                                           startRead,
                                           dir,
                                           libSize,
-                                          bEx), "init");
+                                          bEx, pRest), "init");
       
             startRead += step;
         }
