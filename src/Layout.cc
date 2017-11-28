@@ -69,7 +69,7 @@ int main( int argc, char** argv )
     commandArg<string> dirCmmd("-dir","direction of pairs (fr or ff)");
     commandArg<int> cpuCmmd("-n","number of CPUs/cores to use", 1);
     commandArg<bool> exCmmd("-e","Exhaustive search (report top-n)", false);
-    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", false);
+    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", true);
     commandArg<bool> fCmmd("-force","Force using the thread handler", false);
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandLineParser P(argc,argv);

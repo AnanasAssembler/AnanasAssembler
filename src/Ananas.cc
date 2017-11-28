@@ -147,7 +147,7 @@ int main( int argc, char** argv )
     commandArg<bool>   topOnlyCmmd("-top","Keep only the top contig from any scaffold", false);
     commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
     commandArg<bool> noIsoCmmd("-noIso","No isoforms (skips exhaustive search)", false);
-    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", false);
+    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", true);
     commandArg<int>  logLevelCmmd("-ll","Application logging level - defaults to 0, choose 1 to 4 for debugging", 0);
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");

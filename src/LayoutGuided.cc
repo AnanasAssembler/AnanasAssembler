@@ -111,7 +111,7 @@ int main( int argc, char** argv )
     commandArg<int> libSizeCmmd("-libSize","Maximum library size", 500);
     commandArg<int> minContigCmmd("-minContig","minimum length of a single-contig scaffold to report", 200);
     commandArg<bool> exCmmd("-e","DO NOT DO exhaustive search (report top-n)", false);
-    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", false);
+    commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", true);
     commandArg<int> numCmmd("-num","Process # (for parallel runs)", 0);
     commandArg<int> ofCmmd("-of","Out of # processes (for parallel runs)", 1);
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
