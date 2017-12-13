@@ -1,118 +1,118 @@
 #include <string>
-
+#include <set>
+#include "cola/src/fastAlign/FastAlignUnit.h"
 #include "ryggrad/src/base/CommandLineParser.h"
 #include "cola/src/cola/Cola.h"
+#include "ContScaff.h"
+#include "ContScaffIO.h"
 
 
-bool SameScaff(string a, string b) 
-{
-  int i;
-  for (i=(int)a.size()-1; i>=10; i--) {
-    if (a[i] == '_') {
-      a[i] = 0;
-      break;
+void handleAlignments(svec<AlignmentInfo> currAlignments, set<string>& contigsToRemove, float identRatio) {
+  for(AlignmentInfo& algn:currAlignments) {
+    if(algn.getTargetBaseAligned() >= identRatio*algn.getTargetLength() &&
+      algn.getIdentity()>=identRatio) {
+      cout<<algn.getTargetName()<< endl;
+      contigsToRemove.insert(algn.getTargetName());
+    }
+    if(algn.getQueryBaseAligned() >= identRatio*algn.getQueryLength() &&
+      algn.getIdentity()>=identRatio) {
+      cout<<algn.getQueryName()<<endl; 
+      contigsToRemove.insert(algn.getQueryName());
+      return; //The current sequence being queried has been found as redundant
     }
   }
-  for (i=(int)b.size()-1; i>=10; i--) {
-    if (b[i] == '_') {
-      b[i] = 0;
-      break;
-    }
-  }
- 
-  return (strcmp(a.c_str(), b.c_str()) == 0);
 }
 
+void removeRedundants(const string& fastaFileName, const string& layoutFileName,
+                      set<string>& contigsToRemove) {
+  ofstream fout;
+  fout.open(fastaFileName + ".rr");
+  vecDNAVector dna;
+  dna.Read(fastaFileName);
+  for (int i=0; i<dna.isize(); i++) {
+    string name = ">";
+    name += dna.NameClean(i);
+    const DNAVector & d = dna[i];
+    if (contigsToRemove.count(name)==0) { //Keep
+      fout << name << endl;
+      for (int j=0; j<d.isize(); j++)
+        fout << d[j];
+      fout << endl;
+    }
+  }
+  fout.close();
+
+  Assembled assembly;
+  ContigScaffoldIO io;
+  io.Read(assembly, layoutFileName);
+  // Main loop over scaffolds/contigs to remove redundant contigs
+  for (int scaffCnt=0; scaffCnt<assembly.isize(); scaffCnt++) {
+    Scaffold & currScaff  = assembly[scaffCnt];
+    for (int contigCnt=0; contigCnt<assembly[scaffCnt].isize(); contigCnt++) {
+      string name = currScaff[contigCnt].Name();
+      if (contigsToRemove.count(name)!=0) { // Do not keep
+        currScaff[contigCnt].SetDiscard(true);
+      } 
+    }
+  }
+  io.Write(assembly, layoutFileName+".rr");
+}
+ 
 
 int main(int argc,char** argv)
 {
-  commandArg<string> aStringCmd("-i","input sequence");
-  commandArg<string> bStringCmd("-o","output sequence");
-  commandArg<int>    alignerTypeCmd("-a","Aligner type - Choose 1 : NSGA , 2 : NS , 3 : SWGA, 4 : SW ", 1);
-  commandArg<int>    gapOpenCmd("-o", "Aligner gap open penalty", false);
-  commandArg<int>    mismatchCmd("-m", "Aligner Mismatch penalty", false);
-  commandArg<int>    gapExtCmd("-e", "Aligner gap extension penalty", false);
-  commandArg<double> maxPCmd("-p","Maximum acceptable P-value", 1.0);
-  commandArg<double> minIdentCmd("-ident","Minium acceptable identity", 0.99);
-  commandArg<int>    bandedCmd("-b", "The bandwidth for banded mode", 6);
+  commandArg<string> fastaFileCmmd("-if","input fasta file");
+  commandArg<string> layoutFileCmmd("-il","input layout file");
+  commandArg<double> minIdentCmmd("-ident","Minium acceptable identity", 0.99);
+  commandArg<int>    bandedCmmd("-b", "The bandwidth for banded mode", 3);
+  commandArg<int>  threadCmmd("-n","Number of Cores to run with", 1);
+  commandArg<string> appLogCmmd("-L","Application logging file","application.log");
 
   commandLineParser P(argc,argv);
   P.SetDescription("Removes redundant transcripts if too similar.");
-  P.registerArg(aStringCmd);
-  P.registerArg(bStringCmd);
-  P.registerArg(alignerTypeCmd);
-  P.registerArg(gapOpenCmd);
-  P.registerArg(mismatchCmd);
-  P.registerArg(gapExtCmd);
-  P.registerArg(maxPCmd);
-  P.registerArg(minIdentCmd);
-  P.registerArg(bandedCmd);
+  P.registerArg(fastaFileCmmd);
+  P.registerArg(layoutFileCmmd);
+  P.registerArg(minIdentCmmd);
+  P.registerArg(bandedCmmd);
+  P.registerArg(threadCmmd);
+  P.registerArg(appLogCmmd);
 
   P.parse();
 
-  string      aString     = P.GetStringValueFor(aStringCmd);
-  string      bString     = P.GetStringValueFor(bStringCmd);
-  AlignerType aType       = AlignerType(P.GetIntValueFor(alignerTypeCmd));
-  int         gapOpenPen  = P.GetIntValueFor(gapOpenCmd);
-  int         mismatchPen = P.GetIntValueFor(mismatchCmd);
-  int         gapExtPen   = P.GetIntValueFor(gapExtCmd);
-  double      maxP        = P.GetDoubleValueFor(maxPCmd);
-  double      minIdent    = P.GetDoubleValueFor(minIdentCmd);
-  int         banded      = P.GetIntValueFor(bandedCmd);
+  string fastaFileName         = P.GetStringValueFor(fastaFileCmmd);
+  string layoutFileName        = P.GetStringValueFor(layoutFileCmmd);
+  double      minIdent         = P.GetDoubleValueFor(minIdentCmmd);
+  int         banded           = P.GetIntValueFor(bandedCmmd);
+  int         numThreads       = P.GetIntValueFor(threadCmmd);
+  string      applicationFile  = P.GetStringValueFor(appLogCmmd);
 
-  vecDNAVector in, out;
-
-  in.Read(aString);
+  FILE* pFile               = fopen(applicationFile.c_str(), "w");
+  Output2FILE::Stream()     = pFile;
+  FILELog::ReportingLevel() = logINFO; 
  
-  int i, j;
-  
-  for (i=0; i<in.isize(); i++) {
-    if (in[i].isize() == 0)
-      continue;
-    for (j=i+1; j<in.isize(); j++) {
-      cout << "j=" << j << endl;
-      if (!SameScaff(in.Name(i), in.Name(j))) {
-	cout << "Different: " <<  in.Name(i) << " " <<  in.Name(j) << endl;
-	break;
-      }
+    
+  AlignmentParams params(1, 20, minIdent, banded, 0.75);
+  FastAlignTargetUnit qUnit(fastaFileName, 1);
 
-      const DNAVector & target = in[i];
-      const DNAVector & query = in[j];
+  set<string> contigsToRemove; 
 
-      cout << "Aligning " << in.Name(i) << " vs. " << in.Name(j) << endl;
-      Cola cola1 = Cola();
-      if(gapOpenPen && mismatchPen && gapExtPen) {
-	cola1.createAlignment(target, query,
-			      AlignerParams(banded, aType, -gapOpenPen, -mismatchPen, -gapExtPen));
-      } else { // If params are not given, use default mode
-	cola1.createAlignment(target, query, AlignerParams(banded, aType));
-      }
-      Alignment cAlgn = cola1.getAlignment();
-      bool bGood = false;
-      int wiggle = banded;
-
-      if (cAlgn.getQueryLength() - cAlgn.getQueryBaseAligned() <= wiggle ||
-	  cAlgn.getTargetLength() - cAlgn.getTargetBaseAligned() <= wiggle)
-	bGood = true;
-      cout << "Result: " << cAlgn.getIdentityScore() << " " << minIdent << endl;
-      cAlgn.print(0,1,cout,100);
-      if(cAlgn.calcPVal()<=maxP && cAlgn.getIdentityScore()>=minIdent
-	 && bGood) {
-	//cout << target.Name(i) << " vs " << query.Name(j) << endl;
-	cout << "Remove " << in.Name(j) << endl;
-	in[j].resize(0);
-      } else {
-	cout<<"No Alignment at given significance threshold, keeping sequence"<<endl;     
-      }
+  FastAlignUnit FAUnit(fastaFileName, qUnit, params, numThreads);
+  FastAlignUnit FAUnitRev(fastaFileName, qUnit, params, numThreads, true);
+  cout<<"Total number of query sequences: " << FAUnit.getNumQuerySeqs()<<endl;
+  for(int qIdx=0; qIdx<FAUnit.getNumQuerySeqs(); qIdx++) {
+    cout<<qIdx<<endl;
+    if(!contigsToRemove.count(FAUnit.getQuerySeqName(qIdx))) {
+      svec<AlignmentInfo> currAlignments;
+      FAUnit.alignSequence(qIdx, currAlignments);
+      handleAlignments(currAlignments, contigsToRemove, 0.99);
+      svec<AlignmentInfo> currAlignments_rev;
+      FAUnitRev.alignSequence(qIdx, currAlignments_rev);
+      handleAlignments(currAlignments_rev, contigsToRemove, 0.99);
     }
   }
+  removeRedundants(fastaFileName, layoutFileName, contigsToRemove);
   
-  for (i=0; i<in.isize(); i++) {
-    if (in[i].isize() > 0)
-      out.push_back(in[i], in.Name(i));
-  }
-  out.Write(bString);
-
+  cout<<"finished"<<endl;
   return 0;
 
 }

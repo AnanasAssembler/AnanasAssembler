@@ -413,8 +413,8 @@ int main( int argc, char** argv )
 
     if (bRemoveRedundant) {
       cmmd = "RemoveRedundantSeqs " ;
-      cmmd += " -i " + outName + "/final.fa";
-      cmmd += " -o " + outName + "/final.fa";
+      cmmd += " -if " + outName + "/final.fa";
+      cmmd += " -il " + outName + "/final.layout";
       Run(exec_dir, cmmd);
     }
 

@@ -5,6 +5,9 @@
 #include "ConsensOverlapUnit.h"
 
 
+//Forward declaration
+class ConsensOverlapUnit;
+
 class ContigScaffoldIO
 {
 
