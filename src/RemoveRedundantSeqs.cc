@@ -11,12 +11,10 @@ void handleAlignments(svec<AlignmentInfo> currAlignments, set<string>& contigsTo
   for(AlignmentInfo& algn:currAlignments) {
     if(algn.getTargetBaseAligned() >= identRatio*algn.getTargetLength() &&
       algn.getIdentity()>=identRatio) {
-      cout<<algn.getTargetName()<< endl;
       contigsToRemove.insert(algn.getTargetName());
     }
     if(algn.getQueryBaseAligned() >= identRatio*algn.getQueryLength() &&
       algn.getIdentity()>=identRatio) {
-      cout<<algn.getQueryName()<<endl; 
       contigsToRemove.insert(algn.getQueryName());
       return; //The current sequence being queried has been found as redundant
     }
@@ -95,12 +93,14 @@ int main(int argc,char** argv)
   FastAlignTargetUnit qUnit(fastaFileName, 1);
 
   set<string> contigsToRemove; 
-
   FastAlignUnit FAUnit(fastaFileName, qUnit, params, numThreads);
   FastAlignUnit FAUnitRev(fastaFileName, qUnit, params, numThreads, true);
-  cout<<"Total number of query sequences: " << FAUnit.getNumQuerySeqs()<<endl;
+  int progCount = 0;
+  int totSize   = FAUnit.getNumQuerySeqs();
+  cout<<"Total number of query sequences: " << totSize <<endl;
+  int inc       = totSize/10000;
+  if (inc < 1) inc = 1;
   for(int qIdx=0; qIdx<FAUnit.getNumQuerySeqs(); qIdx++) {
-    cout<<qIdx<<endl;
     if(!contigsToRemove.count(FAUnit.getQuerySeqName(qIdx))) {
       svec<AlignmentInfo> currAlignments;
       FAUnit.alignSequence(qIdx, currAlignments);
@@ -109,10 +109,12 @@ int main(int argc,char** argv)
       FAUnitRev.alignSequence(qIdx, currAlignments_rev);
       handleAlignments(currAlignments_rev, contigsToRemove, minIdent);
     }
+    progCount++;
+   if (progCount % inc == 0) 
+     cout << "\r===================== " << 100.0*progCount/totSize 
+          << "%  " << flush; 
   }
   removeRedundants(fastaFileName, layoutFileName, contigsToRemove);
-  
-  cout<<"finished"<<endl;
   return 0;
 
 }
