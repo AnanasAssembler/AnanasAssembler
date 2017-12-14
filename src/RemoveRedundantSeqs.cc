@@ -104,10 +104,10 @@ int main(int argc,char** argv)
     if(!contigsToRemove.count(FAUnit.getQuerySeqName(qIdx))) {
       svec<AlignmentInfo> currAlignments;
       FAUnit.alignSequence(qIdx, currAlignments);
-      handleAlignments(currAlignments, contigsToRemove, 0.99);
+      handleAlignments(currAlignments, contigsToRemove, minIdent);
       svec<AlignmentInfo> currAlignments_rev;
       FAUnitRev.alignSequence(qIdx, currAlignments_rev);
-      handleAlignments(currAlignments_rev, contigsToRemove, 0.99);
+      handleAlignments(currAlignments_rev, contigsToRemove, minIdent);
     }
   }
   removeRedundants(fastaFileName, layoutFileName, contigsToRemove);
