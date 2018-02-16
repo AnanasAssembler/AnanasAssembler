@@ -134,7 +134,7 @@ int main( int argc, char** argv )
     commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
     commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 2);
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
-    commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 25);
+    commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 35);
     commandArg<int> moCmmd("-maxOverlap","Threshold on the maximum number of overlaps per read, default is twice the read size", 0);
     commandArg<int> stepCmmd("-s","step size (for alignments)", 5);
     commandArg<bool> ssCmmd("-strand","strand specificity (0=no 1=yes)", false);
