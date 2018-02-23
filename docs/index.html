@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <title>Overview</title>
+  </head>
+  <body leftmargin="35" rightmargin="35" topmargin="70">
+    <div align="center"><big><big><big><b><big><span style="color:#006600">A</span></span></big> <i>de-<big><span style="color:#006600">N</span></big>ovo</i> <big><span style="color:#006600">A</span></big>ssembler for R<big><span style="color:#006600">NA</span></big>-<big><span style="color:#006600">S</span></big>eq data</b>
+<br> </big></big></big><a
+        href="https://github.com/AnanasAssembler/AnanasAssembler"><img
+          src="LOGO_nice.jpg" title="Ananas Logo" alt="Ananas logo" align="center"
+          border="0" height="300" width="300"></a><br>
+<br><br>
+<table align="center" width="600" height="61" cellspacing="2" cellpadding="10"
+        border="0" bgcolor="#ffffff">
+        <tbody>
+          <tr>
+            <td valign="middle" align="center"><a
+                href="https://github.com/AnanasAssembler/AnanasAssembler"><font
+                size="+1" color="#006600"><b>Get it on GitHub</b></font></a>
+            </td>
+            <td valign="middle" align="center"><a
+                href="https://AnanasAssembler.github.io/quick_start.html"><font
+                size="+1" color="#006600"><b>Quick Start</b></font></a>
+            </td>
+            <td valign="middle" align="center"><a
+                href="https://AnanasAssembler.github.io/paper_notice.html"><font
+                  size="+1" color="#006600"><b>Article</b></font></a><b><span style="color:#006600">/</span></b><a
+                href="https://github.com/AnanasAssembler/AnanasAssembler/blob/master/docs/Ananas_guidelines_OK.pdf"><font
+                  size="+1" color="#006600"><b>Analysis</b></font></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>      
+    </div>
+    <br><br>
+    <b>Ananas</b> is an assembler for paired-end Illumina RNA-Seq reads.<br><br>
+    Following the read-overlap graph concept, it performs particularly
+    well on mixed-species, i.e. metatranscriptome data sets.<br><br>
+    Unlike de Bruijn graph assemblers, <b>Ananas</b> keeps track of each read
+    throughout the assembly process:<br>
+    <ol>
+    <li> First, it collapses identical reads to reduce the overlap space.</li><br>
+    <li> Next, it uses a prefix array to find an exhaustive set of overlaps.</li><br>
+    </ol>
+    Because of that, the overall memory usage and runtime depend more on the complexity of the RNA-Seq data
+    rather than the number of input reads.<br><br>
+    In an A*-type search, it then evaluates different paths through the overlap graph, and ranks
+    hypotheses based on how many pairs support the hypothesis.<br>It does
+    this in a two-step process that first aims at separating the data
+    into smaller sets (the equivalent of <a
+      href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a>
+    components), and then re-evaluates different isoforms.<br><br>
+    In addition to providing better specificity on mixed-species data
+    sets than de Bruijn graph assemblers, it also performs better on
+    complex and/or repetitive transcripts.<br><br><br><br><br><br>
+    </body></html>
+    
+    
+
+   

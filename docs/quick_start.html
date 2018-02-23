@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>QuickStart</title>
+  </head>
+<body leftmargin="35" rightmargin="35" topmargin="70">
+    <div align="center"><big><big><big><b>Quick start<br><br></b></big></big></big>
+    </div>
+    <b><big>1. Good to know</big></b><br><br>
+    From testing <b>Ananas</b> on a number of simulated and real
+    metatranscriptome data sets, we recommend:<br>
+    <ul>
+      <li>Not trimming reads for quality or other reasons (removing
+        entire pairs is OK)</li>
+      <li>
+        Assembling each sample (with both the forward and reverse reads)
+        in a multi-sample data set separately</li>
+      <li>Using strand-specific data, if possible</li>
+      <li>Run <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly (if you do NOT need to retain isoforms in your analysis)</li>  
+    </ul>
+    <br>
+    <br>
+    <b><big>2. Installation</big></b><br><br>
+    <b>Ananas</b> runs on Linux and requires cmake and gcc version 5 or higher.
+    To download and compile, type:<br>
+    <br>
+    <pre>git clone https://github.com/AnanasAssembler/AnanasAssembler.git<br>cd AnanasAssembler<br>./configure<br>make -C build -j 4</pre><br>
+    <b><big>3. Assemble a transcriptome</big></b><br><br>
+    <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
+    <b>Ananas</b> can take multiple input files (fastq or fasta, which is automatically detected) when separated by a comma and no blanks between the file names.<br>
+    The fasta or fastq files can be gzipped.<br><br>
+    The list of all options:<br><pre>
+    -i&lt;string&gt; : input fasta file
+    -o&lt;string&gt; : output directory (def=ananas_out)
+    -m&lt;double&gt; : minimum overlap identity (def=0.98)
+    -mg&lt;double&gt; : minimum identity for grouping (def=0.99)   
+    -dir&lt;string&gt; : direction of pairs: fr fowards each other, ff same direction, na unpaired
+    -b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)    
+    -strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)    
+    -libSize&lt;int&gt; : Maximum library size (def=500)   
+    -minContigLen&lt;int&gt; : minimum length of a single-contig scaffold to report (def=200) 
+    -ml&lt;int&gt; : minimum overlap (for alignments) (def=35)
+    -maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)
+    -s&lt;int&gt; : step size (for alignments) (def=5)
+    -n&lt;int&gt; : number of CPU cores (def=1)
+    -n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)
+    -no&lt;int&gt; : number of processes for overlap finding (def=2)
+    -readGroupFile&lt;string&gt; : read groupin information file if available (def=)
+    -outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)
+    -prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)
+    -rr&lt;bool&gt; : Remove redundant transcripts (def=0)
+    -top&lt;bool&gt; : Keep only the top contig from any scaffold (def=0)
+    -gaps&lt;bool&gt; : Use gapped alignments for consensus (def=0)
+    -noIso&lt;bool&gt; : No isoforms (skips exhaustive search) (def=0)
+    -pairRestrict&lt;bool&gt; : Restrict contigs with pair-end support (def=1)
+    -ll&lt;int&gt; : Application logging level - defaults to 0, choose 1 to 4 for debugging (def=0)</pre>    
+    Output:<br><br>
+    All assembled transcripts will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa</span>.<br>
+    Info about read ids and coordinates in all the assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
+    The read locations are listed in <span style="font-family:Courier;font-size:13px">contigs_altsplic.layout</span> located in the output directory.<br><br><br>
+    <b>3.2</b> Run:<br><pre>GetTopFromFasta -if final.fa -il final.layout</pre>
+    Output:<br><br>
+    The top assembled transcripts (without isoforms) will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa.top</span>.<br>
+    Info about read ids and coordinates in all the top assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout.top</span>.<br><br><br>
+    <b><big>4. Downstream processing</big></b><br><br>
+    The assessment of the output assembly could be made using <a href="http://grabherr.github.io/InSeqt/">InSeqt</a> or <a href="https://github.com/ablab/quast/">Quast</a>.<br>
+    All downstream processing tools in the <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a> package, such as for annotation, should also be applicable to <b>Ananas</b> assemblies.<br>
+    For quantitative comparisons, normalization, and differential expression analyses, we recommend <a href="http://grabherr.github.io/moose2/">moose<sup>2</sup></a>.<br><br><br><br><br><br>
+    </body></html>
