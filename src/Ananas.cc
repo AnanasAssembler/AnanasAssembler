@@ -126,13 +126,13 @@ int main( int argc, char** argv )
 {
 
     commandArg<string> fileCmmd("-i","input fasta file");
+    commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
     commandArg<string> outCmmd("-o","output directory", "ananas_out");
     commandArg<double> minCmmd("-m","minimum overlap identity", 0.98);
     commandArg<double> minGroupCmmd("-mg","minimum identity for grouping", 0.99);
-    commandArg<int> cpuCmmd("-n","number of CPU cores", 1);
+    commandArg<int> cpuCmmd("-n","number of CPU cores for contig layout search", 4);
     commandArg<int> cpuCmmd2("-n2","number of CPU cores for isoform enumeration", 1);
-    commandArg<string> dirCmmd("-dir","direction of pairs: fr fowards each other, ff same direction, na unpaired");
-    commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 2);
+    commandArg<int> cpuLapCmmd("-no","number of processes for overlap finding", 4);
     commandArg<int> bandCmmd("-b","bandwidth of alignments (maximum indel size)", 0);
     commandArg<int> mlCmmd("-ml","minimum overlap (for alignments)", 35);
     commandArg<int> moCmmd("-maxOverlap","Threshold on the maximum number of overlaps per read, default is twice the read size", 0);
@@ -152,10 +152,10 @@ int main( int argc, char** argv )
     commandLineParser P(argc,argv);
     P.SetDescription("Assembles reads from overlaps.");
     P.registerArg(fileCmmd);
+    P.registerArg(dirCmmd);
     P.registerArg(outCmmd);
     P.registerArg(minCmmd);
     P.registerArg(minGroupCmmd);
-    P.registerArg(dirCmmd);
     P.registerArg(bandCmmd);
     P.registerArg(ssCmmd);
     P.registerArg(libSizeCmmd);
