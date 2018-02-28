@@ -17,7 +17,8 @@
         Assembling each sample (with both the forward and reverse reads)
         in a multi-sample data set separately</li>
       <li>Using strand-specific data, if possible</li>
-      <li>Running <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly (if you do NOT need to retain isoforms in your analysis)</li>  
+      <li>Running <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly (if you do NOT need to retain isoforms in your analysis)</li><br>
+      <li>ALWAYS performing a few test runs with test data (downloadable <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a>) in order to get familiar with the <b>Ananas</b> software and with all the options that could be chosen</li>
     </ul>
     <br>
     <br>
@@ -27,7 +28,8 @@
     <br>
     <pre>git clone https://github.com/AnanasAssembler/AnanasAssembler.git<br>cd AnanasAssembler<br>./configure<br>make -C build -j 4</pre><br>
     <b><big>3. Assemble a transcriptome</big></b><br><br>
-    <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
+    <b>3.1</b> <b>N.B.</b> Before running your data we recommend downloading some test data <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a> and performing a few test runs. <b>N.B.</b><br>
+     Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
     <b>Ananas</b> can take multiple input files (fastq or fasta) when separated by a comma and no blanks between the file names.<br><br>
     The list of all options:<br><pre>
     -i&lt;string&gt; : input fasta file
