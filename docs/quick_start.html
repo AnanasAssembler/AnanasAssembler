@@ -10,13 +10,14 @@
     From testing <b>Ananas</b> on a number of simulated and real
     metatranscriptome data sets, we recommend:<br>
     <ul>
+      <li>Using fastq or fasta files indifferently, which can also be gzipped (the format will be automatically detected)</li>
       <li>Not trimming reads for quality or other reasons (removing
         entire pairs is OK)</li>
       <li>
         Assembling each sample (with both the forward and reverse reads)
         in a multi-sample data set separately</li>
       <li>Using strand-specific data, if possible</li>
-      <li>Run <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly (if you do NOT need to retain isoforms in your analysis)</li>  
+      <li>Running <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly (if you do NOT need to retain isoforms in your analysis)</li>  
     </ul>
     <br>
     <br>
@@ -27,8 +28,7 @@
     <pre>git clone https://github.com/AnanasAssembler/AnanasAssembler.git<br>cd AnanasAssembler<br>./configure<br>make -C build -j 4</pre><br>
     <b><big>3. Assemble a transcriptome</big></b><br><br>
     <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
-    <b>Ananas</b> can take multiple input files (fastq or fasta, which is automatically detected) when separated by a comma and no blanks between the file names.<br>
-    The fasta or fastq files can be gzipped.<br><br>
+    <b>Ananas</b> can take multiple input files (fastq or fasta) when separated by a comma and no blanks between the file names.<br><br>
     The list of all options:<br><pre>
     -i&lt;string&gt; : input fasta file
     -o&lt;string&gt; : output directory (def=ananas_out)
