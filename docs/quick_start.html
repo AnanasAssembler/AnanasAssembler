@@ -16,7 +16,7 @@
         Assembling each sample (with both the forward and reverse reads)
         in a multi-sample data set separately</li>
       <li>Using strand-specific data, if possible</li>
-      <li>Taking advange of information provided by Ananas on exactly which read has been used in which contig and in what positions. </li> 
+      <li>Taking advantage of information provided by Ananas on exactly which read has been used in which contig and in what positions. </li> 
       <li>Running <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly to remove isoforms. If you do not need isoforms in the first place, you can run with the top parameter set to 1 instead of running the aforememntioned post-process</li>
       <li>Performing test runs with test data (downloadable <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a>) in order to get familiar with the <b>Ananas</b> software and with all the options that could be chosen</li>
     </ul>
@@ -30,13 +30,16 @@
     <b><big>3. Assemble a transcriptome</big></b><br><br>
     <b>N.B.</b> Before running your data we recommend downloading some test data <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a> and performing a few test runs.<br><br>
     <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
-    <b>Ananas</b> can take multiple input files (fastq or fasta) when separated by a comma and no blanks between the file names.<br><br>
+    All the parameter which have a default value, have it specified at the end of the line with (def:). 
+    If no value is given by the user, this default value will be used<br><br>
     The list of all options:<br><pre>
     <b>-i&lt;string&gt; : input fasta file</b>
     This should be in the form of either one file containing all reads or several files separated by comma. 
     These files can be in fasta or fastq format and can also be gzipped.<br>
     <b>-o&lt;string&gt; : output directory (def=ananas_out)</b>
+    The directory where all the output and intermediate files will be placed <br>
     <b>-m&lt;double&gt; : minimum overlap identity (def=0.98)</b>
+    This is the minimum acceptable identitiy for the overlapping read in order to use it in creating assemblies <br>
     <b>-mg&lt;double&gt; : minimum identity for grouping (def=0.99)</b>  
     <b>-dir&lt;string&gt; : direction of pairs: fr fowards each other, ff same direction, na unpaired</b>
     <b>-b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)</b>    
