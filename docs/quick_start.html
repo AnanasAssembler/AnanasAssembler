@@ -37,9 +37,9 @@
     This should be in the form of either one file containing all reads or several files separated by comma. 
     These files can be in fasta or fastq format and can also be gzipped.<br>
     <b>-dir&lt;string&gt; : direction of pairs: fr towards each other, ff same direction, na unpaired</b>
-    fr: forward-reverse are those reads that are facing eachother, one in the sense direction and one in antisense<br>
+    fr: forward-reverse are those reads that are facing eachother, one in the sense direction and one in antisense
     ff: forward-forward are those reads that both face the same way and and are both sense or antisense.
-    na: not-applicable applies to reads that are not paired
+    na: not-applicable applies to reads that are not paired<br>
     <b>-o&lt;string&gt; : output directory (def=ananas_out)</b>
     The directory where all the output and intermediate files will be placed <br>
     <b>-m&lt;double&gt; : minimum overlap identity (def=0.98)</b>
@@ -58,11 +58,15 @@
     <b>-ml&lt;int&gt; : minimum overlap (for alignments) (def=35)</b>
     Minimum length of overlapping region between two reads to be used in the assembly <br>
     <b>-maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)</b>
-    
+    The maximum number of overlaps to allow for each read. This is to limit the significance of reads that contain repeated structures<br>
     <b>-s&lt;int&gt; : step size (for alignments) (def=5)</b>
+    The step size to use in the modifed suffix array when building the read overlaps<br>
     <b>-n&lt;int&gt; : number of CPU cores (def=1)</b>
+    Number of cores to use in the general search stages<br>
     <b>-n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)</b>
+    Number of cores to use in the exahustive search stage. Unlike other stages, this stage does not used shared memory among the cores<br>
     <b>-no&lt;int&gt; : number of processes for overlap finding (def=2)</b>
+    Number of cores to use in the overlap finding stage <br>
     <b>-readGroupFile&lt;string&gt; : read groupin information file if available (def=)</b>
     <b>-outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)</b>
     <b>-prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)</b>
