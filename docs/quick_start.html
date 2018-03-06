@@ -30,24 +30,35 @@
     <b><big>3. Assemble a transcriptome</big></b><br><br>
     <b>N.B.</b> Before running your data we recommend downloading some test data <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a> and performing a few test runs.<br><br>
     <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
-    All the parameter which have a default value, have it specified at the end of the line with (def:). 
+    All the parameter which have a default value, have it specified at the end of the line with (def= )<br> 
     If no value is given by the user, this default value will be used<br><br>
     The list of all options:<br><pre>
     <b>-i&lt;string&gt; : input fasta file</b>
     This should be in the form of either one file containing all reads or several files separated by comma. 
     These files can be in fasta or fastq format and can also be gzipped.<br>
+    <b>-dir&lt;string&gt; : direction of pairs: fr towards each other, ff same direction, na unpaired</b>
+    fr: forward-reverse are those reads that are facing eachother, one in the sense direction and one in antisense<br>
+    ff: forward-forward are those reads that both face the same way and and are both sense or antisense.
+    na: not-applicable applies to reads that are not paired
     <b>-o&lt;string&gt; : output directory (def=ananas_out)</b>
     The directory where all the output and intermediate files will be placed <br>
     <b>-m&lt;double&gt; : minimum overlap identity (def=0.98)</b>
-    This is the minimum acceptable identitiy for the overlapping read in order to use it in creating assemblies <br>
-    <b>-mg&lt;double&gt; : minimum identity for grouping (def=0.99)</b>  
-    <b>-dir&lt;string&gt; : direction of pairs: fr fowards each other, ff same direction, na unpaired</b>
-    <b>-b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)</b>    
-    <b>-strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)</b>    
+    The minimum acceptable identitiy for the overlapping read in order to use it in creating assemblies <br>
+    <b>-mg&lt;double&gt; : minimum identity for grouping (def=0.99)</b> 
+    The minimum acceptable identity of sequences to be grouped together into a consensus read<br>
+    <b>-b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)</b>  
+    This is the bandwidth used in the alignment of reads <br>
+    If the sequenced reads are expected to contain high levels of indels, this bandwidth should be set to higher values
+    <b>-strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)</b> 
+    Determine whether the given reads are for strand-specific data or not <br>
     <b>-libSize&lt;int&gt; : Maximum library size (def=500)</b>   
+    The maximum length of the library size as specified by the sequencing platform where the sequenced reads have been obtained
     <b>-minContigLen&lt;int&gt; : minimum length of a single-contig scaffold to report (def=200)</b> 
+    The minimum length of a contig to be accepted as output <br>
     <b>-ml&lt;int&gt; : minimum overlap (for alignments) (def=35)</b>
+    Minimum length of overlapping region between two reads to be used in the assembly <br>
     <b>-maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)</b>
+    
     <b>-s&lt;int&gt; : step size (for alignments) (def=5)</b>
     <b>-n&lt;int&gt; : number of CPU cores (def=1)</b>
     <b>-n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)</b>
