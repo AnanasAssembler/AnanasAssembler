@@ -32,7 +32,8 @@
     <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
     <b>Ananas</b> can take multiple input files (fastq or fasta) when separated by a comma and no blanks between the file names.<br><br>
     The list of all options:<br><pre>
-    -i&lt;string&gt; : input fasta file
+    -i&lt;string&gt; : input fasta file <br>
+     This comes in the form of either one file containing all reads or several files separated by comma. These files can be in fasta or fastq format and can also be gzipped.
     -o&lt;string&gt; : output directory (def=ananas_out)
     -m&lt;double&gt; : minimum overlap identity (def=0.98)
     -mg&lt;double&gt; : minimum identity for grouping (def=0.99)   
