@@ -32,32 +32,32 @@
     <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
     <b>Ananas</b> can take multiple input files (fastq or fasta) when separated by a comma and no blanks between the file names.<br><br>
     The list of all options:<br><pre>
-     <b>-i&lt;string&gt; : input fasta file</b>
-     This comes in the form of either one file containing all reads or several files separated by comma. 
-     These files can be in fasta or fastq format and can also be gzipped.
-     <b>-o&lt;string&gt; : output directory (def=ananas_out)</b>
-    -m&lt;double&gt; : minimum overlap identity (def=0.98)
-    -mg&lt;double&gt; : minimum identity for grouping (def=0.99)   
-    -dir&lt;string&gt; : direction of pairs: fr fowards each other, ff same direction, na unpaired
-    -b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)    
-    -strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)    
-    -libSize&lt;int&gt; : Maximum library size (def=500)   
-    -minContigLen&lt;int&gt; : minimum length of a single-contig scaffold to report (def=200) 
-    -ml&lt;int&gt; : minimum overlap (for alignments) (def=35)
-    -maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)
-    -s&lt;int&gt; : step size (for alignments) (def=5)
-    -n&lt;int&gt; : number of CPU cores (def=1)
-    -n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)
-    -no&lt;int&gt; : number of processes for overlap finding (def=2)
-    -readGroupFile&lt;string&gt; : read groupin information file if available (def=)
-    -outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)
-    -prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)
-    -rr&lt;bool&gt; : Remove redundant transcripts (def=0)
-    -top&lt;bool&gt; : Keep only the top contig from any scaffold (def=0)
-    -gaps&lt;bool&gt; : Use gapped alignments for consensus (def=0)
-    -noIso&lt;bool&gt; : No isoforms (skips exhaustive search) (def=0)
-    -pairRestrict&lt;bool&gt; : Restrict contigs with pair-end support (def=1)
-    -ll&lt;int&gt; : Application logging level - defaults to 0, choose 1 to 4 for debugging (def=0)</pre>    
+    <b>-i&lt;string&gt; : input fasta file</b>
+    This should be in the form of either one file containing all reads or several files separated by comma. 
+    These files can be in fasta or fastq format and can also be gzipped.<br>
+    <b>-o&lt;string&gt; : output directory (def=ananas_out)</b>
+    <b>-m&lt;double&gt; : minimum overlap identity (def=0.98)</b>
+    <b>-mg&lt;double&gt; : minimum identity for grouping (def=0.99)</b>  
+    <b>-dir&lt;string&gt; : direction of pairs: fr fowards each other, ff same direction, na unpaired</b>
+    <b>-b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)</b>    
+    <b>-strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)</b>    
+    <b>-libSize&lt;int&gt; : Maximum library size (def=500)</b>   
+    <b>-minContigLen&lt;int&gt; : minimum length of a single-contig scaffold to report (def=200)</b> 
+    <b>-ml&lt;int&gt; : minimum overlap (for alignments) (def=35)</b>
+    <b>-maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)</b>
+    <b>-s&lt;int&gt; : step size (for alignments) (def=5)</b>
+    <b>-n&lt;int&gt; : number of CPU cores (def=1)</b>
+    <b>-n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)</b>
+    <b>-no&lt;int&gt; : number of processes for overlap finding (def=2)</b>
+    <b>-readGroupFile&lt;string&gt; : read groupin information file if available (def=)</b>
+    <b>-outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)</b>
+    <b>-prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)</b>
+    <b>-rr&lt;bool&gt; : Remove redundant transcripts (def=0)</b>
+    <b>-top&lt;bool&gt; : Keep only the top contig from any scaffold (def=0)</b>
+    <b>-gaps&lt;bool&gt; : Use gapped alignments for consensus (def=0)</b>
+    <b>-noIso&lt;bool&gt; : No isoforms (skips exhaustive search) (def=0)</b>
+    <b>-pairRestrict&lt;bool&gt; : Restrict contigs with pair-end support (def=1)</b>
+    <b>-ll&lt;int&gt; : Application logging level - defaults to 0, choose 1 to 4 for debugging (def=0)</pre></b>    
     Output:<br><br>
     All assembled transcripts will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa</span>.<br>
     Info about read ids and coordinates in all the assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
