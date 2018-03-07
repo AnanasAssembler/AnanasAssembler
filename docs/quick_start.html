@@ -67,15 +67,23 @@
     Number of cores to use in the exahustive search stage. Unlike other stages, this stage does not used shared memory among the cores<br>
     <b>-no&lt;int&gt; : number of processes for overlap finding (def=2)</b>
     Number of cores to use in the overlap finding stage <br>
-    <b>-readGroupFile&lt;string&gt; : read groupin information file if available (def=)</b>
+    <b>-readGroupFile&lt;string&gt; : read grouping information file if available (def=)</b>
+    Provide read group file if available from previous runs <br>
     <b>-outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)</b>
+    Output file name for detailed information of which read groups with which other reads <br>
     <b>-prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)</b>
+    Certain prefix to be added to all final assembled contigs <br>
     <b>-rr&lt;bool&gt; : Remove redundant transcripts (def=0)</b>
+    Run assembled contigs through self alignment and remove those that are fully contained in another contig <br>
     <b>-top&lt;bool&gt; : Keep only the top contig from any scaffold (def=0)</b>
+    If set to true (i.e. 1), isoforms will not be produced in final assembly <br>
     <b>-gaps&lt;bool&gt; : Use gapped alignments for consensus (def=0)</b>
     <b>-noIso&lt;bool&gt; : No isoforms (skips exhaustive search) (def=0)</b>
+    Skip final exhaustive search step <br>
     <b>-pairRestrict&lt;bool&gt; : Restrict contigs with pair-end support (def=1)</b>
+    Keep contigs only to the point where they are fully supported by paired reads <br>
     <b>-ll&lt;int&gt; : Application logging level - defaults to 0, choose 1 to 4 for debugging (def=0)</pre></b>    
+    Used only for debugging purposes <br>
     Output:<br><br>
     All assembled transcripts will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa</span>.<br>
     Info about read ids and coordinates in all the assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
