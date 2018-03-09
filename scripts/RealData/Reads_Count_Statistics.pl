@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
 ##use: perl_script.pl TWO_column_layout_top_file_GLOB Info_ReadPairs_file ReadName_Index_file outfile_name
-##output format: name of the contig \t length of the contig \t name of the species in the contig \t how many reads from that species are in the contig \t number of total reads in the contig##
+##output format: name of the contig \t length of the contig \t number of total reads in the contig \t number of reads pair in the contig##
+###THE SCRIPT WILL THEN CREATE A outfile_name_OK which is the correct file to check as output###
 
 use warnings;
 use strict; 
@@ -102,6 +103,6 @@ close OUT;
 
 #######++++++++REMEMBER TO CHANGE THE NAME OF THE INPUT FILE THAT IS THE OUT FILE OF THE PERL SCRIPT+++++++++##############
 ##process the output of the Ananas downstream perl script####IMPORTANT TO GET THE MAX RATIO (ONCE)######
-system( "sort -k1,1n -k2,2nr -k4,4nr see | awk -F\"\t\" '!_[\$1]++' | awk -v OFS=\"\t\" '{print \$1, \$2, \$5, \$6}' > see_ok" );
-system( "sed -i '1iCONTIG\tCONTIG_LENGTH\tTOTAL_READS_COUNT\tTOTAL_READ_PAIRS_COUNT' see_ok" );
-
+system( "sort -k1,1n -k2,2nr -k4,4nr outfile_name | awk -F\"\t\" '!_[\$1]++' | awk -v OFS=\"\t\" '{print \$1, \$2, \$5, \$6}' > outfile_name_OK" );
+system( "sed -i '1iCONTIG\tCONTIG_LENGTH\tTOTAL_READS_COUNT\tTOTAL_READ_PAIRS_COUNT' outfile_name_OK" );
+system( "rm TWO_column_layout_top_file_GLOB Info_ReadPairs_file outfile_name" );
