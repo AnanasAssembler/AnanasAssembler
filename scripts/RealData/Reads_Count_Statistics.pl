@@ -58,6 +58,7 @@ close IN_PAIRS;
 ## 3. create a hash between the consensus read indexes and the number of species (how many raw reads collapsed in the consensus reads) ##
 open(IN_READ_names, $ARGV[2]);
 
+my $string;
 my %readIndex_species;
 while (my $line = <IN_READ_names>) {                                                         
     chomp $line;   
@@ -66,8 +67,9 @@ while (my $line = <IN_READ_names>) {
       s/\(//;
       s/\)//;
     }
-    my @species = ($line =~ m/[0-9]\;(.*?)\//g);
-    $readIndex_species{$all[1]} = [@species];
+        if ($line =~ m/ \- (.*)$/) {$string = $1;}
+        my @species = ($string =~ m/[0-9]\;(.*?)\//g);
+        $readIndex_species{$all[1]} = [@species];
 }				
 
 close IN_READ_names;
@@ -84,25 +86,20 @@ for my $contigName (keys %contigs_readIndex) {
 }
 
 
-## 5. count the number of the different species for each contig in the hash ###
+## 5. count the number of the total species for each contig in the hash ###
 
 for my $contig_last (keys %contigs_species) {      
-    my $total_count; #count of all reads(species) collapsed in the consensus reads
-    my %count; #hash relating each species name and its count 
+    my $total_count; #count of all reads(species) collapsed in the consensus reads 
     for my $species_last (@{$contigs_species{$contig_last}}) {
         $total_count++;
-        $count{$species_last}++;
     }
-    foreach (keys %count) {
-        print OUT "$contig_last\t$contigs_length{$contig_last}\t$_\t$count{$_}\t$total_count\t$contigs_readPairs{$contig_last}\n";
-    }
+        print OUT "$contig_last\t$contigs_length{$contig_last}\t$total_count\t$contigs_readPairs{$contig_last}\n";
 }
 
 close OUT;
 
 
 #######++++++++REMEMBER TO CHANGE THE NAME OF THE INPUT FILE THAT IS THE OUT FILE OF THE PERL SCRIPT+++++++++##############
-##process the output of the Ananas downstream perl script####IMPORTANT TO GET THE MAX RATIO (ONCE)######
-system( "sort -k1,1n -k2,2nr -k4,4nr outfile_name | awk -F\"\t\" '!_[\$1]++' | awk -v OFS=\"\t\" '{print \$1, \$2, \$5, \$6}' > outfile_name_OK" );
+system( "sort -k1,1n outfile_name > outfile_name_OK" );
 system( "sed -i '1iCONTIG\tCONTIG_LENGTH\tTOTAL_READS_COUNT\tTOTAL_READ_PAIRS_COUNT' outfile_name_OK" );
 system( "rm TWO_column_layout_top_file_GLOB Info_ReadPairs_file outfile_name" );
