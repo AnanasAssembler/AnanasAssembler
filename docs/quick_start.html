@@ -87,14 +87,15 @@
     </pre>
     Output:<br><br>
     All assembled transcripts will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa</span>.<br>
-    Info about read ids and coordinates in all the assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
-    The read locations are listed in <span style="font-family:Courier;font-size:13px">contigs_altsplic.layout</span> located in the output directory.<br><br><br>
+    All the corresponding contigs details will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
     <b>3.2</b> Run:<br><pre>GetTopFromFasta -if final.fa -il final.layout</pre>
     Output:<br><br>
     The top assembled transcripts (without isoforms) will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa.top</span>.<br>
     Info about read ids and coordinates in all the top assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout.top</span>.<br><br><br>
     <b><big>4. Downstream processing</big></b><br><br>
     The assessment of the output assembly could be made using <a href="http://grabherr.github.io/InSeqt/">InSeqt</a> or <a href="https://github.com/ablab/quast/">Quast</a>.<br>
-    All downstream processing tools in the <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a> package, such as for annotation, should also be applicable to <i>Ananas</i> assemblies.<br>
-    For quantitative comparisons, normalization, and differential expression analyses, we recommend <a href="http://grabherr.github.io/moose2/">moose<sup>2</sup></a>.<br><br><br><br><br><br>
-    </body></html>
+    All downstream processing tools in the <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a> package, such as for annotation, should also be applicable to <i>Ananas</i> assemblies.<br><br>
+    If you are interested in read count data (<i>e.g.</i> gene expression analysis) you can get this piece of information by using the script <span style="font-family:Courier;font-size:15px">Reads_Count_Statistics.pl</span> located <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData">here</a>. The script generates a file with information about length, read count and number of read-pairs for every contig in the assembly.<br>
+    For subsequent quantitative comparisons, normalization, and differential expression analyses, we recommend <a href="http://grabherr.github.io/moose2/">moose<sup>2</sup></a>.<br><br>
+    If you are interested in read location data (<i>e.g.</i> alternative splicing analysis), you can get this piece of information by looking at the <span style="font-family:Courier;font-size:13px">final.layout</span> file. Info about all alternative contigs belonging to a scaffold, as well as info about read ids and coordinates in all the assembled contigs will be in this file.<br><br><br><br><br><br>
+</body></html>
