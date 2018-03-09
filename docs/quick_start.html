@@ -29,7 +29,7 @@
     <pre>git clone https://github.com/AnanasAssembler/AnanasAssembler.git<br>cd AnanasAssembler<br>./configure<br>make -C build -j 4</pre><br>
     <b><big>3. Assemble a transcriptome</big></b><br><br>
     <b>N.B.</b> Before running your data we recommend downloading some test data <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a> and performing a few test runs.<br><br>
-    <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
+    Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
     All the parameter which have a default value, have it specified at the end of the line with (def= )<br> 
     If no value is given by the user, this default value will be used<br><br>
     The list of all options:<br><pre>
@@ -87,8 +87,9 @@
     </pre>
     Output:<br><br>
     All assembled transcripts will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa</span>.<br>
-    All the corresponding contigs details will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
-    <b>3.2</b> Run:<br><pre>GetTopFromFasta -if final.fa -il final.layout</pre>
+    All the corresponding contigs details will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br><br>
+    If you are interested in getting only the top contigs (highest degree of reliability, defined as read-pairs support), run:<br>
+    <pre>GetTopFromFasta -if final.fa -il final.layout</pre>
     Output:<br><br>
     The top assembled transcripts (without isoforms) will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa.top</span>.<br>
     Info about read ids and coordinates in all the top assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout.top</span>.<br><br><br>
@@ -98,4 +99,5 @@
     If you are interested in read count data (<i>e.g.</i> gene expression analysis) you can get this piece of information by using the script <span style="font-family:Courier;font-size:15px">Reads_Count_Statistics.pl</span> located <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData">here</a>. The script generates a file with information about length, read count and number of read-pairs for every contig in the assembly.<br>
     For subsequent quantitative comparisons, normalization, and differential expression analyses, we recommend <a href="http://grabherr.github.io/moose2/">moose<sup>2</sup></a>.<br><br>
     If you are interested in read location data (<i>e.g.</i> alternative splicing analysis), you can get this piece of information by looking at the <span style="font-family:Courier;font-size:13px">final.layout</span> file. Info about all alternative contigs belonging to a scaffold, as well as info about read ids and coordinates in all the assembled contigs will be in this file.<br><br><br><br><br><br>
+<center><a href="https://ananasassembler.github.io/AnanasAssembler">Ananas homepage</a></center>
 </body></html>
