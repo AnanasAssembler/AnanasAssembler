@@ -7,63 +7,96 @@
     <div align="center"><big><big><big><b>Quick start<br><br></b></big></big></big>
     </div>
     <b><big>1. Good to know</big></b><br><br>
-    From testing <b>Ananas</b> on a number of simulated and real
-    metatranscriptome data sets, we recommend:<br>
+  The following items are worth keeping in mind when working with <i>Ananas</i>:<br>
     <ul>
+      <li>Using fastq or fasta files indifferently, which can also be gzipped (the format will be automatically detected)</li>
       <li>Not trimming reads for quality or other reasons (removing
         entire pairs is OK)</li>
       <li>
         Assembling each sample (with both the forward and reverse reads)
         in a multi-sample data set separately</li>
       <li>Using strand-specific data, if possible</li>
-      <li>Run <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly (if you do NOT need to retain isoforms in your analysis)</li>  
+      <li>Taking advantage of information provided by <i>Ananas</i> on exactly which read has been used in which contig and in what positions. </li> 
+      <li>Running <span style="font-family:Courier;font-size:15px">GetTopFromFasta</span> on the obtained assembly to remove isoforms. If you do not need isoforms in the first place, you can run with the top parameter set to 1 instead of running the aforememntioned post-process</li>
+      <li>Performing test runs with test data (downloadable <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a>) in order to get familiar with the <i>Ananas</i> software and with all the options that could be chosen</li>
     </ul>
     <br>
     <br>
     <b><big>2. Installation</big></b><br><br>
-    <b>Ananas</b> runs on Linux and requires cmake and gcc version 5 or higher.
+    <i>Ananas</i> runs on Linux and requires <b>cmake</b> and <b>gcc</b> version 5 or higher.
     To download and compile, type:<br>
     <br>
     <pre>git clone https://github.com/AnanasAssembler/AnanasAssembler.git<br>cd AnanasAssembler<br>./configure<br>make -C build -j 4</pre><br>
     <b><big>3. Assemble a transcriptome</big></b><br><br>
-    <b>3.1</b> Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
-    <b>Ananas</b> can take multiple input files (fastq or fasta, which is automatically detected) when separated by a comma and no blanks between the file names.<br>
-    The fasta or fastq files can be gzipped.<br><br>
+    <b>N.B.</b> Before running your data we recommend downloading some test data <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData/TEST_DATA">here</a> and performing a few test runs.<br><br>
+    Run:<br><pre>Ananas -i &lt;file1_r.fastq,file1_l.fastq&gt; -o &lt;output_directory&gt; -dir &lt;read_orientation&gt; -n &lt;cores&gt;</pre>
+    All the parameter which have a default value, have it specified at the end of the line with (def= )<br> 
+    If no value is given by the user, this default value will be used<br><br>
     The list of all options:<br><pre>
-    -i&lt;string&gt; : input fasta file
-    -o&lt;string&gt; : output directory (def=ananas_out)
-    -m&lt;double&gt; : minimum overlap identity (def=0.98)
-    -mg&lt;double&gt; : minimum identity for grouping (def=0.99)   
-    -dir&lt;string&gt; : direction of pairs: fr fowards each other, ff same direction, na unpaired
-    -b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)    
-    -strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)    
-    -libSize&lt;int&gt; : Maximum library size (def=500)   
-    -minContigLen&lt;int&gt; : minimum length of a single-contig scaffold to report (def=200) 
-    -ml&lt;int&gt; : minimum overlap (for alignments) (def=35)
-    -maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)
-    -s&lt;int&gt; : step size (for alignments) (def=5)
-    -n&lt;int&gt; : number of CPU cores (def=1)
-    -n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)
-    -no&lt;int&gt; : number of processes for overlap finding (def=2)
-    -readGroupFile&lt;string&gt; : read groupin information file if available (def=)
-    -outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)
-    -prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)
-    -rr&lt;bool&gt; : Remove redundant transcripts (def=0)
-    -top&lt;bool&gt; : Keep only the top contig from any scaffold (def=0)
-    -gaps&lt;bool&gt; : Use gapped alignments for consensus (def=0)
-    -noIso&lt;bool&gt; : No isoforms (skips exhaustive search) (def=0)
-    -pairRestrict&lt;bool&gt; : Restrict contigs with pair-end support (def=1)
-    -ll&lt;int&gt; : Application logging level - defaults to 0, choose 1 to 4 for debugging (def=0)</pre>    
+    <b>-i&lt;string&gt; : input fasta file</b>
+    This should be in the form of either one file containing all reads or several files separated by comma. 
+    These files can be in fasta or fastq format and can also be gzipped.<br>
+    <b>-dir&lt;string&gt; : direction of pairs: fr towards each other, ff same direction, na unpaired</b>
+    fr: forward-reverse are those reads that are facing eachother, one in the sense direction and one in antisense
+    ff: forward-forward are those reads that both face the same way and and are both sense or antisense.
+    na: not-applicable applies to reads that are not paired<br>
+    <b>-o&lt;string&gt; : output directory (def=ananas_out)</b>
+    The directory where all the output and intermediate files will be placed <br>
+    <b>-m&lt;double&gt; : minimum overlap identity (def=0.98)</b>
+    The minimum acceptable identitiy for the overlapping read in order to use it in creating assemblies <br>
+    <b>-mg&lt;double&gt; : minimum identity for grouping (def=0.99)</b> 
+    The minimum acceptable identity of sequences to be grouped together into a consensus read<br>
+    <b>-b&lt;int&gt; : bandwidth of alignments (maximum indel size) (def=0)</b>  
+    This is the bandwidth used in the alignment of reads
+    If the sequenced reads are expected to contain high levels of indels, this bandwidth should be set to higher values <br>
+    <b>-strand&lt;bool&gt; : strand specificity (0=no 1=yes) (def=0)</b> 
+    Determine whether the given reads are for strand-specific data or not <br>
+    <b>-libSize&lt;int&gt; : Maximum library size (def=500)</b>   
+    The maximum length of the library size as specified by the sequencing platform where the sequenced reads have been obtained <br>
+    <b>-minContigLen&lt;int&gt; : minimum length of a single-contig scaffold to report (def=200)</b> 
+    The minimum length of a contig to be accepted as output <br>
+    <b>-ml&lt;int&gt; : minimum overlap (for alignments) (def=35)</b>
+    Minimum length of overlapping region between two reads to be used in the assembly <br>
+    <b>-maxOverlap&lt;int&gt; : Threshold on the maximum number of overlaps per read, default is twice the read size (def=0)</b>
+    The maximum number of overlaps to allow for each read. This is to limit the significance of reads that contain repeated structures<br>
+    <b>-s&lt;int&gt; : step size (for alignments) (def=5)</b>
+    The step size to use in the modifed suffix array when building the read overlaps<br>
+    <b>-n&lt;int&gt; : number of CPU cores (def=1)</b>
+    Number of cores to use in the general search stages<br>
+    <b>-n2&lt;int&gt; : number of CPU cores for isoform enumeration (def=1)</b>
+    Number of cores to use in the exahustive search stage. Unlike other stages, this stage does not used shared memory among the cores<br>
+    <b>-no&lt;int&gt; : number of processes for overlap finding (def=2)</b>
+    Number of cores to use in the overlap finding stage <br>
+    <b>-readGroupFile&lt;string&gt; : read grouping information file if available (def=)</b>
+    Provide read group file if available from previous runs <br>
+    <b>-outReadNames&lt;string&gt; : Print grouped read names associating them to their index (def=)</b>
+    Output file name for detailed information of which read groups with which other reads <br>
+    <b>-prefix&lt;string&gt; : The prefix to add to all generated contig names (def=Sample1)</b>
+    Certain prefix to be added to all final assembled contigs <br>
+    <b>-rr&lt;bool&gt; : Remove redundant transcripts (def=0)</b>
+    Run assembled contigs through self alignment and remove those that are fully contained in another contig <br>
+    <b>-top&lt;bool&gt; : Keep only the top contig from any scaffold (def=0)</b>
+    If set to true (i.e. 1), isoforms will not be produced in final assembly <br>
+    <b>-gaps&lt;bool&gt; : Use gapped alignments for consensus (def=0)</b>
+    <b>-noIso&lt;bool&gt; : No isoforms (skips exhaustive search) (def=0)</b>
+    Skip final exhaustive search step <br>
+    <b>-pairRestrict&lt;bool&gt; : Restrict contigs with pair-end support (def=1)</b>
+    Keep contigs only to the point where they are fully supported by paired reads <br>
+    <b>-ll&lt;int&gt; : Application logging level - defaults to 0, choose 1 to 4 for debugging (def=0)</b>    
+    Used only for debugging purposes <br>
+    </pre>
     Output:<br><br>
     All assembled transcripts will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa</span>.<br>
-    Info about read ids and coordinates in all the assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br>
-    The read locations are listed in <span style="font-family:Courier;font-size:13px">contigs_altsplic.layout</span> located in the output directory.<br><br><br>
-    <b>3.2</b> Run:<br><pre>GetTopFromFasta -if final.fa -il final.layout</pre>
-    Output:<br><br>
+    All the corresponding contigs details will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout</span>.<br><br><br><br><br><br>
+    N.B. If you are interested in getting only the top contigs (highest degree of reliability, defined as read-pairs support), run:<br>
+    <pre>GetTopFromFasta -if final.fa -il final.layout</pre>
     The top assembled transcripts (without isoforms) will be in the output directory in <span style="font-family:Courier;font-size:13px">final.fa.top</span>.<br>
     Info about read ids and coordinates in all the top assembled contigs will be in the output directory in <span style="font-family:Courier;font-size:13px">final.layout.top</span>.<br><br><br>
     <b><big>4. Downstream processing</big></b><br><br>
     The assessment of the output assembly could be made using <a href="http://grabherr.github.io/InSeqt/">InSeqt</a> or <a href="https://github.com/ablab/quast/">Quast</a>.<br>
-    All downstream processing tools in the <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a> package, such as for annotation, should also be applicable to <b>Ananas</b> assemblies.<br>
-    For quantitative comparisons, normalization, and differential expression analyses, we recommend <a href="http://grabherr.github.io/moose2/">moose<sup>2</sup></a>.<br><br><br><br><br><br>
-    </body></html>
+    All downstream processing tools in the <a href="https://github.com/trinityrnaseq/trinityrnaseq/wiki">Trinity</a> package, such as for annotation, should also be applicable to <i>Ananas</i> assemblies.<br><br>
+    If you are interested in read count data (<i>e.g.</i> gene expression analysis) you can get this piece of information by using the script <span style="font-family:Courier;font-size:15px">Reads_Count_Statistics.pl</span> located <a href="https://github.com/AnanasAssembler/AnanasAssembler/tree/master/scripts/RealData">here</a>. The script generates a file with information about length, read count and number of read-pairs for every contig in the assembly.<br>
+    For subsequent quantitative comparisons, normalization, and differential expression analyses, we recommend <a href="http://grabherr.github.io/moose2/">moose<sup>2</sup></a>.<br><br>
+    If you are interested in read location data (<i>e.g.</i> alternative splicing analysis), you can get this piece of information by looking at the <span style="font-family:Courier;font-size:13px">final.layout</span> file. Info about all alternative contigs belonging to a scaffold, as well as info about read ids and coordinates in all the assembled contigs will be in this file.<br><br><br><br><br><br>
+<center><a href="https://ananasassembler.github.io/AnanasAssembler">Ananas homepage</a></center>
+</body></html>

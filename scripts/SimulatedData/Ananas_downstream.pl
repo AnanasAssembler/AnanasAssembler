@@ -33,6 +33,7 @@ close IN;
 ## 2. create a hash between the consensus read indexes and the number of species (how many raw reads collapsed in the consensus reads) ##
 open(IN_READ_names, $ARGV[1]);
 
+my $string;
 my %readIndex_species;
 while (my $line = <IN_READ_names>) {                                                         
     chomp $line;   
@@ -41,8 +42,9 @@ while (my $line = <IN_READ_names>) {
       s/\(//;
       s/\)//;
     }
-    my @species = ($line =~ m/[0-9]\;(.*?)\//g);
-    $readIndex_species{$all[1]} = [@species];
+        if ($line =~ m/ \- (.*)$/) {$string = $1;}    
+        my @species = ($string =~ m/[0-9]\;(.*?)\//g);
+        $readIndex_species{$all[1]} = [@species];
 }				
 
 close IN_READ_names;
