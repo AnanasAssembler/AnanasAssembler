@@ -10,7 +10,8 @@
 
 //======================================================
 
-void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, double identThresh, int maxOverlapPerRead, string groupedReadInfo) {
+void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, double identThresh, 
+                                      int maxOverlapPerRead, float portion, string groupedReadInfo) {
     if(groupedReadInfo=="") {
         createConsensReads(identThresh); 
     } else {
@@ -18,7 +19,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, double identTh
     }
 
     SubReads<ConsensReads>  subreads(m_consReads, m_params, false); // Object handling the subreads 
-    int totSize   = m_consReads.getNumOfReads();
+    int totSize   = m_consReads.getNumOfReads() * portion;
     if(numOfThreads>totSize) { numOfThreads = totSize; }
 
     FILE_LOG(logDEBUG1) << "Finding Overlaps";
@@ -44,7 +45,7 @@ void ConsensOverlapUnit::findOverlaps(int numOfThreads, int mode, double identTh
     m_overlaps.actionsAfterOverlapSet(); //Sorts Overlaps
 
     cout << "\r===================== " << "100.0% " << flush; 
-    cout << "Completed finding Overlaps." << endl;
+    cout << endl << "Completed finding: " << m_overlaps.getNumOverlaps() << " Overlaps." << endl;
 }
 
 void ConsensOverlapUnit::createConsensReads(float minMatchScore_p) {

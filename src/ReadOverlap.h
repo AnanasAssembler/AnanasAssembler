@@ -131,10 +131,10 @@ private:
 class AllReadOverlaps
 {
 public:
-    AllReadOverlaps():m_overlaps(), m_chimera(), m_mutex() {}
+    AllReadOverlaps():m_overlaps(), m_chimera(), m_mutex(), m_overlapCount(0) {}
 
     //  TODO Can only be constructed with size as parameter so that user is aware that size should be set 
-    AllReadOverlaps(int size):m_overlaps(), m_chimera(), m_mutex() {resize(size);}
+    AllReadOverlaps(int size):m_overlaps(), m_chimera(), m_mutex(), m_overlapCount(0) {resize(size);}
    
     const ReadInfo& operator[](int i) const                  { return m_overlaps[i];                      }
     const svec<ReadOverlap>& getRightOverlaps(int idx) const { return m_overlaps[idx].getOverlaps(1);     }
@@ -143,6 +143,7 @@ public:
     void addOverlap(ReadOverlapWithIndex ol) { 
         m_overlaps[ol.getReadIndex()].addOverlap(ol.getOverlapIndex(), ol.getContactPos(), 
                                                  ol.getDirectionBool(), ol.getOrientBool());
+       m_overlapCount++; 
     }
 
 
@@ -154,7 +155,7 @@ public:
         } else { 
             m_overlaps[readIndex].addOverlapRight(rO);
         }
-        //m_overlaps[readIndex].addOverlap(overlapIndex, contactPos, direction, orient);
+        m_overlapCount++; 
     }
 
     void addOverlapSync(int readIndex, int overlapIndex,
@@ -169,10 +170,12 @@ public:
             m_overlaps[readIndex].addOverlapRight(rO);
             m_mutex.Unlock();
         }
+        m_overlapCount++; 
     }
 
-    void resize(int sz)  { m_overlaps.resize(sz);     }
-    int  getSize() const { return m_overlaps.isize(); }
+    void resize(int sz)         { m_overlaps.resize(sz);     }
+    int  getSize() const        { return m_overlaps.isize(); }
+    int  getNumOverlaps() const { return m_overlapCount;     }
 
     bool hasOverlap(int readIndex, int overlapIndex) const { 
         return m_overlaps[readIndex].hasLap(overlapIndex); 
@@ -209,6 +212,7 @@ private:
     svec<ReadInfo> m_overlaps;     /// All Overlap info , one item per read
     svec<int> m_chimera;           /// TODO comment
     ThreadMutex  m_mutex;          /// To use for locking while assigning overlaps
+    int          m_overlapCount;   /// Total number of overlaps which is incremented as overlaps are added
 };
 //======================================================
 

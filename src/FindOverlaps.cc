@@ -33,6 +33,7 @@ int main(int argc,char** argv)
     commandArg<double> readGroupIdentThreshCmmd("-d","read grouping threshold for identity",0.98);
     commandArg<string> readGroupFileCmmd("-g","read grouping information file if available","");
     commandArg<string> readNamesOutCmmd("-outReadNames","Print grouped read names associating them to their index", "");
+    commandArg<double> overlapPortionCmmd("-overlapPortion","Calculate overlaps only for a portion of the reads, e.g. for measuring stats only", 1);
 
     commandLineParser P(argc,argv);
     P.SetDescription("Overlap finder for assembly");
@@ -58,6 +59,7 @@ int main(int argc,char** argv)
     P.registerArg(readGroupIdentThreshCmmd);
     P.registerArg(readGroupFileCmmd);
     P.registerArg(readNamesOutCmmd);
+    P.registerArg(overlapPortionCmmd);
     P.parse();
 
     string inputFile       = P.GetStringValueFor(aCmmd);
@@ -81,6 +83,7 @@ int main(int argc,char** argv)
     double readGroupThresh = P.GetDoubleValueFor(readGroupIdentThreshCmmd);
     string readGroupFile   = P.GetStringValueFor(readGroupFileCmmd);
     string readNamesFile   = P.GetStringValueFor(readNamesOutCmmd);
+    double overlapPortion  = P.GetDoubleValueFor(overlapPortionCmmd);
     
     FILE* pFile               = fopen(applicationFile.c_str(), "w");
     Output2FILE::Stream()     = pFile;
@@ -115,7 +118,7 @@ int main(int argc,char** argv)
                           minIdent, minCoverage, minOverlap,
                           alignBand, minBasePerScaf);
     ConsensOverlapUnit COUnit(params, inputFile);
-    COUnit.findOverlaps(numOfThreads, 0, readGroupThresh, maxOverlapCnt, readGroupFile);
+    COUnit.findOverlaps(numOfThreads, 0, readGroupThresh, maxOverlapCnt, overlapPortion, readGroupFile);
     COUnit.writePairSzInfo(pairSzFile);
     COUnit.writeOverlaps(overlapFile, 0);
     COUnit.writeConsensInfo(consensFile, 1);
