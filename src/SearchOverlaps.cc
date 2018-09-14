@@ -223,7 +223,7 @@ int Search::CountPairs(int & to, int & from, const Hypothesis & hyp, const Conse
     from        =  0;
 
     // Stupid heuristics!!
-    if (hyp.Size() < 2)
+    if (hyp.Size() < 1)
         return 0;
 
     to          =  hyp[hyp.Size()-1].Stop();
@@ -266,7 +266,7 @@ int Search::CountPairs_fullStat(int & to, int & from, const Hypothesis & hyp, co
     from = 0;
 
     // Stupid heuristics!!
-    if (hyp.Size() < 2)
+    if (hyp.Size() < 1)
         return 0;
 
     //  bPrint = true;
@@ -471,8 +471,8 @@ int Search::CountUnPairs(int & to, int & from, const Hypothesis & hyp, const Con
     from = 0;
 
     // Stupid heuristics!!
-    if (hyp.Size() < 2)
-        return 0;
+    //if (hyp.Size() < 2)
+    //  return 0;
 
     int i, j;
  
@@ -658,7 +658,8 @@ bool Search::DoSearchAll(const ConsensOverlapUnit & COUnit, int numAvailableRead
     //cout << "Processing all remaining COUnit (fw/rc)." << endl;
     for (i=startWithRead; i<COUnit.GetNumReads(); i++) {
         if (!IsUsedGlobal(i)
-            && HasExtensions(COUnit, i)) {
+            && HasExtensions(COUnit, i) ) { //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	    //===============================================================================
 	    //cout << "Left w/ " << i << endl;
             bool seedReversed = false;
             int start = SelectStartNode(COUnit, i, seedReversed);

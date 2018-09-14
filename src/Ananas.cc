@@ -145,6 +145,7 @@ int main( int argc, char** argv )
     commandArg<string> prefixCmmd("-prefix","The prefix to add to all generated contig names", "Sample1");
     commandArg<bool> redunCmmd("-rr","Remove redundant transcripts", false);
     commandArg<bool>   topOnlyCmmd("-top","Keep only the top contig from any scaffold", false);
+    commandArg<bool>   isoformsCmmd("-iso","Output all isoforms", false);
     commandArg<bool> gapsCmmd("-gaps","Use gapped alignments for consensus", false);
     commandArg<bool> noIsoCmmd("-noIso","No isoforms (skips exhaustive search)", false);
     commandArg<bool> pRestCmmd("-pairRestrict","Restrict contigs with pair-end support", true);
@@ -172,6 +173,7 @@ int main( int argc, char** argv )
     P.registerArg(prefixCmmd);
     P.registerArg(redunCmmd);
     P.registerArg(topOnlyCmmd);
+    P.registerArg(isoformsCmmd);
     P.registerArg(gapsCmmd);
     P.registerArg(noIsoCmmd);
     P.registerArg(pRestCmmd);
@@ -203,9 +205,13 @@ int main( int argc, char** argv )
     bool bNoIso           = P.GetBoolValueFor(noIsoCmmd);
     bool pRest            = P.GetBoolValueFor(pRestCmmd);
     int logLevel          = P.GetIntValueFor(logLevelCmmd);
-
+    bool bIso             = P.GetBoolValueFor(isoformsCmmd);
     if (bandwidth > 0)
       bGaps = true;
+
+    if (!bIso)
+      topOnly = true;
+
     
     PrintLogo();
     cout << "Welcome to package " << ananas_software << " " << ananas_version << endl;
