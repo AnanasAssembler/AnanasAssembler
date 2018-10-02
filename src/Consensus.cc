@@ -413,12 +413,12 @@ void LayoutSink::Dump(const Hypothesis & hyp, const ConsensOverlapUnit & COUnit,
             hyp[i].Pair()>=0?hyp[hyp[i].Pair()].Ori():hyp[i].Pair());
 
     const svec<int>& consMemIds = COUnit.getConsMembers(rIdx);
-    for(int cmId:consMemIds) { //Add all the raw reads
+    for(int cmId=0; cmId<consMemIds.isize(); cmId++) { //Add all the raw reads
       m_currReads[cmId] = true;
     }
     currNumReads_contig += COUnit.getConsensCount(rIdx);
     if (hyp[i].Pair() >= 0) {
-      for(int cmId:consMemIds) { //Add all the raw read pairs
+      for(int cmId=0; cmId<consMemIds.isize(); cmId++) { //Add all the raw read pairs
         m_currPairedReads[cmId] = true;
       }
       currNumPairedReads_contig += COUnit.getConsensCount(rIdx);

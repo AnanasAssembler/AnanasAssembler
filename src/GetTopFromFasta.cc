@@ -27,7 +27,8 @@ int main( int argc, char** argv )
 
 
   ofstream fout;
-  fout.open(fastaFileName + ".top");
+  string fn = fastaFileName + ".top";
+  fout.open(fn.c_str());
   vecDNAVector dna;
   dna.Read(fastaFileName);
   for (int i=0; i<dna.isize(); i++) {

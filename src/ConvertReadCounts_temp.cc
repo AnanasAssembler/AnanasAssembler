@@ -63,12 +63,12 @@ int main( int argc, char** argv )
                int pair = rPlace.Pair();
 	       totalContigReads += COUnit.getConsensCount(id);
                const svec<int>& consMemIds = COUnit.getConsMembers(id);
-               for(int cmId:consMemIds) { //Add all the raw reads
+               for(int cmId=0; cmId<consMemIds.isize(); cmId++) { //Add all the raw reads
                    currReads[cmId] = true;
                }
                if(pair>-1) { 
                    totalContigPairs += COUnit.getConsensCount(id); 
-                   for(int cmId:consMemIds) { //Add all the raw read pairs
+                   for(int cmId=0; cmId<consMemIds.isize(); cmId++) { //Add all the raw read pairs
                        currPairs[cmId] = true;
                    }
                }
